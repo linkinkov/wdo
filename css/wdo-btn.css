@@ -1,0 +1,105 @@
+.wdo-btn {
+	display: block;
+	width: 100%;
+	color: black;
+	cursor: pointer;
+	border: 0px;
+	border-radius: 20px;
+	padding: 5px 10px 5px 10px;
+	text-align: center;
+	font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+.wdo-btn-xs {
+	padding: 0px !important;
+}
+.wdo-btn.bg-yellow {
+	color: black;
+}
+.wdo-btn.bg-yellow:hover {
+	background-color: #b9b835;
+}
+.wdo-btn.bg-purple {
+	color: white;
+}
+.wdo-btn.bg-purple:hover {
+	background-color: #681149;
+}
+
+.wdo-btn.disabled {
+	cursor: not-allowed !important;
+	background-color: #a39fa4 !important;
+}
+
+.learnMore {
+	width: 135px;
+	background-color: #400030;
+	color: #bc94b1 !important;
+	border: 2px solid #bc94b1;
+}
+.learnMore:hover {
+	background-color: #4a0933;
+}
+
+.wdo-link {
+	color: black;
+	text-decoration: none !important;
+}
+.wdo-link:hover,.wdo-link:focus,.wdo-link:active {
+	cursor: pointer;
+	color: #940a63 !important;
+	text-decoration: none !important;
+}
+.wdo-link.underline, .wdo-link.underline:hover {
+	text-decoration: underline !important
+}
+.wdo-link.text-white {
+	color: #a39fa4 !important;
+}
+.wdo-link.text-white:hover {
+	color: #fff !important;
+}
+.dropdown-item.project-extra-filter {
+	color: #ccc;
+}
+.dropdown-item.project-extra-filter:focus,.dropdown-item.project-extra-filter:active {
+	color: #940a63;
+	background-color: transparent;
+}
+.dropdown-item.project-extra-filter.active {
+	color: #940a63;
+	font-weight: 800;
+	background-color: transparent;
+}
+.dataTables_paginate {
+	display: flex;
+	float: none !important;
+	justify-content: center;
+}
+.page-item .page-link {
+	color: #fff;
+}
+.page-item:not(.disabled):not(.active) .page-link:hover {
+	color: #940a63;
+}
+
+.page-item:first-child .page-link {
+	border-bottom-left-radius: 1rem;
+	border-top-left-radius: 1rem;
+}
+.page-item:last-child .page-link
+ {
+	border-bottom-right-radius: 1rem;
+	border-top-right-radius: 1rem;
+}
+
+.page-item.active, .page-item .page-link {
+	border-color: #cecd48 !important;
+	background-color: #cecd48 !important;
+}
+.page-item.active .page-link {
+	line-height: 1;
+	margin-top: 2px;
+	border-radius: 1.25rem;
+	border-color: #940a63 !important;
+	background-color: #940a63 !important;
+}

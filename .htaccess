@@ -1,0 +1,17 @@
+Options +FollowSymLinks
+RewriteEngine on
+RewriteRule ^projects/$ index.php
+RewriteRule ^(projects)/([a-zA-Z0-9_-]+)/$ index.php?preselect[cat_name]=$2
+RewriteRule ^(projects)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ index.php?preselect[cat_name]=$2&preselect[subcat_name]=$3
+
+RewriteRule ^(project)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_name=$2&subcat_name=$3&id=$4&title=$5 [L,QSA]
+RewriteRule ^(project)/([a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_name=$2&subcat_name=&id=$3&title=$4 [L,QSA]
+
+RewriteRule ^(get).([a-zA-Z0-9_-]+)$ $1.php?job=$2 [L,QSA]
+
+RewriteRule ^(login|logout)/$ $1.php [L,QSA]
+RewriteRule ^dt/([a-zA-Z0-9_-]+)$ /dt/dt.$1.php
+RewriteRule ^404/([0-9]+)?$ /errors/error.php?code=$1
+ErrorDocument 404 /404/404
+ErrorDocument 403 /404/403
+ErrorDocument 500 /404
