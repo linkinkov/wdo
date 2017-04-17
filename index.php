@@ -195,7 +195,6 @@ $(function(){
 				d.end_date = function() {return $(config.projects.calendar).data('daterangepicker').endDate.format("X");};
 				d.safe_deal = function() {return $(".project-extra-filter[for='safe_deal']").hasClass("active")};
 				d.vip = function() {return $(".project-extra-filter[for='vip']").hasClass("active")};
-
 			}
 		},
 		"bStateSave": true,
