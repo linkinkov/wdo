@@ -10,7 +10,7 @@ if (isset($_POST['username'], $_POST['p'])) {
 	$username = $_POST['username'];
 	$password = $_POST['p'];
 	if (login($username, $password, $db) == true) {
-		$user = new User($_SESSION["user_id"]);
+		$user = new User($_SESSION["user_id"],false,false);
 		$response["result"] = true;
 		$response["message"] = "Authorized";
 		// header('Location: /');

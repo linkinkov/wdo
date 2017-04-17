@@ -22,11 +22,10 @@ if ( !$id ) die("wrong id");
 
 $project = new Project($id);
 
-if ( $project->status_id == 3 )
+if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
 {
 	header("Location: /404/",true,302);
 }
-
 ?>
 
 
@@ -98,8 +97,8 @@ if ( $project->status_id == 3 )
 							$project->created
 							);?>
 							<span class="pull-right">
-								<i class="fa fa-eye" title="Просмотров"></i> <text class="text-purple">15</text>
-								<i class="fa fa-comment-o" title="Заявок"></i> <text class="text-purple">4</text>
+								<i class="fa fa-eye" title="Просмотров"></i> <text class="text-purple"><?php echo $project->views;?></text>
+								<i class="fa fa-comment-o" title="Заявок"></i> <text class="text-purple"><?php echo $project->get_responds_counter();?></text>
 							</span>
 						</div>
 						<div class="col">
@@ -118,10 +117,10 @@ if ( $project->status_id == 3 )
 						<div class="col" style="flex: 0 0 60%; max-width: 60%;"><!-- info block -->
 							<div class="row">
 								<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
-									<text class="text-muted">Прием заявок</text>
+									<text class="text-muted">Прием заявок до</text>
 								</div>
 								<div class="col">
-									04.04.2017 - 08.04.2018<br />(осталось 4 дня)
+									<?php echo date("d.m.Y",$project->accept_till);?><text class="text-muted pull-right"><text class="accept_till" data-timestamp="<?php echo $project->accept_till;?>"></text></text>
 								</div>
 							</div>
 
@@ -130,8 +129,19 @@ if ( $project->status_id == 3 )
 								<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
 									<text class="text-muted">Дата проведения</text>
 								</div>
-								<div class="col">
-									10.04.2017 - 15.04.2018
+								<div class="col" style="display: flex;align-items: center;justify-content: space-between;">
+									<?php
+									if ( $project->continuous == 1 )
+									{
+										echo ' с ' . date("d.m.Y",$project->start_date);
+										echo '<br /> по ' . date("d.m.Y",$project->end_date);
+									}
+									else
+									{
+										echo date("d.m.Y",$project->start_date);
+									}
+									?>
+									<text class="text-muted pull-right"><text class="accept_till" data-timestamp="<?php echo $project->start_date;?>"></text></text>
 								</div>
 							</div>
 
@@ -141,20 +151,47 @@ if ( $project->status_id == 3 )
 									<text class="text-muted">Статус</text>
 								</div>
 								<div class="col">
-									<text class="text-success">Открыт</text>
+								<?php
+								switch ( $project->status_id )
+								{
+									case 1:
+										$status_class = "text-success";
+										break;
+									case 2:
+										$status_class = "text-info";
+										break;
+									case 3:
+										$status_class = "text-purple";
+										break;
+									case 4:
+										$status_class = "text-warning";
+										break;
+									case 5:
+										$status_class = "text-danger";
+										break;
+									default:
+										$status_class = "text-muted";
+										break;
+								}
+								echo sprintf('<text class="%s">%s</text>',$status_class,$project->status_name);
+								?>
 								</div>
 							</div>
-<!-- 
-							<div class="row"><div class="col"><hr /></div></div>
-							<div class="row">
-								<div class="col" style="flex: 0 0 180px; max-width: 180px;">
-									<text class="text-muted">Статистика</text>
+							<?php
+							if ( $project->status_id == 5 )
+							{
+								$reason = $db->getValue("warnings","message","message",Array("for_project_id"=>$project->project_id));
+							?>
+								<div class="row"><div class="col"><hr /></div></div>
+								<div class="row">
+									<div class="col">
+										<?php echo sprintf('<blockquote class="blockquote"><p class="mb-0 text-danger strong">%s</p></blockquote>',$reason);?>
+									</div>
 								</div>
-								<div class="col">
-									Заявки:1 Просмотров: 4
-								</div>
-							</div>
--->
+							<?php
+								
+							}
+							?>
 						</div>
 						<div class="col" style="text-align: center;align-self: center;"><!-- user block -->
 							<?php
@@ -166,7 +203,6 @@ if ( $project->status_id == 3 )
 							%s</a>',
 								HOST.'/profile/id'.$project->user_id,
 								HOST.'/get.UserAvatar?user_id='.$project->user_id.'&w=100&h=100',
-								// HOST.'/profile/id'.$project->user_id,
 								$pu->realUserName
 							);
 							echo sprintf('<br />
@@ -217,7 +253,12 @@ $(function(){
 		$(this).text(moment.unix(ts).fromNow());
 		$(this).attr("title",moment.unix(ts).format("LLL"));
 	})
-
+	$(".accept_till").each(function(){
+		var ts = $(this).data('timestamp');
+		$(this).text(moment.unix(ts).fromNow());
+		$(this).attr("title",moment.unix(ts).fromNow());
+	})
+	// $(".accept_till").html(moment.unix($(".accept_till").html()).fromNow());
 	var responds = $("#project-responds-table").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"dom": 'tr<"row"<"col"p>>',
@@ -229,15 +270,6 @@ $(function(){
 			"type": "POST",
 			"data": function( d ) {
 				d.for_project_id = 104;
-				// d.length = function() {return parseInt(config.projects.table.length);};
-				// d.showParams = config.projects.table;
-				// d.status = function() {
-				// 	var arr = [];
-				// 	$(".subcategory.selected").each(function(){
-				// 		arr.push($(this).data("subcat_id"));
-				// 	})
-				// 	return arr;
-				// };
 			}
 		},
 		// "bStateSave": true,
@@ -252,47 +284,84 @@ $(function(){
 		"createdRow": function ( row, data, index ) {
 			console.log(data);
 			$('td', row).html('');
-			var respond = jQuery('<div/>', {
+			var respond = $('<div/>', {
 				class: "project-respond"
 			})
 			var html = ''
 			+'<div class="row">'
-			+'	<div class="col" style="border-right: 1px solid #eee;">respond</div>'
+			+'	<div class="col" style="border-right: 1px solid #eee;">'
+			+'		<div class="row">'
+			+'			<div class="col" style="text-align: center;padding-top: 10px; max-width: 100px;">'
+			+'				<img class="rounded-circle" src="'+data.user.avatar_path+'&w=50&h=50" /><br />'
+			+'				'+moment.unix(data.respond.created).format("YYYY-MM-DD HH:MM")
+			+'			</div>'
+			+'			<div class="col" style="padding-top: 10px;padding-left: 0;">'
+			+'				<a class="wdo-link underline" href="/profile/id'+data.user.user_id+'">'+data.user.realUserName+'</a>'
+			+'				<br /><br /><p style="white-space: pre-wrap;">'+data.respond.descr+'</p>'
+			+'			</div>'
+			+'		</div>'
+			+'	</div>'
 			+'	<div class="col" style="min-width: 220px; max-width: 220px; flex: 0 0 220px;">'
-			+'		Рейтинг <span class="pull-right">'+data.user.rating+'</span><br />'
-			+'		Отзывов <span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.responds.good_counter+' | <img src="/images/rating-bad.png" /> '+data.user.responds.bad_counter+'</span><br />'
-			+'		В сервисе <span class="pull-right">'+data.user.registered+'</span><br />'
+			+'		<text style="line-height: 2rem;">Рейтинг <span class="pull-right">'+data.user.rating+'</span></text><br />'
+			+'		<text style="line-height: 2rem;">Отзывов <span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.responds.good_counter+' | <img src="/images/rating-bad.png" /> '+data.user.responds.bad_counter+'</span></text><br />'
+			+'		<text style="line-height: 2rem;">В сервисе <span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
 			+'		<hr />'
 			+'		<div class="project-cost" style="margin: 0 auto;">'+data.respond.cost+' <i class="fa fa-rouble"></i></div>'
 			+'	</div>'
 			+'</div>'
 			'';
+			var attaches = $('<div/>',{class: "project-respond-attaches"});
+			var attach_container = $('<div/>',{class: "attach-container gallery"});
 			respond.html(html);
 			respond.appendTo($('td', row));
-/*
-			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
-			var category = $.sprintf('<br /><br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
-			var start_date = moment.unix(data.project.start_date).format("DD.MM.YYYY");
-			var duration = "";
-			if ( data.project.continuous == 1 )
+			if ( data.respond.attaches.length > 0 )
 			{
-				var m1 = moment.unix(data.project.start_date);
-				var m2 = moment.unix(data.project.end_date);
-				duration = '<span class="pull-right"><i class="fa fa-clock-o" title="Мероприятие продлится '+moment.preciseDiff(m1, m2)+'"></i></span>';
+				$.each(data.respond.attaches,function(){
+					var object = '';
+					console.log(this);
+					if ( this.attach_type == 'image' )
+					{
+						object = '<a href="/get.Attach?attach_id='+this.attach_id+'&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id='+this.attach_id+'&w=100&h=100" /></a>';
+					}
+					else if ( this.attach_type == 'video' )
+					{
+						object = '<a '
+						+' href="https://www.youtube.com/watch?v=H9mNjb9XYy8"'
+						+' title="LES TWINS - An Industry Ahead" type="text/html"'
+						+' data-youtube="H9mNjb9XYy8" poster="http://img.youtube.com/vi/H9mNjb9XYy8/0.jpg">'
+						+'<img class="img-thumbnail" src="http://img.youtube.com/vi/H9mNjb9XYy8/0.jpg" />';
+						+'</a>';
+					}
+					$(attach_container).append(object);
+				})
+				$(attaches).html(attach_container);
+				$(attaches).insertAfter(respond);
 			}
-			var cost = data.project.cost + ' <i class="fa fa-rouble"></i>';
-			$('td', row).eq(0).html(title+category);
-			$('td', row).eq(1).html(start_date+duration).attr("title",$.sprintf("Дата проведения мероприятия (%s)",moment.unix(data.project.start_date).format("LL")));
-			$('td', row).eq(2).html(cost);
-*/
 		},
 		"drawCallback": function( settings ) {
 			$(".paginate_button > a").on("focus", function() {
 				$(this).blur();
 			});
+			$(".gallery").click(function (event) {
+				event = event || window.event;
+				var target = event.target || event.srcElement,
+						link = target.src ? target.parentNode : target,
+						options = {index: link, event: event},
+						links = this.getElementsByTagName('a');
+				blueimp.Gallery(links, options);
+			});
+
 		}
 	})
 })
 </script>
 </body>
 </html>
+
+<?php
+if ( !in_array($project->project_id,$_SESSION["viewed_projects"]) )
+{
+	$_SESSION["viewed_projects"][] = $project->project_id;
+	$project->update("views",$project->views+1);
+}
+?>

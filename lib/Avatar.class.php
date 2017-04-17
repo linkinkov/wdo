@@ -34,7 +34,7 @@ class Avatar
 		}
 		else
 		{
-			echo "LOADING FALSE;";
+			// echo "LOADING FALSE;";
 			return false;
 		}
 	}

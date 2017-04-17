@@ -111,12 +111,6 @@ if ( sizeof ($aaData) )
 			unset($aaData[$idx]);
 			continue;
 		}
-		$project->continuous = 0;
-		if ( date("Ymd",$project->start_date) != date("Ymd",$project->end_date) )
-		{
-			$project->continuous = 1;
-			$project->duration_ms = $project->end_date - $project->start_date;
-		}
 		$project->cost = number_format($project->cost,0,","," ");
 		$row->project = $project;
 		$row->user = new User($project->user_id);

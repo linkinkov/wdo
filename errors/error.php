@@ -24,7 +24,7 @@ $current_user = new User($_SESSION["user_id"]);
 <?php include(PD.'/includes/main-header.php');?>
 
 <div class="container banner-container">
-	<div class="row bottom-shadow inset">
+	<div class="row shadow inset">
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row">
@@ -33,7 +33,7 @@ $current_user = new User($_SESSION["user_id"]);
 						<div class="col"><h3>О СЕРВИСЕ</h3></div>
 					</div>
 					<div class="row">
-						<div class="col"><p style="max-height: 150px; overflow: hidden;">Первая биржа праздников, всяких дней рождений и прочей Первая биржа праздников, всяких дней рождений и прочей Первая биржа праздников, всяких дней рождений и прочей </p></div>
+						<div class="col" style="max-height: 180px; overflow: hidden;"><p style="-webkit-column-width: 243px;column-width: 243px;height: 100%;overflow: hidden;">Первая биржа праздников, всяких дней рождений и прочей Первая биржа праздников, всяких дней рождений и прочей Первая биржа праздников, всяких дней рождений и прочей Первая биржа праздников, всяких дней рождений и прочейПервая биржа праздников, всяких дней рождений и прочей</p></div>
 					</div>
 					<div class="row">
 						<div class="col">
@@ -41,10 +41,10 @@ $current_user = new User($_SESSION["user_id"]);
 						</div>
 					</div>
 				</div><!-- /.wdo-main-left -->
-				<div class="col wdo-main-right">
-					<div class="bottom" style="z-index: 1;">
+				<div class="col wdo-main-right" style="display: flex; align-items: flex-end; padding-bottom: 15px;">
+					<div style="z-index: 1;">
 						<div class="row" style="align-items: center;">
-							<div class="col" style="flex: 0 0 570px">Добавить проект может любой пользователь. Если у вас нет аккаунта, то сперва зарегистрируйтесь, а затем Вы сможете создавать новые проекты</div>
+							<div class="col" style="flex: 0 0 571px">Добавить проект может любой пользователь. Если у вас нет аккаунта, то сперва зарегистрируйтесь, а затем Вы сможете создавать новые проекты</div>
 							<div class="col">
 								<a class="wdo-btn bg-purple text-white"><i class="fa fa-plus"></i> Добавить проект</a>
 							</div>
@@ -59,7 +59,7 @@ $current_user = new User($_SESSION["user_id"]);
 </div>
 
 <div class="container main-container">
-	<div class="row">
+	<div class="row bottom-shadow">
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row">

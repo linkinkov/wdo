@@ -29,11 +29,26 @@ class ProjectRespond
 			{
 				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->$field) );
 			}
+			$this->attaches = $this->get_attach_list();
 			$this->error = false;
 		}
 		catch (Exception $e)
 		{
 			return;
+		}
+	}
+
+	public function get_attach_list()
+	{
+		global $db;
+		$sql = sprintf("SELECT `attach_id`,`attach_type` FROM `attaches` WHERE `for_respond_id` = '%d'",$this->respond_id);
+		try {
+			$list = $db->queryRows($sql);
+			return $list;
+		}
+		catch (Exception $e)
+		{
+			return Array();
 		}
 	}
 

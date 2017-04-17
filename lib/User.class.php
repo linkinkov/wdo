@@ -2,9 +2,13 @@
 
 class User
 {
-	public function __construct($user_id = false, $username = false)
+	public function __construct($user_id = false, $username = false, $login = false)
 	{
 		global $db;
+		if ( !isset($_SESSION["viewed_projects"]) )
+		{
+			$_SESSION["viewed_projects"] = Array();
+		}
 		if ( isset($_COOKIE["city_id"]) && isset($_COOKIE["city_name"]) )
 		{
 			$this->city_id = intval($_COOKIE["city_id"]);
@@ -31,6 +35,7 @@ class User
 				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->$field) );
 			}
 			$this->realUserName = ( $info->type_id ==  1 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
+			$this->avatar_path = HOST.'/get.UserAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] ) unset($this->username);
 		}
 		catch (Exception $e)

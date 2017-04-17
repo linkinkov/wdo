@@ -284,11 +284,23 @@ i.fa.active {
 }
 .project-respond {
 	width: 100%;
-	margin-bottom: 15px;
+	/*margin-top: 10px;*/
 	background-color: #fff;
 	border: 1px solid #dfd9d9;
 	padding: 10px;
 }
+.project-respond-attaches {
+	width: 100%;
+	background-color: #fff;
+	border: 1px solid #dfd9d9;
+	padding: 10px;
+}
+.project-respond-attaches .img-thumbnail {
+	min-height: 100px;
+	max-height: 100px;
+	cursor: pointer;
+}
+
 /* ----- END project-respond ----- */
 
 .word-break {

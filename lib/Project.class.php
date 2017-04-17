@@ -5,12 +5,13 @@ class Project
 	public function __construct($id = false)
 	{
 		global $db;
+		global $project_statuses;
 		$this->error = true;
 		if ( intval($id) == 0 )
 		{
 			return;
 		}
-		$sql = sprintf("SELECT `title`, `descr`, `user_id`, `created`, `status_id`,`cost`,`start_date`,`end_date`,`cat_name`,`subcat_name`,`safe_deal`,`vip`
+		$sql = sprintf("SELECT `title`,`descr`,`user_id`,`created`,`status_id`,`cost`,`accept_till`,`start_date`,`end_date`,`cat_name`,`subcat_name`,`safe_deal`,`vip`,`views`
 		FROM `project`
 		LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
 		LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
@@ -31,6 +32,18 @@ class Project
 			{
 				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->$field) );
 			}
+			$this->continuous = 0;
+			$this->duration_ms = 86400;
+			if ( date("Ymd",$this->start_date) != date("Ymd",$this->end_date) )
+			{
+				$this->continuous = 1;
+				$this->duration_ms = $this->end_date - $this->start_date;
+			}
+			if ( $this->status_id == 1 && time() > $this->accept_till )
+			{
+				$this->update("status_id",4);
+			}
+			$this->status_name = $db->getValue("project_statuses","status_name","status_name",Array("id"=>$this->status_id));
 			$this->error = false;
 		}
 		catch (Exception $e)
@@ -39,54 +52,44 @@ class Project
 		}
 	}
 
+	public function get_responds_counter()
+	{
+		global $db;
+		try {
+			$counter = $db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("for_project_id"=>$this->project_id));
+			return $counter;
+		}
+		catch (Exception $e)
+		{
+			// return $e->getMessage();
+			return false;
+		}
+	}
+
 	public function update($field,$value)
 	{
 		global $db;
 		global $lang;
-		global $user;
 		$value = htmlentities(addslashes($value));
-		$min_pass_length = 4;
 		$response = Array(
 			"result" => "false",
 			"message" => $lang["error_occured"]
 		);
 
-		$sql = sprintf("UPDATE `users` SET `%s` = '%s' WHERE `user_id` = '%d'",$field,$value,$this->user_id);
-		if ( $field == "password" )
-		{
-			if ( strlen($value) < $min_pass_length )
-			{
-				$response["message"] = sprintf($lang["password_too_short"],$min_pass_length);
-				return $response;
-			}
-			$random_salt = hash('sha512', uniqid(openssl_random_pseudo_bytes(16), TRUE));
-			$value = hash('sha512', hash('sha512',$value) . $random_salt);
-			$sql = sprintf("UPDATE `users` SET `%s` = '%s', `salt` = '%s' WHERE `user_id` = '%d'",$field,$value,$random_salt,$this->user_id);
-		}
-		else if ( $field == "username" )
-		{
-			if ( strlen($value) < 3 )
-			{
-				$response["message"] = sprintf($lang["username_too_short"],3);
-				return $response;
-			}
-			else if ( preg_match("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/",$value) )
-			{
-				$response["message"] = $lang["invalid_chars"];
-				return $response;
-			}
-		}
+		$sql = sprintf("UPDATE `project` SET `%s` = '%s' WHERE `project_id` = '%d'",$field,$value,$this->project_id);
+
 		try {
 			$db->query($sql);
 			$response["result"] = "true";
 			$response["message"] = $lang["saved"];
+			$this->$field = $value;
 		}
 		catch (Exception $e)
 		{
 			$response["result"] = "false";
 			$response["message"] = ( $e->getCode() == 1062 ) ? "Такой пользователь уже существует" : $e->getMessage();
-			return $response;
 		}
+		return $response;
 	}
 	
 	public static function delete($user_id)

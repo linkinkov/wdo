@@ -11,4 +11,5 @@
 			</li>',HOST.'/get.UserAvatar?user_id='.$r->user_id.'&w=45&h=45',$userName,$r->rating);
 	}
 	?>
+	<li class="list-group-item justify-content-between" style="align-self: center;"><a href="/performers/" class="wdo-link text-yellow">Все исполнители</a></li>
 </ul>

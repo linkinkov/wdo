@@ -30,6 +30,7 @@ function formhash(form, password) {
 				}
 			}
 			$(submit).removeClass("disabled");
+			return false;
 		}
 	})
 	return false;
