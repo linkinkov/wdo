@@ -71,49 +71,116 @@ function update_city_list(input,e)
 		}
 	});
 }
+function saveSelectedSpecs(reload)
+{
+	reload = reload || true;
+	config.projects.specs = [];
+	$(".subcategory.selected").each(function(){
+		config.projects.specs.push($(this).data("subcat_id"));
+	})
+	setCookie("config.projects.specs",JSON.stringify(config.projects.specs));
+	if ( reload == true ) reloadProjectsTable();
+}
+function restoreSelectedSpecs()
+{
+	$.each(config.projects.specs,function(){
+		toggleSubCategory(this,true);
+	})
+}
 function slideCategory(cat_id)
 {
+	$(".category[data-cat_id='"+cat_id+"']").toggleClass("show");
 	$(".subcategories[data-parent_cat_id='"+cat_id+"']").slideToggle(function(){
 		$(".category[data-cat_id='"+cat_id+"']").find("i.fa").toggleClass("fa-chevron-down fa-chevron-left");
-		$(".category[data-cat_id='"+cat_id+"']").toggleClass("show");
 	});
 }
-function toggleCategory(cat_id,value,reload)
+function toggleCategory(cat_id,value,single)
 {
-	reload = reload || false;
-	var li = $($.sprintf(".category[data-cat_id='%d']",cat_id));
-	var radio = $(li).find("input[type='radio']");
+	single = single || false;
+	var li = $(".category[data-cat_id='"+cat_id+"']"),
+			radio = $(li).find("input[type='radio']");
 	$(radio).prop("checked",value);
-	$(".subcategory[data-parent_cat_id='"+cat_id+"']").each(function(){
-		var radio = $(this).find("input[type='radio']");
-		$(radio).prop("checked",value);
-		$(this).toggleClass("selected");
-	})
-	if ( reload == true ) reloadProjectsTable();
+	if ( single == false )
+	{
+		$(".subcategory[data-parent_cat_id='"+cat_id+"']").each(function(){
+			var radio = $(this).find("input[type='radio']");
+			$(radio).prop("checked",value);
+			if ( value == true ) $(this).addClass("selected"); else $(this).removeClass("selected");
+		})
+	}
+	if ( !$(li).hasClass("show") && value == true )
+	{
+		slideCategory(cat_id);
+	}
 }
-function toggleSubCategory(subcat_id,reload)
+function toggleSubCategory(subcat_id,value)
 {
-	reload = reload || false;
-	var li = $($.sprintf(".subcategory[data-subcat_id='%d']",subcat_id));
-	var radio = $(li).find("input[type='radio']");
-	var value = $(radio).prop("checked");
-	$(radio).prop("checked",!value);
-	$(li).toggleClass("selected");
-	if ( reload == true ) reloadProjectsTable();
+	var li = $($.sprintf(".subcategory[data-subcat_id='%d']",subcat_id)),
+			parent_cat_id = $(li).data('parent_cat_id'),
+			total_subcats = $(li).parent().children().length;
+			radio = $(li).find("input[type='radio']");
+	$(radio).prop("checked",value);
+	if ( value == true ) $(li).addClass("selected"); else $(li).removeClass("selected");
+	var selected_subcats = $(".subcategory.selected[data-parent_cat_id='"+parent_cat_id+"']").length;
+	if ( selected_subcats < total_subcats )
+	{
+		if ( !$(".category[data-cat_id='"+parent_cat_id+"']").hasClass("show") && value == true )
+		{
+			slideCategory(parent_cat_id);
+		}
+		toggleCategory(parent_cat_id,false,true);
+	}
+	if ( selected_subcats == total_subcats ) toggleCategory(parent_cat_id,true,true);
 }
 function reloadProjectsTable()
 {
 	config.projects.dt.ajax.reload();
 }
+function set_btn_state(btn,state,message,clas)
+{
+	clas = clas || "";
+	var i = $(btn).find("i.fa");
+	if ( state == "loading" )
+	{
+		$(btn).addClass("disabled") //.text(message);
+		$(i).attr('class','fa fa-spinner fa-spin');
+	}
+	else if ( state == "reset" )
+	{
+		$(btn).removeClass("disabled") //.text(message);
+		$(i).attr('class','fa '+clas);
+	}
+}
+
 $(function(){
-	$('#city-select-modal').on('shown.bs.modal', function (e) {
+	$('#city-select-modal').on('shown.bs.modal', function (e){
 		update_city_list(this,e);
 	})
-	$('#restore-password-modal').on('show.bs.modal', function(e) {
+	$('#restore-password-modal').on('show.bs.modal', function(e){
 		$("#login-modal").modal("hide");
 	})
-	$('#register-modal').on('show.bs.modal', function(e) {
+	$('#register-modal').on('show.bs.modal', function(e){
 		$("#login-modal").modal("hide");
+	})
+	$('#send-pm-modal').on('show.bs.modal', function(e){
+		var related = e.relatedTarget,
+				recipient_id = $(related).data('recipient'),
+				modal = e.delegateTarget;
+		app.user.getUserName(recipient_id,function(){
+			$(modal).find("img[name='userAvatar']").attr("src","/get.UserAvatar?user_id="+recipient_id+"&w=35&h=35");
+			$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(app.user.userName);
+			$(modal).find(".wdo-btn[name='send-pm']").data('recipient',recipient_id);
+			$(modal).find("textarea[name='message-text']").data('recipient',recipient_id);
+			console.log($(modal).find("textarea[name='message-text-from-modal']").data());
+		});
+	})
+	$(".wdo-btn[name='send-pm']").click(function(){
+		var btn = this,
+				recipient_id = $(this).data('recipient'),
+				textarea = $("textarea[name='message-text-from-modal']")
+				message_text = $("textarea[name='message-text-from-modal']").val();
+		console.log("Sending message: '"+message_text+"' to user:",recipient_id);
+		app.user.sendMessage(recipient_id,message_text,textarea,btn);
 	})
 	var login_btn = $('#login-modal').find("button[type='submit']");
 	$('#login-modal').find("form input").each(function(){
@@ -132,7 +199,9 @@ $(function(){
 		var data = $(li).data();
 		if ( $(li).hasClass("subcategory") )
 		{
-			toggleSubCategory($(li).data("subcat_id"),true);
+			var value = $(li).find("input[type='radio']").prop("checked");
+			toggleSubCategory($(li).data("subcat_id"),!value);
+			saveSelectedSpecs();
 			return;
 		}
 		else
@@ -144,7 +213,9 @@ $(function(){
 	$(document).on("click",".subcategory",function(e){
 		e.stopPropagation();
 		e.preventDefault();
-		toggleSubCategory($(this).data("subcat_id"),true);
+		var value = $(this).find("input[type='radio']").prop("checked");
+		toggleSubCategory($(this).data("subcat_id"),!value);
+		saveSelectedSpecs();
 	})
 	$(document).on("click",".custom-radio",function(e){
 		e.stopPropagation();
@@ -155,11 +226,14 @@ $(function(){
 			var cat_id = $(li).data("cat_id");
 			var radio = $(this).find("input[type='radio']");
 			var value = $(radio).prop("checked");
-			toggleCategory(cat_id,!value,true);
+			toggleCategory(cat_id,!value);
+			saveSelectedSpecs();
 		}
 		else
 		{
-			toggleSubCategory($(li).data("subcat_id"),true);
+			var value = $(this).find("input[type='radio']").prop("checked");
+			toggleSubCategory($(li).data("subcat_id"),!value);
+			saveSelectedSpecs();
 		}
 	})
 	$(document).on("click",".project-extra-filter",function(e){

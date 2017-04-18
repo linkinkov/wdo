@@ -224,6 +224,9 @@ i.fa.active {
 	border-collapse: separate !important;
 	border-spacing: 0px 15px !important;
 }
+#projects-table_info {
+	text-align: center;
+}
 .project-entry td
 {
 	cursor: pointer;
@@ -282,18 +285,20 @@ i.fa.active {
 #project-responds-table tbody td {
 	width: 100%;
 }
-.project-respond {
-	width: 100%;
-	/*margin-top: 10px;*/
-	background-color: #fff;
+.project-respond-container {
 	border: 1px solid #dfd9d9;
 	padding: 10px;
+	background-color: #fff;
+}
+.project-respond-header {
+	background-color: #fff;
+	border: 1px solid #dfd9d9;
+	padding: 15px;
+	border-bottom: 0;
 }
 .project-respond-attaches {
-	width: 100%;
-	background-color: #fff;
-	border: 1px solid #dfd9d9;
-	padding: 10px;
+	border-top: 1px solid #dfd9d9;
+	padding-top: 10px;
 }
 .project-respond-attaches .img-thumbnail {
 	min-height: 100px;
@@ -301,6 +306,74 @@ i.fa.active {
 	cursor: pointer;
 }
 
+.responds-filter-all {
+  cursor: pointer;
+  width: 105px;
+  height: 25px;
+  background: url(/images/responds-filter-all.png) no-repeat center;
+  float: left;
+  margin-left: 5px;
+}
+.responds-filter-all:hover {
+  background: url(/images/responds-filter-all-checked.png) no-repeat center;
+  opacity: 0.3;
+}
+.responds-filter-all.checked {
+  background: url(/images/responds-filter-all-checked.png) no-repeat center;
+  opacity: 1 !important;
+}
+
+.responds-filter-deny {
+  cursor: pointer;
+  width: 70px;
+  height: 25px;
+  background: url(/images/responds-filter-deny.png) no-repeat center;
+  float: left;
+  margin-left: 5px;
+}
+.responds-filter-deny:hover {
+  background: url(/images/responds-filter-deny-checked.png) no-repeat center;
+  opacity: 0.3;
+}
+.responds-filter-deny.checked {
+  background: url(/images/responds-filter-deny-checked.png) no-repeat center;
+  opacity: 1 !important;
+}
+
+.responds-filter-no-status {
+  cursor: pointer;
+  width: 102px;
+  height: 25px;
+  background: url(/images/responds-filter-no-status.png) no-repeat center;
+  float: left;
+  margin-left: 5px;
+}
+.responds-filter-no-status:hover {
+  background: url(/images/responds-filter-no-status-checked.png) no-repeat center;
+  opacity: 0.3;
+}
+.responds-filter-no-status.checked {
+  background: url(/images/responds-filter-no-status-checked.png) no-repeat center;
+  opacity: 1 !important;
+}
+
+.responds-filter-ispolnitel {
+  cursor: pointer;
+  width: 110px;
+  height: 25px;
+  background: url(/images/responds-filter-ispolnitel.png) no-repeat center;
+  float: left;
+  margin-left: 5px;
+}
+.responds-filter-ispolnitel:hover {
+  background: url(/images/responds-filter-ispolnitel-checked.png) no-repeat center;
+  opacity: 0.3;
+}
+.responds-filter-ispolnitel.checked {
+  background: url(/images/responds-filter-ispolnitel-checked.png) no-repeat center;
+  margin-left: 5px;
+  opacity: 1 !important;
+}
 /* ----- END project-respond ----- */
 
 .word-break {

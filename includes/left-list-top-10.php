@@ -3,7 +3,7 @@
 	$users = $db->queryRows("SELECT `user_id`,`rating` FROM `users` ORDER BY `rating` DESC LIMIT 10");
 	foreach ( $users as $r )
 	{
-		$userName = User::getRealUserName($r->user_id);
+		$userName = User::get_real_user_name($r->user_id);
 		if ( !is_array($userName) && $userName != "" )
 			echo sprintf('<li class="list-group-item justify-content-between">
 			<img class="rounded-circle" src="%s" /> <div style="max-width: 90px; word-wrap: break-word;">%s</div>

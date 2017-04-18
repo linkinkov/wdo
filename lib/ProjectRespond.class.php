@@ -41,9 +41,28 @@ class ProjectRespond
 	public function get_attach_list()
 	{
 		global $db;
-		$sql = sprintf("SELECT `attach_id`,`attach_type` FROM `attaches` WHERE `for_respond_id` = '%d'",$this->respond_id);
+		$sql = sprintf("SELECT `attach_id`,`attach_type`,`url` FROM `attaches` WHERE `for_respond_id` = '%d' ORDER BY `attach_type`, `attach_id` ASC",$this->respond_id);
 		try {
 			$list = $db->queryRows($sql);
+			$idx = 0;
+			foreach ( $list as $row )
+			{
+				if ( $row->attach_type == 'video' )
+				{
+					if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $row->url, $match)) {
+						$row->youtube_id = $match[1];
+					}
+					else
+					{
+						unset($list[$idx]);
+					}
+				}
+				else
+				{
+					unset($row->url);
+				}
+				$idx++;
+			}
 			return $list;
 		}
 		catch (Exception $e)
@@ -52,6 +71,39 @@ class ProjectRespond
 		}
 	}
 
+	public function update($field,$value)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		$project_author_id = $db->getValue("project","user_id","user_id",Array("project_id"=>$this->for_project_id));
+		$project_status_id = $db->getValue("project","status_id","status_id",Array("project_id"=>$this->for_project_id));
+		if ( $project_author_id != $current_user->user_id || $project_status_id != 1 )
+		{
+			$response["error"] = "Ошибка доступа";
+			return $response;
+		}
+		if ( $field == "status_id" && $value == 2 && $this->status_id == 2 ) $value = 1;
+		if ( $field == "status_id" && $value == 3 && Project::get_accepted_respond($this->for_project_id) > 0 )
+		{
+			$response["message"] = "У вас уже есть исполнитель данного проекта";
+			return $response;
+		}
+		$sql = sprintf("UPDATE `project_responds` SET `%s` = '%s' WHERE `respond_id` = '%d'",$field,$value,$this->respond_id);
+		try {
+			$db->query($sql);
+			$response["result"] = "true";
+			$response["message"] = "Обновлено";
+		}
+		catch (Exception $e)
+		{
+			$response["error"] = $e->getMessage();
+		}
+		return $response;
+	}
 }
 
 ?>

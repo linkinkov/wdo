@@ -83,6 +83,7 @@ if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
 						</div>
 					</div>
 				</div><!-- /.wdo-main-left -->
+				<div class="invisible" id="project_id" data-project-id="<?php echo $project->project_id;?>"></div>
 				<div class="col wdo-main-right" style="padding: 30px;">
 					<div class="row">
 						<div class="col" style="flex: 0 0 75%; max-width: 75%;">
@@ -178,6 +179,22 @@ if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
 								</div>
 							</div>
 							<?php
+							if ( $project->for_user_id > 0 )
+							{
+							?>
+							<div class="row"><div class="col"><hr /></div></div>
+							<div class="row">
+								<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+									<text class="text-muted">Назначен</text>
+								</div>
+								<div class="col">
+							<?php
+								echo sprintf('<i class="fa fa-user-secret" title="Проект доступен только одному пользователю"></i> <a href="/profile/id%d" class="wdo-link">%s</a>',$project->for_user_id,User::get_real_user_name($project->for_user_id));
+							?>
+								</div>
+							</div>
+							<?php
+							}
 							if ( $project->status_id == 5 )
 							{
 								$reason = $db->getValue("warnings","message","message",Array("for_project_id"=>$project->project_id));
@@ -226,7 +243,18 @@ if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
 					</div>
 					<div class="row"><div class="col"><hr /></div></div>
 					<h44 class="text-purple-dark strong">Заявки исполнителей</h44>
-
+					<?php if ( $project->is_project_author == 1 )
+					{
+					?>
+					<span class="pull-right">
+						<div data-status="0" class="responds-filter responds-filter-all checked"></div>
+						<div data-status="2" class="responds-filter responds-filter-deny"></div>
+						<div data-status="1" class="responds-filter responds-filter-no-status"></div>
+						<div data-status="3" class="responds-filter responds-filter-ispolnitel"></div>
+					</span>
+					<?php
+					}
+					?>
 					<table class="table" id="project-responds-table">
 						<thead>
 							<th>Заявка</th>
@@ -258,8 +286,7 @@ $(function(){
 		$(this).text(moment.unix(ts).fromNow());
 		$(this).attr("title",moment.unix(ts).fromNow());
 	})
-	// $(".accept_till").html(moment.unix($(".accept_till").html()).fromNow());
-	var responds = $("#project-responds-table").DataTable({
+	var respondsTable = $("#project-responds-table").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"dom": 'tr<"row"<"col"p>>',
 		"bProcessing": true,
@@ -269,25 +296,26 @@ $(function(){
 			"url": "/dt/project-responds",
 			"type": "POST",
 			"data": function( d ) {
-				d.for_project_id = 104;
+				d.for_project_id = $("#project_id").data('project-id');
+				d.status_id = $(".responds-filter.checked").data('status');
 			}
 		},
-		// "bStateSave": true,
 		"iDisplayLength": 10,
 		"columns": [
 			{"data": "respond_id","orderable": false, "targets": 0},
 		],
 		"initComplete": function(table,data) {
-			// console.log(table);
 			$("#project-responds-table").find("thead").hide();
 		},
 		"createdRow": function ( row, data, index ) {
-			console.log(data);
 			$('td', row).html('');
-			var respond = $('<div/>', {
-				class: "project-respond"
-			})
-			var html = ''
+			var container = $('<div />', {class: "project-respond-container"}),
+					respond = $('<div/>', {class: "project-respond"}),
+					attach_container = $('<div/>',{class: "attach-container gallery"}),
+					attaches = $('<div/>',{class: "project-respond-attaches"}),
+					header = $('<div/>',{class: "project-respond-header"}),
+					header_html = '',
+					html = ''
 			+'<div class="row">'
 			+'	<div class="col" style="border-right: 1px solid #eee;">'
 			+'		<div class="row">'
@@ -305,20 +333,60 @@ $(function(){
 			+'		<text style="line-height: 2rem;">Рейтинг <span class="pull-right">'+data.user.rating+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">Отзывов <span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.responds.good_counter+' | <img src="/images/rating-bad.png" /> '+data.user.responds.bad_counter+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">В сервисе <span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
-			+'		<hr />'
-			+'		<div class="project-cost" style="margin: 0 auto;">'+data.respond.cost+' <i class="fa fa-rouble"></i></div>'
+			if ( data.respond.cost )
+			{
+				html += '<hr /><div class="project-cost" style="margin: 0 auto;">'+data.respond.cost+' <i class="fa fa-rouble"></i></div>';
+			}
+			html += ''
 			+'	</div>'
-			+'</div>'
-			'';
-			var attaches = $('<div/>',{class: "project-respond-attaches"});
-			var attach_container = $('<div/>',{class: "attach-container gallery"});
+			+'</div>';
+			if ( data.is_project_author == 1 )
+			{
+				var actions = '';
+				if ( data.respond.status_id == 1 )
+				{
+					actions = ''
+					+'<a class="wdo-link respond-action" data-respond_id="'+data.respond_id+'" data-status_id="2">'
+					+'	<img src="/images/respond-deny.png"'
+					+'			 onmouseover="this.src=\'/images/respond-deny-hover.png\'"'
+					+'			 onmouseout="this.src=\'/images/respond-deny.png\'"/>'
+					+'</a>'
+					+'<a class="wdo-link respond-action" data-respond_id="'+data.respond_id+'" data-status_id="3">'
+					+'	<img src="/images/respond-select-ispoln.png"'
+					+'			 onmouseover="this.src=\'/images/respond-select-ispoln-hover.png\'"'
+					+'			 onmouseout="this.src=\'/images/respond-select-ispoln.png\'"/>'
+					+'</a>';
+				}
+				else if ( data.respond.status_id == 2 )
+				{
+					actions = ''
+					+'<a class="wdo-link respond-action" data-respond_id="'+data.respond_id+'" data-status_id="2">'
+					+'	<img src="/images/respond-deny-checked.png" />'
+					+'</a>';
+				}
+				else if ( data.respond.status_id == 3 )
+				{
+					actions = ''
+					+'<a class="wdo-link respond-action" data-respond_id="'+data.respond_id+'" data-status_id="3">'
+					+'	<img src="/images/respond-select-ispoln-checked.png" />'
+					+'</a>';
+				}
+				header_html = ''
+				+'<div class="row">'
+				+'	<div class="col">'
+				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="'+data.respond.user_id+'">Написать сообщение</a> | <i class="fa fa-pencil" data-toggle="modal" data-target="#add-note-modal"></i> <a class="wdo-link">Добавить заметку</a>'
+				+'		<span class="pull-right">'+actions+'</span>'
+				+'	</div>'
+				+'</div>'
+				header.html(header_html).appendTo($('td', row));
+			}
 			respond.html(html);
-			respond.appendTo($('td', row));
+			respond.appendTo(container);
+			container.appendTo($('td', row));
 			if ( data.respond.attaches.length > 0 )
 			{
 				$.each(data.respond.attaches,function(){
 					var object = '';
-					console.log(this);
 					if ( this.attach_type == 'image' )
 					{
 						object = '<a href="/get.Attach?attach_id='+this.attach_id+'&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id='+this.attach_id+'&w=100&h=100" /></a>';
@@ -326,11 +394,15 @@ $(function(){
 					else if ( this.attach_type == 'video' )
 					{
 						object = '<a '
-						+' href="https://www.youtube.com/watch?v=H9mNjb9XYy8"'
-						+' title="LES TWINS - An Industry Ahead" type="text/html"'
-						+' data-youtube="H9mNjb9XYy8" poster="http://img.youtube.com/vi/H9mNjb9XYy8/0.jpg">'
-						+'<img class="img-thumbnail" src="http://img.youtube.com/vi/H9mNjb9XYy8/0.jpg" />';
+						+'	href="'+this.url+'"'
+						+'	title="" type="text/html"'
+						+'	data-youtube="'+this.youtube_id+'" poster="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg">'
+						+'<img class="img-thumbnail" src="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg" />';
 						+'</a>';
+					}
+					else if ( this.attach_type == 'document' )
+					{
+						object = '<a class="download" href="/get.Attach?attach_id='+this.attach_id+'"><img class="img-thumbnail" src="/images/document.png" /></a>';
 					}
 					$(attach_container).append(object);
 				})
@@ -338,7 +410,7 @@ $(function(){
 				$(attaches).insertAfter(respond);
 			}
 		},
-		"drawCallback": function( settings ) {
+		"drawCallback": function( settings, table ) {
 			$(".paginate_button > a").on("focus", function() {
 				$(this).blur();
 			});
@@ -347,11 +419,37 @@ $(function(){
 				var target = event.target || event.srcElement,
 						link = target.src ? target.parentNode : target,
 						options = {index: link, event: event},
-						links = this.getElementsByTagName('a');
+						// links = this.getElementsByTagName('a');
+						links = $(this).find("a").not(".download");
 				blueimp.Gallery(links, options);
 			});
-
+			$(".download").click(function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				var href = $(this).attr("href");
+				window.open(href,'_blank');
+			})
+			$(".respond-action").click(function(e){
+				$.ajax({
+					type: "POST",
+					url: "/update.project-respond",
+					data: {
+						"respond_id": $(this).data('respond_id'),
+						"field": "status_id",
+						"value": $(this).data('status_id')
+					},
+					dataType: "JSON",
+					success: function (response) {
+						respondsTable.ajax.reload(false,false);
+					}
+				});
+			})
 		}
+	})
+	$(".responds-filter").click(function(){
+		$(".responds-filter").removeClass("checked");
+		$(this).addClass("checked");
+		respondsTable.ajax.reload(false,true);
 	})
 })
 </script>

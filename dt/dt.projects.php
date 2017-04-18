@@ -30,7 +30,10 @@ $selected = get_var("selected","string","");
 $status_id = get_var("status_id","int",1);
 $start_date = get_var("start_date","int",time());
 $end_date = get_var("end_date","int",time()+(86400*3));
-
+$only_vip = get_var("vip","string",false);
+$only_safe = get_var("safe_deal","string",false);
+// print_r($only_vip);
+// print_r($only_safe);
 if (sizeof($columns) > 0)
 {
 	foreach($columns as $idx=>$col)
@@ -58,10 +61,25 @@ $cityStr = ( isset($_COOKIE["city_id"]) && intval($_COOKIE["city_id"]) > 0 ) ? s
 $statusStr = ( $status_id ) ? sprintf(' AND `status_id` = "%d"',$status_id) : '';
 $selectedStr = ( $selected != "" ) ? sprintf(' AND `subcat_id` IN (%s)',$selected) : '';
 $timerange = sprintf(' AND (`start_date` >= "%d" AND `end_date` <= "%d")', $start_date, $end_date);
+$for_user_id = sprintf(' AND (`for_user_id` = "%d" OR `for_user_id` = "%d")',0,$current_user->user_id);
+
+$safe_vip = "";
+if ( $only_safe == "true" && $only_vip == "true" )
+{
+	$safe_vip = sprintf(' AND (`safe_deal` = 1 OR `vip` = 1)');
+}
+else if ( $only_safe == "true" )
+{
+	$safe_vip = sprintf(' AND `safe_deal` = 1');
+}
+else if ( $only_vip == "true" )
+{
+	$safe_vip = sprintf(' AND `vip` = 1');
+}
 
 $sql_main = "SELECT `project_id`,(SELECT COUNT(`respond_id`) FROM `project_responds` WHERE `for_project_id` = `project_id`) as bids
 	FROM `project`
-	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange
+	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip
 	ORDER BY `project`.`vip` DESC, $orderStr
 	LIMIT $start, $length";
 try {
@@ -76,7 +94,7 @@ try {
 $recordsTotal = 0;
 $recordsFiltered = 0;
 
-$sql = "SELECT COUNT(`project_id`) as recordsTotal FROM `project` WHERE 1 $statusStr $cityStr";
+$sql = "SELECT COUNT(`project_id`) as recordsTotal FROM `project` WHERE 1 $statusStr $cityStr $for_user_id";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
@@ -89,7 +107,7 @@ try {
 
 $sql = "SELECT COUNT(`project_id`) as recordsFiltered 
 	FROM `project` 
-	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange";
+	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip";
 try {
 	$tdr = $db->queryRow($sql);
 	$recordsFiltered = $tdr->recordsFiltered;

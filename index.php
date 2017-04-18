@@ -87,7 +87,6 @@ $preselect = isset($_REQUEST["preselect"]) ? $_REQUEST["preselect"] : array();
 					</div>
 				</div><!-- /.wdo-main-left -->
 				<div class="col wdo-main-right">
-					
 					<div class="row">
 						<div class="col">
 							<div class="input-group">
@@ -96,11 +95,21 @@ $preselect = isset($_REQUEST["preselect"]) ? $_REQUEST["preselect"] : array();
 									<div class="btn-group">
 										<button type="button" class="btn btn-secondary calendar"><i class="fa fa-calendar"></i></button>
 										<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											Фильтр
+											<i class="fa fa-cogs"></i> Фильтр
 										</button>
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item wdo-link project-extra-filter" for="safe_deal">Только безопасные сделки</a>
 											<a class="dropdown-item wdo-link project-extra-filter" for="vip">Только VIP</a>
+											<a class="dropdown-item wdo-link project-extra-filter" onClick="event.preventDefault();event.stopPropagation();">
+												<div class="dataTables_length">
+													<select class="form-control" id="projects-table_length" name="length" data-param="length" aria-controls="deviceListTable" style="width: 100%;">
+														<option value="10">по 10 записей</option>
+														<option value="25">по 25 записей</option>
+														<option value="50">по 50 записей</option>
+														<option value="100">по 100 записей</option>
+													</select>
+												</div>
+											</a>
 										</div>
 									</div>
 								</div>
@@ -159,11 +168,15 @@ $(function(){
 	}
 	if ( isset($preselect["subcat_id"]) && intval($preselect["subcat_id"]) > 0 )
 	{
-		echo sprintf('toggleSubCategory(%d);slideCategory(%d);scrollTo("projects");',$preselect["subcat_id"],$preselect["cat_id"]);
+		echo sprintf('toggleSubCategory(%d,true);scrollTo("projects");',$preselect["subcat_id"],$preselect["cat_id"]);
 	}
 	elseif ( isset($preselect["cat_id"]) && intval($preselect["cat_id"]) > 0 )
 	{
-		echo sprintf('toggleCategory(%d,true);slideCategory(%d);scrollTo("projects");',$preselect["cat_id"],$preselect["cat_id"]);
+		echo sprintf('toggleCategory(%d,true,false);scrollTo("projects");',$preselect["cat_id"],$preselect["cat_id"]);
+	}
+	else
+	{
+		echo 'restoreSelectedSpecs();';
 	}
 	?>
 	updateProfileIndicator("messages",13);
@@ -172,9 +185,15 @@ $(function(){
 	$('.calendar').on('apply.daterangepicker', function(ev, picker) {
 		reloadProjectsTable();
 	});
+	$("#projects-table_length").on("change",function(){
+		config.projects.table.length = this.value;
+		config.projects.dt.page.len( config.projects.table.length );
+		setCookie("config.projects.table",JSON.stringify(config.projects.table));
+		config.projects.dt.ajax.reload();
+	})
 	config.projects.dt = $("#projects-table").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
-		"dom": 'tr<"row"<"col"l><"col"i>><"row"<"col"p>>',
+		"dom": 'tr<"row"<"col"p>><"row"<"col"i>>',
 		"bProcessing": true,
 		"bServerSide": true,
 		"pagingType": "full_numbers",
@@ -185,11 +204,14 @@ $(function(){
 				d.length = function() {return parseInt(config.projects.table.length);};
 				d.showParams = config.projects.table;
 				d.selected = function() {
+					return config.projects.specs;
+/*
 					var arr = [];
 					$(".subcategory.selected").each(function(){
 						arr.push($(this).data("subcat_id"));
 					})
 					return arr;
+*/
 				};
 				d.start_date = function() {return $(config.projects.calendar).data('daterangepicker').startDate.format("X");};
 				d.end_date = function() {return $(config.projects.calendar).data('daterangepicker').endDate.format("X");};
@@ -216,6 +238,7 @@ $(function(){
 		"initComplete": function(table,data) {
 			$("#dt_filter").val(config.projects.table.state.search.search);
 			$("#projects-table").find("th:eq(1)").css('min-width','100px');
+			$("#projects-table_length").val(config.projects.table.length);
 		},
 		"createdRow": function ( row, data, index ) {
 			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);

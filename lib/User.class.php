@@ -141,7 +141,7 @@ class User
 		return $response;
 	}
 	
-	public static function getRealUserName($user_id)
+	public static function get_real_user_name($user_id)
 	{
 		global $db;
 		global $user;
@@ -171,7 +171,7 @@ class User
 		}
 	}
 
-	public static function getList($start = 0,$limit = 20,$state_id = false)
+	public static function get_list($start = 0,$limit = 20,$state_id = false)
 	{
 		global $db;
 		global $user;

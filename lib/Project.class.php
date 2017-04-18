@@ -5,17 +5,19 @@ class Project
 	public function __construct($id = false)
 	{
 		global $db;
-		global $project_statuses;
+		global $current_user;
 		$this->error = true;
 		if ( intval($id) == 0 )
 		{
 			return;
 		}
-		$sql = sprintf("SELECT `title`,`descr`,`user_id`,`created`,`status_id`,`cost`,`accept_till`,`start_date`,`end_date`,`cat_name`,`subcat_name`,`safe_deal`,`vip`,`views`
+		$public_fields = Array("title","descr","user_id","created","status_id","cost","accept_till","start_date","end_date","cat_name","subcat_name","safe_deal","vip","views","for_user_id");
+		array_walk($public_fields,'sqlize_array');
+		$sql = sprintf("SELECT %s
 		FROM `project`
 		LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
 		LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
-		WHERE `project_id` = '%d'",$id);
+		WHERE `project_id` = '%d'",implode(",",$public_fields),$id);
 		try {
 			$prj = $db->queryRow($sql);
 			if ( sizeof($prj) )
@@ -43,6 +45,7 @@ class Project
 			{
 				$this->update("status_id",4);
 			}
+			$this->is_project_author = ( $this->user_id == $current_user->user_id ) ? 1 : 0;
 			$this->status_name = $db->getValue("project_statuses","status_name","status_name",Array("id"=>$this->status_id));
 			$this->error = false;
 		}
@@ -58,6 +61,20 @@ class Project
 		try {
 			$counter = $db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("for_project_id"=>$this->project_id));
 			return $counter;
+		}
+		catch (Exception $e)
+		{
+			// return $e->getMessage();
+			return false;
+		}
+	}
+
+	public static function get_accepted_respond($project_id)
+	{
+		global $db;
+		try {
+			$respond_id = $db->getValue("project_responds","respond_id","respond_id",Array("for_project_id"=>$project_id,"status_id"=>3));
+			return $respond_id;
 		}
 		catch (Exception $e)
 		{

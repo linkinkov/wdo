@@ -22,23 +22,24 @@ $script_start = microtime(true);
 $sEcho = get_var("draw","int",0);
 $start = get_var("start","int",0);
 $length = get_var("length","int",10);
-$status = get_var("status","string","");
+$status = get_var("status_id","int",0);
 $search = isset($_REQUEST["search"]["value"]) ? htmlspecialchars($_REQUEST["search"]["value"]) : "";
 $order = get_var("order","array",Array());
 $for_project_id = get_var("for_project_id","int",0);
+// $status_id = get_var("status_id","int",0);
 
 if ( intval($for_project_id) == 0 ) exit;
 
-$orderStr = isset($orderArr) ? implode(", ", $orderArr) : "`project_responds`.`created` DESC";
+$orderStr = ( Project::get_accepted_respond($for_project_id) > 0 ) ? "`project_responds`.`status_id` DESC, `project_responds`.`created` DESC" : "`project_responds`.`created` DESC";
 $searchStr = ( $search ) ? '(
 		OR cost LIKE "%'.$search.'%"
 		)' : '1' ;
 $projectStr = ( $for_project_id != "" ) ? sprintf(' AND `for_project_id` = "%d"',$for_project_id) : '';
-$statusStr = ( $status != "" ) ? sprintf(' AND `status_id` IN (%s)',$status) : '';
-
+$statusStr = ( $status ) ? sprintf(' AND `status_id` IN (%s)',$status) : '';
+$status_not_blocked = sprintf(' AND `status_id` != 4');
 $sql_main = "SELECT `respond_id`
 	FROM `project_responds`
-	WHERE 1 $projectStr $statusStr
+	WHERE 1 $projectStr $statusStr $status_not_blocked
 	ORDER BY $orderStr
 	LIMIT $start, $length";
 try {
@@ -46,20 +47,18 @@ try {
 } catch (Exception $e) {
 	$response["error"] = $e->getMessage();
 	// echo $sql_main;
-	header('Content-Type: application/json');
 	echo json_encode($response);
 	exit();
 }
 $recordsTotal = 0;
 $recordsFiltered = 0;
 
-$sql = "SELECT COUNT(`respond_id`) as recordsTotal FROM `project_responds` WHERE 1 $projectStr";
+$sql = "SELECT COUNT(`respond_id`) as recordsTotal FROM `project_responds` WHERE 1 $projectStr $status_not_blocked";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
 } catch (Exception $e) {
 	$response["error"] = $e->getMessage();
-	header('Content-Type: application/json');
 	echo json_encode($response);
 	exit();
 }
@@ -67,13 +66,12 @@ try {
 
 $sql = "SELECT COUNT(`respond_id`) as recordsFiltered 
 	FROM `project_responds` 
-	WHERE 1 $projectStr $statusStr";
+	WHERE 1 $projectStr $statusStr $status_not_blocked";
 try {
 	$tdr = $db->queryRow($sql);
 	$recordsFiltered = $tdr->recordsFiltered;
 } catch (Exception $e) {
 	$response["error"] = $e->getMessage();
-	header('Content-Type: application/json');
 	echo json_encode($response);
 	exit();
 }
@@ -94,6 +92,13 @@ if ( sizeof ($aaData) )
 		$row->respond = $respond;
 		$row->user = new User($respond->user_id);
 		$row->user->getRespondsCounters();
+		$project_author_id = $db->getValue("project","user_id","user_id",Array("project_id"=>$respond->for_project_id));
+		$row->is_project_author = ( $project_author_id == $current_user->user_id ) ? 1 : 0;
+		if ( $row->is_project_author != 1 )
+		{
+			unset($row->respond->cost);
+			unset($row->respond->status_id);
+		}
 		$idx++;
 	}
 }
@@ -107,7 +112,6 @@ $response = Array(
 	"lastUpdate"=>time()
 );
 
-header('Content-Type: application/json');
 echo json_encode($response);
 exit();
 ?>

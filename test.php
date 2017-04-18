@@ -6,6 +6,15 @@ $db->query("set names utf8");
 
 require_once('lib/mysqli.class.php');
 $db = db::getInstance();
+$url = 'https://www.youtube.com/watch?v=H9mNjb9XYy8&qwejozxcn';
+$url = 'http://youtu.be/dQw4w9WgXcQ';
+if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $url, $match)) {
+	$video_id = $match[1];
+}
+// preg_match_all('/http[s]\:\/\/[www\.]youtube.com\/watch\?v=([a-zA-Z0-9]+)/',$url,$id);
+print_r($video_id);
+
+exit;
 
 $r_id = 2;
 $user_id = 1;

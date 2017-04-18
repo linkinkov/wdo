@@ -7,7 +7,7 @@ function getCookie(name) {
 }
 
 function setCookie(name, value, props) {
-	props = props || {expires: 3600*24*30}
+	props = props || {expires: 3600*24*30, path: '/'}
 	var exp = props.expires
 	if (typeof exp == "number" && exp) {
 		var d = new Date()
