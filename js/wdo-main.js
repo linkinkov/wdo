@@ -60,12 +60,13 @@ var config = {
 var app = {
 	"user": {
 		"userName": null,
+		"userNote": null,
 		"getUserName": function(user_id,callback) {
 			app.user.userName = null;
 			callback = callback || false;
 			$.ajax({
 				type: "POST",
-				url: "/get.getUserName",
+				url: "/user.getUserName",
 				data: {
 					"user_id": user_id
 				},
@@ -79,11 +80,54 @@ var app = {
 				}
 			})
 		},
-		"sendMessage": function(user_id,message_text,input,btn) {
-			set_btn_state(btn,"loading","Отправка...");
+		"getUserNote": function(user_id,callback,error_callback) {
+			app.user.userNote = null;
+			callback = callback || false;
+			error_callback = error_callback || false;
 			$.ajax({
 				type: "POST",
-				url: "/user/sendMessage",
+				url: "/user.getUserNote",
+				data: {
+					"user_id": user_id
+				},
+				dataType: "JSON",
+				success: function (response) {
+					if ( response.result == "true" )
+					{
+						app.user.userNote = response.userNote;
+						if ( callback ) callback.call();
+						return;
+					}
+					if ( error_callback ) error_callback(response);
+				}
+			})
+		},
+		"addNote": function(user_id,note_text,callback,error_callback) {
+			callback = callback || false;
+			error_callback = error_callback || false;
+			$.ajax({
+				type: "POST",
+				url: "/user.addNote",
+				data: {
+					"user_id": user_id,
+					"note_text": note_text
+				},
+				dataType: "JSON",
+				success: function (response) {
+					if ( response.result == "true" )
+					{
+						if ( callback ) callback.call();
+						return;
+					}
+					if ( error_callback ) error_callback(response);
+				}
+			})
+		},
+		"sendMessage": function(user_id,message_text,callback) {
+			callback = callback || false;
+			$.ajax({
+				type: "POST",
+				url: "/user.sendMessage",
 				data: {
 					"user_id": user_id,
 					"message_text": message_text
@@ -92,9 +136,8 @@ var app = {
 				success: function (response) {
 					if ( response.result == "true" )
 					{
-						console.log(response);
+						callback.call();
 					}
-					set_btn_state(btn,"reset","Отправить");
 				}
 			})
 		}

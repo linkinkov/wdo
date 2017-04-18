@@ -5,9 +5,12 @@ class User
 	public function __construct($user_id = false, $username = false, $login = false)
 	{
 		global $db;
-		if ( !isset($_SESSION["viewed_projects"]) )
+		if ( $login == true )
 		{
-			$_SESSION["viewed_projects"] = Array();
+			if ( !isset($_SESSION["viewed_projects"]) )
+			{
+				$_SESSION["viewed_projects"] = Array();
+			}
 		}
 		if ( isset($_COOKIE["city_id"]) && isset($_COOKIE["city_name"]) )
 		{
@@ -35,8 +38,8 @@ class User
 				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->$field) );
 			}
 			$this->realUserName = ( $info->type_id ==  1 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
-			$this->avatar_path = HOST.'/get.UserAvatar?user_id='.$this->user_id;
-			if ( $this->user_id != $_SESSION["user_id"] ) unset($this->username);
+			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
+			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
 		}
 		catch (Exception $e)
 		{
@@ -45,17 +48,7 @@ class User
 		}
 	}
 
-	public function getPrivateInfo()
-	{
-		global $db;
-		$allowed_params = Array("username","first_name","last_name");
-		foreach ( $this as $param )
-		{
-			echo $param;
-		}
-	}
-
-	public function getRespondsCounters()
+	public function get_responds_counters()
 	{
 		global $db;
 		$this->responds = new stdClass();
@@ -70,85 +63,13 @@ class User
 		}
 	}
 
-	public function update($field,$value)
-	{
-		global $db;
-		global $lang;
-		global $user;
-		$value = htmlentities(addslashes($value));
-		$min_pass_length = 4;
-		$response = Array(
-			"result" => "false",
-			"message" => $lang["error_occured"]
-		);
-
-		$sql = sprintf("UPDATE `users` SET `%s` = '%s' WHERE `user_id` = '%d'",$field,$value,$this->user_id);
-		if ( $field == "password" )
-		{
-			if ( strlen($value) < $min_pass_length )
-			{
-				$response["message"] = sprintf($lang["password_too_short"],$min_pass_length);
-				return $response;
-			}
-			$random_salt = hash('sha512', uniqid(openssl_random_pseudo_bytes(16), TRUE));
-			$value = hash('sha512', hash('sha512',$value) . $random_salt);
-			$sql = sprintf("UPDATE `users` SET `%s` = '%s', `salt` = '%s' WHERE `user_id` = '%d'",$field,$value,$random_salt,$this->user_id);
-		}
-		else if ( $field == "username" )
-		{
-			if ( strlen($value) < 3 )
-			{
-				$response["message"] = sprintf($lang["username_too_short"],3);
-				return $response;
-			}
-			else if ( preg_match("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/",$value) )
-			{
-				$response["message"] = $lang["invalid_chars"];
-				return $response;
-			}
-		}
-		try {
-			$db->query($sql);
-			$response["result"] = "true";
-			$response["message"] = $lang["saved"];
-		}
-		catch (Exception $e)
-		{
-			$response["result"] = "false";
-			$response["message"] = ( $e->getCode() == 1062 ) ? "Такой пользователь уже существует" : $e->getMessage();
-			return $response;
-		}
-	}
-	
-	public static function delete($user_id)
-	{
-		global $db;
-		global $lang;
-		global $user;
-		$sql = sprintf("UPDATE `users` SET `username` = CONCAT(`username`,'-',UNIX_TIMESTAMP()), `deleted` = 1 WHERE `user_id` = '%d'",$user_id);
-		$target_user = new User($user_id);
-		if ( intval($user_id) && $db->query($sql) )
-		{
-			$response["result"] = "true";
-			$response["message"] = $lang["user_deleted"];
-			$user->log_activity("users",Array("action"=>"delete","descr"=>sprintf("%s",$target_user->username)));
-		}
-		else
-		{
-			$response["result"] = "true";
-			$response["message"] = $lang["error_occured"];
-		}
-		return $response;
-	}
-	
 	public static function get_real_user_name($user_id)
 	{
 		global $db;
-		global $user;
 		global $lang;
 		$response = Array(
 			"result" => "false",
-			"message" => $lang["error_occured"]." user_id"
+			"message" => "Ошибка"
 		);
 		$realUserName = "";
 		if ( intval($user_id) <= 0 ) return $response;
@@ -166,28 +87,87 @@ class User
 		}
 		catch (Exception $e)
 		{
-			$response["message"] = $e->getMessage();
-			return $response;
+			// $response["error"] = $e->getMessage();
 		}
+		return $response;
 	}
 
-	public static function get_list($start = 0,$limit = 20,$state_id = false)
+	public static function get_user_note($user_id)
 	{
 		global $db;
-		global $user;
-		global $lang;
+		global $current_user;
 		$response = Array(
 			"result" => "false",
-			"message" => $lang["error_occured"]
+			"message" => "Ошибка"
 		);
-		$where["state"] = ( intval($state_id) > 0 ) ? sprintf("`state_id` = '%d'",$state_id) : "1";
+		if ( intval($user_id) <= 0 || $current_user->user_id == 0 ) return $response;
 		try {
-			return $db->queryRows(sprintf("SELECT `user_id` FROM `users` WHERE %s LIMIT %d, %d",implode("AND",$where),$start,$limit));
+			$response["result"] = "true";
+			unset($response["message"]);
+			$response["userNote"] = $db->getValue("user_notes","note_text","note_text",Array("user_id"=>$current_user->user_id,"for_user_id"=>$user_id));
+			if ( $response["userNote"] == false ) $response["userNote"] = "";
 		}
 		catch (Exception $e)
 		{
-			return false;
+			// $response["error"] = $e->getMessage();
 		}
+		return $response;
+	}
+
+	public static function sendMessage($user_id,$message_text)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( trim($message_text) == "" ) return $response;
+		if ( $current_user->user_id == 0 ) return $response;
+		$uniq_id = md5(time().$message_text.$user_id);
+		$sql = sprintf("INSERT INTO `messages` (`message_id`,`message_text`,`user_id_from`,`user_id_to`,`timestamp`) 
+		VALUES ('%s','%s','%d','%d',UNIX_TIMESTAMP())",
+		$uniq_id,
+		$message_text,
+		$current_user->user_id,
+		$user_id);
+		try {
+			$db->query($sql);
+			$response["result"] = "true";
+			$response["message"] = "Сообщение отправлено";
+		}
+		catch ( Exception $e )
+		{
+		}
+		return $response;
+	}
+
+	public static function addNote($user_id,$note_text)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( trim($note_text) == "" ) return $response;
+		if ( $current_user->user_id == 0 ) return $response;
+		$uniq_id = md5(time().$note_text.$user_id);
+		$sql = sprintf("INSERT INTO `messages` (`note_id`,`note_text`,`user_id`,`user_id_to`,`timestamp`) 
+		VALUES ('%s','%s','%d','%d',UNIX_TIMESTAMP())",
+		$uniq_id,
+		$note_text,
+		$current_user->user_id,
+		$user_id);
+		try {
+			$db->query($sql);
+			$response["result"] = "true";
+			$response["message"] = "Заметка сохранена";
+		}
+		catch ( Exception $e )
+		{
+		}
+		return $response;
 	}
 }
 

@@ -213,13 +213,13 @@ if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
 						<div class="col" style="text-align: center;align-self: center;"><!-- user block -->
 							<?php
 							$pu = new User($project->user_id);
-							$pu->getRespondsCounters();
+							$pu->get_responds_counters();
 							echo sprintf('
 							<a href="%s" class="wdo-link"><img class="rounded-circle" src="%s" />
 							<br />
 							%s</a>',
 								HOST.'/profile/id'.$project->user_id,
-								HOST.'/get.UserAvatar?user_id='.$project->user_id.'&w=100&h=100',
+								HOST.'/user.getAvatar?user_id='.$project->user_id.'&w=100&h=100',
 								$pu->realUserName
 							);
 							echo sprintf('<br />
@@ -374,7 +374,7 @@ $(function(){
 				header_html = ''
 				+'<div class="row">'
 				+'	<div class="col">'
-				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="'+data.respond.user_id+'">Написать сообщение</a> | <i class="fa fa-pencil" data-toggle="modal" data-target="#add-note-modal"></i> <a class="wdo-link">Добавить заметку</a>'
+				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="'+data.respond.user_id+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#add-note-modal" data-recipient="'+data.respond.user_id+'">Добавить заметку</a>'
 				+'		<span class="pull-right">'+actions+'</span>'
 				+'	</div>'
 				+'</div>'

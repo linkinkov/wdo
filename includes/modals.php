@@ -136,13 +136,41 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col">
-						<text class="text-muted strong">Кому:</text> <img name="userAvatar" src="" class="rounded-circle" /> <a name="userName" href="/profile/id1" class="wdo-link">Username</a>
+						<text class="text-muted strong">Кому:</text> <img name="userAvatar" src="" class="rounded-circle" /> <a name="userName" href="" class="wdo-link"></a>
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
 					<div class="col">
 						<br /><textarea class="form-control" placeholder="Введите сообщение" name="message-text-from-modal"></textarea>
 						<br /><div class="wdo-btn bg-yellow strong" name="send-pm" data-recipient-id="" style="max-width: 75%; margin: 0 auto;"><i class="fa"></i>Отправить</div>
+						<br /><br /><br />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- add-note-modal -->
+<div class="modal fade" id="add-note-modal" tabindex="-1" role="dialog" aria-labelledby="add-note-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="add-note-modal-label">Добавить / изменить заметку</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col">
+						<text class="text-muted strong">Для кого:</text> <img name="userAvatar" src="" class="rounded-circle" /> <a name="userName" href="" class="wdo-link"></a>
+					</div>
+				</div>
+				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
+					<div class="col">
+						<br /><textarea class="form-control" placeholder="Введите заметку" name="note-text-from-modal"></textarea>
+						<br /><div class="wdo-btn bg-yellow strong" name="add-note" data-recipient-id="" style="max-width: 75%; margin: 0 auto;"><i class="fa"></i>Сохранить</div>
 						<br /><br /><br />
 					</div>
 				</div>

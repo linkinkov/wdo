@@ -147,7 +147,7 @@ function login($username, $password, $db)
 					// Password is correct!
 					// Get the user-agent string of the user.
 					$user_browser = $_SERVER['HTTP_USER_AGENT'];
-					$current_user = new User(false,$username);
+					$current_user = new User(false,$username,true);
 					$_SESSION['user_id'] = $current_user->user_id;
 					$_SESSION['username'] = $current_user->username;
 					$_SESSION['login_string'] = hash('sha512',$password . $user_browser);

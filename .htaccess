@@ -9,7 +9,7 @@ RewriteRule ^(project)/([a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_nam
 
 RewriteRule ^update.([a-zA-Z0-9_-]+)$ update.php?type=$1 [L,QSA]
 RewriteRule ^get.([a-zA-Z0-9_-]+)$ get.php?job=$1 [L,QSA]
-RewriteRule ^user/([a-zA-Z0-9_-]+)$ user.php?job=$1 [L,QSA]
+RewriteRule ^user.([a-zA-Z0-9_-]+)$ user.php?job=$1 [L,QSA]
 
 RewriteRule ^(login|logout)/$ $1.php [L,QSA]
 RewriteRule ^dt/([a-zA-Z0-9_-]+)$ /dt/dt.$1.php

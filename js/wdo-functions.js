@@ -139,15 +139,16 @@ function reloadProjectsTable()
 function set_btn_state(btn,state,message,clas)
 {
 	clas = clas || "";
+	message = message || false;
 	var i = $(btn).find("i.fa");
 	if ( state == "loading" )
 	{
-		$(btn).addClass("disabled") //.text(message);
+		$(btn).addClass("disabled").text(message);
 		$(i).attr('class','fa fa-spinner fa-spin');
 	}
 	else if ( state == "reset" )
 	{
-		$(btn).removeClass("disabled") //.text(message);
+		$(btn).removeClass("disabled").text(message);
 		$(i).attr('class','fa '+clas);
 	}
 }
@@ -165,22 +166,62 @@ $(function(){
 	$('#send-pm-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
 				recipient_id = $(related).data('recipient'),
-				modal = e.delegateTarget;
+				modal = e.delegateTarget,
+				submit_btn = $(modal).find(".wdo-btn[name='send-pm']");
+		$(submit_btn).data('recipient',recipient_id);
+		$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
+		$(modal).find("textarea[name='message-text']").data('recipient',recipient_id);
+		set_btn_state(submit_btn,"reset");
 		app.user.getUserName(recipient_id,function(){
-			$(modal).find("img[name='userAvatar']").attr("src","/get.UserAvatar?user_id="+recipient_id+"&w=35&h=35");
 			$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(app.user.userName);
-			$(modal).find(".wdo-btn[name='send-pm']").data('recipient',recipient_id);
-			$(modal).find("textarea[name='message-text']").data('recipient',recipient_id);
-			console.log($(modal).find("textarea[name='message-text-from-modal']").data());
 		});
 	})
+	$('#add-note-modal').on('show.bs.modal', function(e){
+		var related = e.relatedTarget,
+				recipient_id = $(related).data('recipient'),
+				modal = e.delegateTarget,
+				submit_btn = $(modal).find(".wdo-btn[name='add-note']");
+		$(submit_btn).data('recipient',recipient_id);
+		$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
+		$(modal).find("textarea[name='note-text']").data('recipient',recipient_id);
+		set_btn_state(submit_btn,"reset");
+		app.user.getUserName(recipient_id,function(){
+			$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(app.user.userName);
+		});
+		app.user.getUserNote(recipient_id,function(){
+			$(modal).find("textarea[name='note-text']").val(app.user.userNote);
+		});
+	})
+
 	$(".wdo-btn[name='send-pm']").click(function(){
 		var btn = this,
 				recipient_id = $(this).data('recipient'),
 				textarea = $("textarea[name='message-text-from-modal']")
-				message_text = $("textarea[name='message-text-from-modal']").val();
+				message_text = $(textarea).val();
 		console.log("Sending message: '"+message_text+"' to user:",recipient_id);
-		app.user.sendMessage(recipient_id,message_text,textarea,btn);
+		set_btn_state(btn,"loading");
+		app.user.sendMessage(recipient_id,message_text,function(){
+			$('#send-pm-modal').modal("hide");
+			$(textarea).val("");
+			set_btn_state(btn,"reset");
+		});
+	})
+
+	$(".wdo-btn[name='add-note']").click(function(){
+		var btn = this,
+				recipient_id = $(this).data('recipient'),
+				textarea = $("textarea[name='note-text-from-modal']")
+				note_text = $(textarea).val();
+		console.log("Saving note: '"+note_text+"' to user:",recipient_id);
+		set_btn_state(btn,"loading");
+		app.user.addNote(recipient_id,note_text,function(){
+			$('#send-pm-modal').modal("hide");
+			$(textarea).val("");
+			set_btn_state(btn,"reset");
+		},function(response){
+			console.log("error_callback! response:",response);
+			if ( response.message ) set_btn_state(btn,"reset",response.message);
+		});
 	})
 	var login_btn = $('#login-modal').find("button[type='submit']");
 	$('#login-modal').find("form input").each(function(){

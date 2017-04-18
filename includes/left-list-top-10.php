@@ -8,7 +8,7 @@
 			echo sprintf('<li class="list-group-item justify-content-between">
 			<img class="rounded-circle" src="%s" /> <div style="max-width: 90px; word-wrap: break-word;">%s</div>
 			<span class="badge bg-yellow badge-pill">%d</span>
-			</li>',HOST.'/get.UserAvatar?user_id='.$r->user_id.'&w=45&h=45',$userName,$r->rating);
+			</li>',HOST.'/user.getAvatar?user_id='.$r->user_id.'&w=45&h=45',$userName,$r->rating);
 	}
 	?>
 	<li class="list-group-item justify-content-between" style="align-self: center;"><a href="/performers/" class="wdo-link text-yellow">Все исполнители</a></li>
