@@ -210,10 +210,10 @@ if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
 							}
 							?>
 						</div>
-						<div class="col" style="text-align: center;align-self: center;"><!-- user block -->
+						<div class="col text-center" style="align-self: center;"><!-- user block -->
 							<?php
 							$pu = new User($project->user_id);
-							$pu->get_responds_counters();
+							$pu->get_counters();
 							echo sprintf('
 							<a href="%s" class="wdo-link"><img class="rounded-circle" src="%s" />
 							<br />
@@ -225,8 +225,8 @@ if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
 							echo sprintf('<br />
 								<img src="%s" title="Положительных отзывов" /> %d | <img src="%s" title="Негативных отзывов" /> %d
 							',
-							HOST.'/images/rating-good.png',$pu->responds->good_counter,
-							HOST.'/images/rating-bad.png',$pu->responds->bad_counter
+							HOST.'/images/rating-good.png',$pu->counters->responds->good,
+							HOST.'/images/rating-bad.png',$pu->counters->responds->bad
 							);
 							?>
 						</div>
@@ -319,7 +319,7 @@ $(function(){
 			+'<div class="row">'
 			+'	<div class="col" style="border-right: 1px solid #eee;">'
 			+'		<div class="row">'
-			+'			<div class="col" style="text-align: center;padding-top: 10px; max-width: 100px;">'
+			+'			<div class="col text-center" style="padding-top: 10px; max-width: 100px;">'
 			+'				<img class="rounded-circle" src="'+data.user.avatar_path+'&w=50&h=50" /><br />'
 			+'				'+moment.unix(data.respond.created).format("YYYY-MM-DD HH:MM")
 			+'			</div>'
@@ -331,7 +331,7 @@ $(function(){
 			+'	</div>'
 			+'	<div class="col" style="min-width: 220px; max-width: 220px; flex: 0 0 220px;">'
 			+'		<text style="line-height: 2rem;">Рейтинг <span class="pull-right">'+data.user.rating+'</span></text><br />'
-			+'		<text style="line-height: 2rem;">Отзывов <span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.responds.good_counter+' | <img src="/images/rating-bad.png" /> '+data.user.responds.bad_counter+'</span></text><br />'
+			+'		<text style="line-height: 2rem;">Отзывов <span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">В сервисе <span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
 			if ( data.respond.cost )
 			{
@@ -374,7 +374,7 @@ $(function(){
 				header_html = ''
 				+'<div class="row">'
 				+'	<div class="col">'
-				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="'+data.respond.user_id+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#add-note-modal" data-recipient="'+data.respond.user_id+'">Добавить заметку</a>'
+				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="'+data.respond.user_id+'" data-realUserName="'+data.user.realUserName+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="'+data.respond.user_id+'" data-realUserName="'+data.user.realUserName+'">Добавить заметку</a>'
 				+'		<span class="pull-right">'+actions+'</span>'
 				+'	</div>'
 				+'</div>'

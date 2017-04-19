@@ -6,12 +6,12 @@
 			<div class="row wdo-main-header">
 				<div class="col wdo-main-left logo">
 					<div class="row">
-						<div class="col" style="text-align: center;">
+						<div class="col text-center">
 							<a href="<?php echo HOST;?>"><img src="/images/main-logo.png" style="margin-top: 10px;"/></a>
 						</div>
 					</div>
 					<div class="row">
-						<div class="col" style="text-align: center;">
+						<div class="col text-center">
 							<a href="#" data-toggle="modal" data-target="#city-select-modal" class="text-yellow"><?php echo $current_user->city_name;?></a>
 						</div>
 					</div>
@@ -77,14 +77,14 @@ if ( $current_user->user_id > 0 ) // user authorized
 							<img class="rounded-circle" src="<?php echo HOST;?>/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=25&h=25" />
 							<div class="btn-group">
 								<div href="#" class="wdo-link dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="align-items: end-flex;">
-									&nbsp;Профиль<span class="badge badge-pill badge-info" style="position: absolute; top: 0; right: -20px;">3</span>
+									&nbsp;Профиль<span data-type="total" class="badge badge-pill badge-info profile-counter" style="position: absolute; top: 0; right: -20px;">3</span>
 								</div>
 								<div class="dropdown-menu dropdown-menu-right profile-menu" style="width: 230px;">
-									<a class="wdo-link dropdown-item" href="#"><strong>Мой кабинет</strong></a>
-									<a class="wdo-link dropdown-item" href="#"><span class="pull-right"><span class="badge badge-pill badge-info">2</span></span>Сообщения</a>
-									<a class="wdo-link dropdown-item" href="#"><span class="pull-right"><span class="badge badge-pill badge-info">0</span></span>Отзывы</a>
-									<a class="wdo-link dropdown-item" href="#"><span class="pull-right"><span class="badge badge-pill badge-info">1</span></span>Заявки</a>
-									<a class="wdo-link dropdown-item" href="#"><span class="pull-right"><span class="badge badge-pill badge-info">0</span></span>Предупреждения</a>
+									<a class="wdo-link dropdown-item" href="/profile/"><strong>Мой кабинет</strong></a>
+									<a class="wdo-link dropdown-item" href="/profile/messages"><span class="pull-right"><span data-type="messages" class="badge badge-pill badge-info profile-counter">2</span></span>Сообщения</a>
+									<a class="wdo-link dropdown-item" href="/profile/responds"><span class="pull-right"><span data-type="responds" class="badge badge-pill badge-info profile-counter">3</span></span>Отзывы</a>
+									<a class="wdo-link dropdown-item" href="/profile/project-responds"><span class="pull-right"><span data-type="project-responds" class="badge badge-pill badge-info profile-counter">4</span></span>Заявки</a>
+									<a class="wdo-link dropdown-item" href="/profile/warnings"><span class="pull-right"><span data-type="warnings" class="badge badge-pill badge-info profile-counter">6</span></span>Предупреждения</a>
 									<div class="dropdown-divider"></div>
 									<a class="wdo-link dropdown-item" href="/logout/">Выход</a>
 								</div>

@@ -91,7 +91,7 @@ if ( sizeof ($aaData) )
 		$respond->cost = number_format($respond->cost,0,","," ");
 		$row->respond = $respond;
 		$row->user = new User($respond->user_id);
-		$row->user->get_responds_counters();
+		$row->user->get_counters();
 		$project_author_id = $db->getValue("project","user_id","user_id",Array("project_id"=>$respond->for_project_id));
 		$row->is_project_author = ( $project_author_id == $current_user->user_id ) ? 1 : 0;
 		if ( $row->is_project_author != 1 )

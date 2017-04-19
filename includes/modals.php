@@ -12,13 +12,13 @@
 			</div>
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;">
-					<div class="col strong" style="flex: 0 0 80%; text-align: center;">
+					<div class="col strong text-center" style="flex: 0 0 80%;">
 						<p>Мы определили Ваш город как <?php echo $current_user->city_name;?></p>
 						<p>Если мы определили его не правильно, введите свой город</p>
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;">
-					<div class="col" style="flex: 0 0 80%; text-align: center;">
+					<div class="col text-center" style="flex: 0 0 80%;">
 						<div class="input-group">
 							<input type="text" class="form-control" placeholder="Введите для поиска и выберите из списка ниже" onKeyUp="update_city_list(this,event);" />
 						</div>
@@ -82,7 +82,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;">
-					<div class="col strong" style="flex: 0 0 80%; text-align: center;">
+					<div class="col strong text-center" style="flex: 0 0 80%;">
 						<p>Ссылка на восстановление пароля будет отправлена на почту</p>
 					</div>
 				</div>
@@ -141,8 +141,8 @@
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
 					<div class="col">
-						<br /><textarea class="form-control" placeholder="Введите сообщение" name="message-text-from-modal"></textarea>
-						<br /><div class="wdo-btn bg-yellow strong" name="send-pm" data-recipient-id="" style="max-width: 75%; margin: 0 auto;"><i class="fa"></i>Отправить</div>
+						<br /><textarea class="form-control" placeholder="Введите сообщение" name="message-text"></textarea>
+						<br /><div class="wdo-btn bg-yellow strong" name="send-pm" data-ot="Отправить" data-lt="Отправка" data-recipient-id="" style="max-width: 75%; margin: 0 auto;"><i class="fa"></i>Отправить</div>
 						<br /><br /><br />
 					</div>
 				</div>
@@ -152,11 +152,11 @@
 </div>
 
 <!-- add-note-modal -->
-<div class="modal fade" id="add-note-modal" tabindex="-1" role="dialog" aria-labelledby="add-note-modal-label" aria-hidden="true">
+<div class="modal fade" id="save-note-modal" tabindex="-1" role="dialog" aria-labelledby="save-note-modal-label" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="add-note-modal-label">Добавить / изменить заметку</h5>
+				<h5 class="modal-title" id="save-note-modal-label">Добавить / изменить заметку</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -164,13 +164,13 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col">
-						<text class="text-muted strong">Для кого:</text> <img name="userAvatar" src="" class="rounded-circle" /> <a name="userName" href="" class="wdo-link"></a>
+						<img name="userAvatar" src="" class="rounded-circle" /> <a name="userName" href="" class="wdo-link"></a>
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
 					<div class="col">
-						<br /><textarea class="form-control" placeholder="Введите заметку" name="note-text-from-modal"></textarea>
-						<br /><div class="wdo-btn bg-yellow strong" name="add-note" data-recipient-id="" style="max-width: 75%; margin: 0 auto;"><i class="fa"></i>Сохранить</div>
+						<br /><textarea class="form-control" placeholder="Введите заметку" name="note-text"></textarea>
+						<br /><div class="wdo-btn bg-yellow strong" name="save-note" data-ot="Сохранить" data-lt="Сохранение" data-recipient-id="" style="max-width: 75%; margin: 0 auto;"><i class="fa"></i>Сохранить</div>
 						<br /><br /><br />
 					</div>
 				</div>

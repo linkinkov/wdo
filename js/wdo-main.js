@@ -59,72 +59,67 @@ var config = {
 
 var app = {
 	"user": {
-		"userName": null,
-		"userNote": null,
-		"getUserName": function(user_id,callback) {
-			app.user.userName = null;
-			callback = callback || false;
+		"updateProfileCounters": function() {
 			$.ajax({
 				type: "POST",
-				url: "/user.getUserName",
+				url: "/user.getProfileCounters",
+				dataType: "JSON",
+				success: function (response) {
+					console.log("getProfileCounters:",response);
+					if ( response.result == "true" )
+					{
+						$.each(response.counters,function(key,value){
+							updateProfileCounter(key,value);
+						})
+					}
+				}
+			})
+		},
+		"getName": function(user_id,callback) {
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/user.getName",
 				data: {
 					"user_id": user_id
 				},
 				dataType: "JSON",
 				success: function (response) {
-					if ( response.result == "true" )
-					{
-						app.user.userName = response.userName;
-						if ( callback ) callback.call();
-					}
+					callback(response);
 				}
 			})
 		},
-		"getUserNote": function(user_id,callback,error_callback) {
-			app.user.userNote = null;
-			callback = callback || false;
-			error_callback = error_callback || false;
+		"getNote": function(user_id,callback) {
+			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
-				url: "/user.getUserNote",
+				url: "/user.getNote",
 				data: {
 					"user_id": user_id
 				},
 				dataType: "JSON",
 				success: function (response) {
-					if ( response.result == "true" )
-					{
-						app.user.userNote = response.userNote;
-						if ( callback ) callback.call();
-						return;
-					}
-					if ( error_callback ) error_callback(response);
+					callback(response);
 				}
 			})
 		},
-		"addNote": function(user_id,note_text,callback,error_callback) {
-			callback = callback || false;
-			error_callback = error_callback || false;
+		"saveNote": function(user_id,note_text,callback) {
+			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
-				url: "/user.addNote",
+				url: "/user.saveNote",
 				data: {
 					"user_id": user_id,
 					"note_text": note_text
 				},
 				dataType: "JSON",
 				success: function (response) {
-					if ( response.result == "true" )
-					{
-						if ( callback ) callback.call();
-						return;
-					}
-					if ( error_callback ) error_callback(response);
+					callback(response);
 				}
 			})
 		},
 		"sendMessage": function(user_id,message_text,callback) {
-			callback = callback || false;
+			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
 				url: "/user.sendMessage",
@@ -134,10 +129,7 @@ var app = {
 				},
 				dataType: "JSON",
 				success: function (response) {
-					if ( response.result == "true" )
-					{
-						callback.call();
-					}
+					callback(response);
 				}
 			})
 		}

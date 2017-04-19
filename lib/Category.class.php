@@ -22,6 +22,15 @@ class Category
 		}
 	}
 
+	public static function get_name($cat_id)
+	{
+		global $db;
+		$cat_id = intval($cat_id);
+		if ( !$cat_id ) return "";
+		$name = $db->getValue("cats","cat_name","cat_name",Array("id"=>$cat_id));
+		return $name;
+	}
+
 	public static function getList($search = false)
 	{
 		global $db;

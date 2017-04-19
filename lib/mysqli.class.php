@@ -91,7 +91,7 @@ class db extends mysqli
 		return $aaData;
 	}
 
-	public function getValue($table, $field, $as = false, $where = Array(), $logic_glue = "AND")
+	public function getValue($table, $field, $as = false, $where = Array(), $logic_glue = "AND", $group_by = false)
 	{
 		$where_entries = Array();
 		$as = ($as) ? $as : $field;
@@ -108,8 +108,9 @@ class db extends mysqli
 				$where_entries[] = sprintf("`%s` = '%s'",$colName,$colValue);
 			}
 		}
-		$sqlWhere = "(".implode(" ".$logic_glue,$where_entries).")";
-		$sql = sprintf("SELECT %s as %s FROM `%s` WHERE %s",$field,$as,$table,$sqlWhere);
+		$sqlWhere = (sizeof($where)) ? "(".implode(" ".$logic_glue,$where_entries).")" : "1";
+		$groupBy = ($group_by) ? sprintf('GROUP BY `%s`',$group_by) : "";
+		$sql = sprintf("SELECT %s as %s FROM `%s` WHERE %s %s",$field,$as,$table,$sqlWhere,$groupBy);
 		// echo $sql."\n";
 		try {
 			$res = $this->queryRow($sql);

@@ -13,7 +13,7 @@ check_access($db,false);
 
 $current_user = new User($_SESSION["user_id"]);
 
-$preselect = isset($_REQUEST["preselect"]) ? $_REQUEST["preselect"] : array();
+$preselect = get_var("preselect","array",Array());
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -139,22 +139,6 @@ $preselect = isset($_REQUEST["preselect"]) ? $_REQUEST["preselect"] : array();
 <?php include(PD.'/includes/scripts.php');?>
 
 <script>
-function updateProfileIndicator(type,counter)
-{
-	var indicator = $(".notify[notifyType='"+type+"']");
-	counter = ( counter > 99 ) ? "99+" : counter;
-	$(indicator).find(".counter").text(counter);
-	if ( parseInt(counter) > 0 )
-	{
-		$(indicator).find("i").addClass("active");
-		$(indicator).find("span").show();
-	}
-	else
-	{
-		$(indicator).find("i").removeClass("active");
-		$(indicator).find("span").hide();
-	}
-}
 $(function(){
 
 	<?php
@@ -179,8 +163,6 @@ $(function(){
 		echo 'restoreSelectedSpecs();';
 	}
 	?>
-	updateProfileIndicator("messages",13);
-	updateProfileIndicator("info",1);
 	config.projects.calendar = $('.calendar').daterangepicker(config.datePickerOptions);
 	$('.calendar').on('apply.daterangepicker', function(ev, picker) {
 		reloadProjectsTable();

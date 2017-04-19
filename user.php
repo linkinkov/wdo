@@ -18,14 +18,14 @@ switch ( $job )
 		$h = get_var("h","int",35);
 		Avatar::getByUserID($user_id,$w,$h);
 		break;
-	case "getUserName":
+	case "getName":
 		$user_id = get_var("user_id","int",0);
 		$username = User::get_real_user_name($user_id);
 		header('Content-Type: application/json');
 		$response = is_array($username) ? $username : Array("result"=>"true","userName"=>$username);
 		echo json_encode($response);
 		break;
-	case "getUserNote":
+	case "getNote":
 		$user_id = get_var("user_id","int",0);
 		$note = User::get_user_note($user_id);
 		header('Content-Type: application/json');
@@ -35,14 +35,19 @@ switch ( $job )
 	case "sendMessage":
 		$user_id = get_var("user_id","int",0);
 		$message_text = get_var("message_text","string","");
-		$response = User::sendMessage($user_id,$message_text);
+		$response = User::send_message($user_id,$message_text);
 		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;
-	case "addNote":
+	case "saveNote":
 		$user_id = get_var("user_id","int",0);
 		$note_text = get_var("note_text","string","");
-		$response = User::addNote($user_id,$note_text);
+		$response = User::save_note($user_id,$note_text);
+		header('Content-Type: application/json');
+		echo json_encode($response);
+		break;
+	case "getProfileCounters":
+		$response = $current_user->get_profile_counters();
 		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;

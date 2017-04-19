@@ -136,24 +136,33 @@ function reloadProjectsTable()
 {
 	config.projects.dt.ajax.reload();
 }
-function set_btn_state(btn,state,message,clas)
+function set_btn_state(btn,state,message)
 {
-	clas = clas || "";
+	state = state || false;
 	message = message || false;
-	var i = $(btn).find("i.fa");
+	if ( !state ) return;
 	if ( state == "loading" )
 	{
-		$(btn).addClass("disabled").text(message);
-		$(i).attr('class','fa fa-spinner fa-spin');
+		message = ( message != false ) ? message : $(btn).data('lt');
+		$(btn).addClass("disabled").html('<i class="fa fa-spinner fa-spin"></i> '+message);
 	}
 	else if ( state == "reset" )
 	{
-		$(btn).removeClass("disabled").text(message);
-		$(i).attr('class','fa '+clas);
+		message = ( message != false ) ? message : $(btn).data('ot');
+		$(btn).removeClass("disabled").html(message);
 	}
 }
 
+function updateProfileCounter(type,counter)
+{
+	var indicator = $(".profile-counter[data-type='"+type+"']");
+	counter = ( counter > 99 ) ? "99+" : counter;
+	( parseInt(counter) > 0 ) ? $(indicator).css('display','inline-block') : $(indicator).css('display','none');
+	$(indicator).text(counter);
+}
+
 $(function(){
+	app.user.updateProfileCounters();
 	$('#city-select-modal').on('shown.bs.modal', function (e){
 		update_city_list(this,e);
 	})
@@ -166,61 +175,73 @@ $(function(){
 	$('#send-pm-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
 				recipient_id = $(related).data('recipient'),
+				realUserName = $(related).data('realusername'),
 				modal = e.delegateTarget,
 				submit_btn = $(modal).find(".wdo-btn[name='send-pm']");
 		$(submit_btn).data('recipient',recipient_id);
 		$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
 		$(modal).find("textarea[name='message-text']").data('recipient',recipient_id);
 		set_btn_state(submit_btn,"reset");
-		app.user.getUserName(recipient_id,function(){
-			$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(app.user.userName);
-		});
+		$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(realUserName);
 	})
-	$('#add-note-modal').on('show.bs.modal', function(e){
+	$('#save-note-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
 				recipient_id = $(related).data('recipient'),
+				realUserName = $(related).data('realusername'),
 				modal = e.delegateTarget,
-				submit_btn = $(modal).find(".wdo-btn[name='add-note']");
+				submit_btn = $(modal).find(".wdo-btn[name='save-note']"),
+				textarea = $(modal).find("textarea[name='note-text']");
 		$(submit_btn).data('recipient',recipient_id);
 		$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
-		$(modal).find("textarea[name='note-text']").data('recipient',recipient_id);
+		$(textarea).data('recipient',recipient_id);
+		$(textarea).on("keyup",function(){
+			set_btn_state(submit_btn,"reset");
+		})
 		set_btn_state(submit_btn,"reset");
-		app.user.getUserName(recipient_id,function(){
-			$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(app.user.userName);
-		});
-		app.user.getUserNote(recipient_id,function(){
-			$(modal).find("textarea[name='note-text']").val(app.user.userNote);
+		$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(realUserName);
+		app.user.getNote(recipient_id,function(response){
+			if ( response.result == "true" )
+			{
+				var matches = response.userNote.match(/\n/g),
+						breaks = matches ? matches.length : 2;
+				$(textarea).val(response.userNote).attr('rows',breaks + 2);
+			}
+			else
+			{
+				var matches = response.message.match(/\n/g),
+						breaks = matches ? matches.length : 2;
+				$(textarea).val(response.message).attr('rows',breaks + 2);;
+			}
 		});
 	})
 
 	$(".wdo-btn[name='send-pm']").click(function(){
 		var btn = this,
 				recipient_id = $(this).data('recipient'),
-				textarea = $("textarea[name='message-text-from-modal']")
+				textarea = $("textarea[name='message-text']")
 				message_text = $(textarea).val();
-		console.log("Sending message: '"+message_text+"' to user:",recipient_id);
 		set_btn_state(btn,"loading");
-		app.user.sendMessage(recipient_id,message_text,function(){
-			$('#send-pm-modal').modal("hide");
-			$(textarea).val("");
-			set_btn_state(btn,"reset");
+		app.user.sendMessage(recipient_id,message_text,function(response){
+			if ( response.result == "true" )
+			{
+				$(textarea).val("");
+			}
+			set_btn_state(btn,"reset",response.message);
 		});
 	})
 
-	$(".wdo-btn[name='add-note']").click(function(){
+	$(".wdo-btn[name='save-note']").click(function(){
 		var btn = this,
 				recipient_id = $(this).data('recipient'),
-				textarea = $("textarea[name='note-text-from-modal']")
+				textarea = $("textarea[name='note-text']")
 				note_text = $(textarea).val();
-		console.log("Saving note: '"+note_text+"' to user:",recipient_id);
 		set_btn_state(btn,"loading");
-		app.user.addNote(recipient_id,note_text,function(){
-			$('#send-pm-modal').modal("hide");
-			$(textarea).val("");
-			set_btn_state(btn,"reset");
-		},function(response){
-			console.log("error_callback! response:",response);
-			if ( response.message ) set_btn_state(btn,"reset",response.message);
+		app.user.saveNote(recipient_id,note_text,function(response){
+			set_btn_state(btn,"reset",response.message);
+			if ( window.location.pathname.match('/profile/') && response.result == "true" )
+			{
+				$("#user_note").text(note_text);
+			}
 		});
 	})
 	var login_btn = $('#login-modal').find("button[type='submit']");
