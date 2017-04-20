@@ -160,7 +160,7 @@ body { padding-right: 0 !important }
 .header-nav-row {
 	align-items: center; min-height: 41px;
 }
-.mini-header-nav,.mini-header-nav:hover,.mini-header-nav:active {
+.mini-header-nav,.mini-header-nav:hover,.mini-header-nav:active,.mini-header-nav:focus {
 	font-weight: 800;
 	color: #a7a522;
 	padding: 17px;
@@ -389,8 +389,11 @@ i.fa.active {
 	border-bottom: 2px solid #940a63;
 }
 .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
-	/*border-color: transparent;*/
 	background-color: #eceeef;
+}
+.tab-pane {
+	padding-top: 20px;
+	padding-left: 10px;
 }
 /* ----- END PROFILE ---- */
 .word-break {

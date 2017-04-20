@@ -28,17 +28,17 @@ class User
 			return;
 		}
 		$where = (intval($user_id) > 0) ? sprintf("`user_id` = '%d'",$user_id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","last_name","first_name","company_name","type_id","registered","last_login","as_performer","state_id","rating","phone","skype");
+		$public_fields = Array("user_id","username","last_name","first_name","company_name","type_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE %s",implode(",",$public_fields),$where);
 		// $sql = "SELECT `user_id`,`username`, `last_name`, `first_name`, `company_name`, `type_id`, `registered`, `last_login`, `as_performer`, `state_id`, `rating` FROM `users` WHERE $where";
 		try {
 			$info = $db->queryRow($sql);
 			if ( sizeof($info) ) foreach ( $info as $p => $v ) $this->$p = htmlentities($v); else $this->error = true;
-			$filter = Array("username","last_name","first_name","company_name","phone","skype","birthday","skype");
+			$filter = Array("username","last_name","first_name","company_name","phone","skype","signature","rezume");
 			foreach ( $filter as $field )
 			{
-				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->$field) );
+				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-\:\/]+/", "", $this->$field) );
 			}
 			$this->realUserName = ( $info->type_id ==  1 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
@@ -50,6 +50,39 @@ class User
 			return false;
 		}
 	}
+
+	public static function get_profile_info($user_id = false)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( !$user_id ) return $response;
+		if ( $current_user->user_id != $user_id ) return $response;
+		$public_fields = Array("user_id","last_name","first_name","company_name","type_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday");
+		array_walk($public_fields,'sqlize_array');
+		$sql = sprintf("SELECT %s FROM `users` WHERE `user_id` = '%d'",implode(",",$public_fields),$user_id);
+		try {
+			$info = $db->queryRow($sql);
+			$info->avatar_path = HOST.'/user.getAvatar?user_id='.$user_id;
+			$info->city_name = City::get_name($info->city_id);
+			if ( sizeof($info) )
+			{
+				$response["user"] = $info;
+				$response["result"] = "true";
+				unset($response["message"]);
+			}
+		}
+		catch (Exception $e)
+		{
+			// $response["error"] = $e->getMessage();
+		}
+		return $response;
+
+	}
+
 	public function get_top_categories()
 	{
 		global $db;

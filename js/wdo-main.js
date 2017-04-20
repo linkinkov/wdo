@@ -54,6 +54,39 @@ var config = {
 		"endDate": moment().add(6,"days").format("YYYY-MM-DD"),
 		"alwaysShowCalendars": true,
 		"showCustomRangeLabel": false
+	},
+	"datePickerOptionsBirthday": {
+		"opens":"left",
+		"locale": {
+			"format": "DD/MM/YYYY",
+			"applyLabel": "Применить",
+			"cancelLabel": "Отмена",
+			"daysOfWeek": [
+				"Вс",
+				"Пн",
+				"Вт",
+				"Ср",
+				"Чт",
+				"Пт",
+				"Сб"
+			],
+			"monthNames": [
+				"Январь",
+				"Февраль",
+				"Март",
+				"Апрель",
+				"Май",
+				"Июнь",
+				"Июль",
+				"Август",
+				"Сентябрь",
+				"Октябрь",
+				"Ноябрь",
+				"Декабрь"
+			]
+		},
+		"alwaysShowCalendars": true,
+		"singleDatePicker": true,
 	}
 };
 
@@ -126,6 +159,20 @@ var app = {
 				data: {
 					"user_id": user_id,
 					"message_text": message_text
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"get_profile_info": function(user_id,callback) {
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/user.getProfileInfo",
+				data: {
+					"user_id": user_id
 				},
 				dataType: "JSON",
 				success: function (response) {

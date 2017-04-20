@@ -60,18 +60,15 @@ if ( $self_profile )
 							</a>
 						</div>
 					</div>
-					<div class="row">
-						<div class="col">
-							<hr />
-						</div>
-					</div>
+					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col account-management">
 							<h5 class="strong">Баланс: <text class="text-purple-dark"><i class="fa fa-rouble"></i> <?php echo number_format($user->get_balance(),0,","," ");?></text></h5>
-							<br />
-							<h6><a class="wdo-link" href="#">Пополнить баланс</a></h6>
-							<h6><a class="wdo-link" href="#">Вывести средства</a></h6>
-							<h6><a class="wdo-link" href="#">История транзакций</a></h6>
+							<div style="text-align: center; margin-top: 35px;">
+								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">Пополнить баланс</a></h6>
+								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">Вывести средства</a></h6>
+								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">История транзакций</a></h6>
+							</div>
 						</div>
 					</div>
 					<?php
@@ -195,8 +192,8 @@ if ( $self_profile )
 								$class = ($id == $active) ? "active" : "";
 								echo sprintf('
 								<li class="nav-item">
-									<a class="nav-link %s" data-toggle="tab" href="#%s" role="tab">%s</a>
-								</li>',$class,$id,$tab_name);
+									<a class="nav-link %s" data-toggle="tab" href="#%s" role="tab" data-pageid="%s">%s</a>
+								</li>',$class,$id,$id,$tab_name);
 							}
 							?>
 							</ul>
@@ -206,8 +203,9 @@ if ( $self_profile )
 							foreach ( $tabs as $id=>$tab_name )
 							{
 								$class = ($id == $active) ? "active" : "";
+								$content = ($class == "active") ? 'preloaded content for '.$tab_name : 'background content for '.$tab_name;
 								echo sprintf('
-								<div class="tab-pane %s" id="%s" role="tabpanel">...%s-content</div>',$class,$id,$tab_name);
+								<div class="tab-pane %s" id="%s" role="tabpanel">%s</div>',$class,$id,$content);
 							}
 							?>
 							</div>
@@ -229,16 +227,32 @@ if ( $self_profile )
 <script>
 $(function(){
 	$(".timestamp").each(function(e){
+		var title = moment.unix($(this).data('timestamp')).format("LLL");
 		( $(this).hasClass("fromNow") )
-		? $(this).text(moment.unix($(this).data('timestamp')).fromNow(true))
-		: $(this).text(moment.unix($(this).data('timestamp')).fromNow());
+		? $(this).text(moment.unix($(this).data('timestamp')).fromNow(true)).attr("title",title)
+		: $(this).text(moment.unix($(this).data('timestamp')).fromNow()).attr("title",title);
 		var pass = ($(this).data('timestamp') - parseInt(moment().format("X")));
 		if ( pass > -60 && $(this).hasClass("last_login") )
 		{
-			console.log(pass);
 			$(this).parent().html('<text class="text-success">Сейчас на сайте</text>');
 			$("#online_tracker").show();
 		}
+	})
+	$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+		var current_tab = e.target,
+				prev_tab = e.relatedTarget,
+				target_page = $(current_tab).data('pageid'),
+				tab_content = $("#"+$(current_tab).data('pageid'));
+		$("#"+$(prev_tab).data('pageid')).html('');
+		console.log("loading page:",target_page);
+		$.ajax({
+			type: "POST",
+			url: "/pp/"+target_page,
+			dataType: "html",
+			success: function (response) {
+				$(tab_content).html(response);
+			}
+		});
 	})
 })
 </script>

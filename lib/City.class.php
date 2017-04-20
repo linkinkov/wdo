@@ -21,6 +21,20 @@ class City
 		}
 	}
 
+	public static function get_name($id = false)
+	{
+		global $db;
+		if ( !$id ) return "";
+		try {
+			$city_name = $db->getvalue("cities","city_name","city_name",Array("id"=>$id));
+			return $city_name;
+		}
+		catch (Exception $e)
+		{
+			return "";
+		}
+	}
+
 	public static function getList($search = false)
 	{
 		global $db;

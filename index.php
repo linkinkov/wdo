@@ -185,16 +185,7 @@ $(function(){
 			"data": function( d ) {
 				d.length = function() {return parseInt(config.projects.table.length);};
 				d.showParams = config.projects.table;
-				d.selected = function() {
-					return config.projects.specs;
-/*
-					var arr = [];
-					$(".subcategory.selected").each(function(){
-						arr.push($(this).data("subcat_id"));
-					})
-					return arr;
-*/
-				};
+				d.selected = function() {return config.projects.specs;};
 				d.start_date = function() {return $(config.projects.calendar).data('daterangepicker').startDate.format("X");};
 				d.end_date = function() {return $(config.projects.calendar).data('daterangepicker').endDate.format("X");};
 				d.safe_deal = function() {return $(".project-extra-filter[for='safe_deal']").hasClass("active")};

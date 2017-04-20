@@ -51,4 +51,12 @@ switch ( $job )
 		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;
+	case "getProfileInfo":
+		$user_id = get_var("user_id","int",0);
+		$response = User::get_profile_info($user_id);
+		header('Content-Type: application/json');
+		$response = is_array($response) ? $response : Array("result"=>"false");
+		echo json_encode($response);
+		break;
+
 }

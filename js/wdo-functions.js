@@ -254,7 +254,7 @@ $(function(){
 	$(document).on("click",".wdo-btn",function(e){
 		if ( $(this).hasClass("disabled") ) return false;
 	})
-	$(document).on("click",".custom-control-description, .toggle-category",function(e){
+	$(document).on("click",".custom-control-description-cat, .toggle-category",function(e){
 		e.stopPropagation();
 		e.preventDefault();
 		var li = $(this).parent().parent();
@@ -279,7 +279,7 @@ $(function(){
 		toggleSubCategory($(this).data("subcat_id"),!value);
 		saveSelectedSpecs();
 	})
-	$(document).on("click",".custom-radio",function(e){
+	$(document).on("click",".custom-radio-cat",function(e){
 		e.stopPropagation();
 		e.preventDefault();
 		var li = $(this).parent();
