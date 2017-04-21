@@ -14,6 +14,10 @@
 	<link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/gallery/css/blueimp-gallery.min.css">
 	<link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/gallery/css/blueimp-gallery-indicator.css">
 	<link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/gallery/css/blueimp-gallery-video.css">
+	<link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/leaflet/leaflet.css" />
+	<link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/leaflet/MarkerCluster.css" />
+	<link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/leaflet/MarkerCluster.Default.css" />
+
 	<!-- Put this script tag to the <head> of your page -->
 	<!--<script type="text/javascript" src="//vk.com/js/api/openapi.js?144"></script>-->
 

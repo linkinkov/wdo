@@ -74,13 +74,13 @@ function get_var($var_name = false, $type="string", $default = false, $method="R
 			switch ( $method )
 			{
 				case "REQUEST":
-					$var = ( isset($_REQUEST[$var_name]) && intval($_REQUEST[$var_name]) > 0 ) ? intval($_REQUEST["$var_name"]) : $default;
+					$var = ( isset($_REQUEST[$var_name]) ) ? intval($_REQUEST["$var_name"]) : $default;
 					break;
 				case "GET":
-					$var = ( isset($_GET[$var_name]) && intval($_GET[$var_name])  > 0 ) ? intval($_GET["$var_name"]) : $default;
+					$var = ( isset($_GET[$var_name]) ) ? intval($_GET["$var_name"]) : $default;
 					break;
 				case "POST":
-					$var = ( isset($_POST[$var_name]) && intval($_POST[$var_name])  > 0 ) ? intval($_POST["$var_name"]) : $default;
+					$var = ( isset($_POST[$var_name]) ) ? intval($_POST["$var_name"]) : $default;
 					break;
 			}
 			break;

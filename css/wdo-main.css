@@ -216,6 +216,13 @@ i.fa.active {
 	padding-bottom: 0px;
 }
 
+/* ----- bootstrap override ----- */
+.form-control {
+	border-radius: 0;
+}
+/* ----- bootstrap override END ----- */
+
+
 /* ----- project ----- */
 
 #projects-table {
@@ -225,8 +232,7 @@ i.fa.active {
 #projects-table_info {
 	text-align: center;
 }
-.project-entry td
-{
+.project-entry td {
 	cursor: pointer;
 	background-color: #fff;
 	border-top-width: 2px;
@@ -237,16 +243,13 @@ i.fa.active {
 	border-color:rgba(228,227,139,0.4);
 	vertical-align: middle;
 }
-.project-entry td:first-child
-{
+.project-entry td:first-child {
 	border-left-width: 2px !important;
 }
-.project-entry td:last-child
-{
+.project-entry td:last-child {
 	border-right-width: 2px !important;
 }
-.project-entry:hover td
-{
+.project-entry:hover td {
 	border-color:rgba(228,227,139,1) !important;
 }
 .project-entry.vip td {
@@ -276,7 +279,9 @@ i.fa.active {
 	color: #500a37;
 	font-weight: 800;
 }
-
+.project-entry.no-pointer td {
+	cursor: default;
+}
 /* ----- END project ----- */
 
 /* ----- project-respond  ----- */
@@ -380,15 +385,17 @@ i.fa.active {
 	height: 203px;
 	padding: 15px 30px;
 }
-
+.nav-tabs .nav-link:focus {
+	background-color: #f3f1f1;
+}
 .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
-	color: #940a63;
+	color: #940a63 !important;
 	background-color: #f3f1f1;
 	border-color: #ddd;
 	border: 0;
 	border-bottom: 2px solid #940a63;
 }
-.nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+.nav-tabs .nav-link:hover {
 	background-color: #eceeef;
 }
 .tab-pane {
@@ -396,6 +403,15 @@ i.fa.active {
 	padding-left: 10px;
 }
 /* ----- END PROFILE ---- */
+
+/* ----- CUSTOM SELECT ---- */
+.dropdown-item.wdo-option.active,.dropdown-item.wdo-option:active,.dropdown-item.wdo-option:hover {
+	cursor: pointer;
+	background-color: #e3e284;
+	color: #000;
+}
+
+/* ----- END CUSTOM SELECT ---- */
 .word-break {
 	-ms-word-break: break-all;
 	word-break: break-all;

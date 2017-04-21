@@ -32,13 +32,16 @@ $start_date = get_var("start_date","int",time());
 $end_date = get_var("end_date","int",time()+(86400*3));
 $only_vip = get_var("vip","string",false);
 $only_safe = get_var("safe_deal","string",false);
+$user_id = get_var("user_id","int",0);
+$for_profile = get_var("for_profile","string",false);
+
 // print_r($only_vip);
 // print_r($only_safe);
 if (sizeof($columns) > 0)
 {
 	foreach($columns as $idx=>$col)
 	{
-		$orderColumns[] = $col["data"];
+		$orderColumns[] = isset($col["name"]) && $col["name"] != ""  ? $col["name"] : $col["data"];
 	}
 }
 if (sizeof($order) > 0)
@@ -58,10 +61,27 @@ $searchStr = ( $search ) ? '(
 		OR cost LIKE "%'.$search.'%"
 		)' : '1' ;
 $cityStr = ( isset($_COOKIE["city_id"]) && intval($_COOKIE["city_id"]) > 0 ) ? sprintf(" AND `city_id` = '%d'",intval($_COOKIE["city_id"])) : sprintf(" AND `city_id` = '%d'",1);
-$statusStr = ( $status_id ) ? sprintf(' AND `status_id` = "%d"',$status_id) : '';
+$statusStr = ( $status_id > 0 ) ? sprintf(' AND `status_id` = "%d"',$status_id) : '';
 $selectedStr = ( $selected != "" ) ? sprintf(' AND `subcat_id` IN (%s)',$selected) : '';
 $timerange = sprintf(' AND (`start_date` >= "%d" AND `end_date` <= "%d")', $start_date, $end_date);
 $for_user_id = sprintf(' AND (`for_user_id` = "%d" OR `for_user_id` = "%d")',0,$current_user->user_id);
+if ( $user_id > 0 )
+{
+	$user_id = sprintf(' AND (`user_id` = "%d")',$user_id);
+	$timerange = "";
+}
+else
+{
+	$user_id = "";
+}
+
+$select_status_name = "";
+$select_performer_name = "";
+if ( $for_profile == "true" )
+{
+	$select_status_name = ", `status_name`";
+	$select_performer_name = ", (SELECT `user_id` FROM `project_responds` WHERE `for_project_id` = `project_id` AND `status_id` = '3' ) as performer_name";
+}
 
 $safe_vip = "";
 if ( $only_safe == "true" && $only_vip == "true" )
@@ -77,11 +97,16 @@ else if ( $only_vip == "true" )
 	$safe_vip = sprintf(' AND `vip` = 1');
 }
 
-$sql_main = "SELECT `project_id`,(SELECT COUNT(`respond_id`) FROM `project_responds` WHERE `for_project_id` = `project_id`) as bids
+$sql_main = "SELECT `project_id`,
+	(SELECT COUNT(`respond_id`) FROM `project_responds` WHERE `for_project_id` = `project_id`) as bids
+	$select_status_name
+	$select_performer_name
 	FROM `project`
-	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip
+	LEFT JOIN `project_statuses` ON `project_statuses`.`id` = `project`.`status_id`
+	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $user_id
 	ORDER BY `project`.`vip` DESC, $orderStr
 	LIMIT $start, $length";
+// echo $sql_main;
 try {
 	$aaData = $db->queryRows($sql_main);
 } catch (Exception $e) {
@@ -94,7 +119,7 @@ try {
 $recordsTotal = 0;
 $recordsFiltered = 0;
 
-$sql = "SELECT COUNT(`project_id`) as recordsTotal FROM `project` WHERE 1 $statusStr $cityStr $for_user_id";
+$sql = "SELECT COUNT(`project_id`) as recordsTotal FROM `project` WHERE 1 $statusStr $cityStr $for_user_id $user_id";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
@@ -107,7 +132,7 @@ try {
 
 $sql = "SELECT COUNT(`project_id`) as recordsFiltered 
 	FROM `project` 
-	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip";
+	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $user_id";
 try {
 	$tdr = $db->queryRow($sql);
 	$recordsFiltered = $tdr->recordsFiltered;
@@ -130,13 +155,42 @@ if ( sizeof ($aaData) )
 			continue;
 		}
 		$project->cost = number_format($project->cost,0,","," ");
-		$row->project = $project;
 		$row->user = new User($project->user_id);
 		$cat_tr = strtolower(r2t($project->cat_name));
 		$subcat_tr = strtolower(r2t($project->subcat_name));
 		$title_tr = strtolower(r2t($project->title));
 		$row->project_link = HOST.'/project/'.$cat_tr.'/'.$subcat_tr.'/p'.$row->project_id.'/'.$title_tr.'.html';
 		if ( $project->vip == 1 ) $row->DT_RowClass .= " vip";
+		if ( $for_profile == "true" )
+		{
+			$row->DT_RowClass .= " no-pointer";
+			$row->performer_id = $row->performer_name;
+			$row->performer_name = User::get_real_user_name($row->performer_id);
+			if ( is_array($row->performer_name) ) $row->performer_name = '<small class="text-muted">Не выбран</small>';
+			switch ( $project->status_id )
+			{
+				case 1:
+					$status_class = "text-success";
+					break;
+				case 2:
+					$status_class = "text-info";
+					break;
+				case 3:
+					$status_class = "text-purple";
+					break;
+				case 4:
+					$status_class = "text-warning";
+					break;
+				case 5:
+					$status_class = "text-danger";
+					break;
+				default:
+					$status_class = "text-muted";
+					break;
+			}
+			$project->status_name = sprintf('<text class="%s">%s</text>',$status_class,$project->status_name);
+		}
+		$row->project = $project;
 		$idx++;
 	}
 }
@@ -152,5 +206,4 @@ $response = Array(
 
 header('Content-Type: application/json');
 echo json_encode($response);
-exit();
 ?>

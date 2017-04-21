@@ -168,7 +168,8 @@ if ( $self_profile )
 							<?php
 							if ( $self_profile )
 							{
-								$active = "project-responds";
+								// $active = "project-responds";
+								$active = "profile";
 								$tabs = Array(
 									"profile" => "Профиль",
 									"projects" => "Мои проекты",
@@ -189,10 +190,10 @@ if ( $self_profile )
 							}
 							foreach ( $tabs as $id=>$tab_name )
 							{
-								$class = ($id == $active) ? "active" : "";
+								$class = ($id == $active) ? "" : "";
 								echo sprintf('
 								<li class="nav-item">
-									<a class="nav-link %s" data-toggle="tab" href="#%s" role="tab" data-pageid="%s">%s</a>
+									<a class="nav-link text-muted %s" data-toggle="tab" href="#%s" role="tab" data-pageid="%s">%s</a>
 								</li>',$class,$id,$id,$tab_name);
 							}
 							?>
@@ -203,7 +204,7 @@ if ( $self_profile )
 							foreach ( $tabs as $id=>$tab_name )
 							{
 								$class = ($id == $active) ? "active" : "";
-								$content = ($class == "active") ? 'preloaded content for '.$tab_name : 'background content for '.$tab_name;
+								$content = ($class == "active") ? '<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>' : '';
 								echo sprintf('
 								<div class="tab-pane %s" id="%s" role="tabpanel">%s</div>',$class,$id,$content);
 							}
@@ -224,8 +225,11 @@ if ( $self_profile )
 <?php include(PD.'/includes/footer.php');?>
 <?php include(PD.'/includes/modals.php');?>
 <?php include(PD.'/includes/scripts.php');?>
+
 <script>
 $(function(){
+	<?php echo sprintf('config.profile.user_id = "%d";',$user->user_id);?>
+	console.log("showing user: ",config.profile.user_id);
 	$(".timestamp").each(function(e){
 		var title = moment.unix($(this).data('timestamp')).format("LLL");
 		( $(this).hasClass("fromNow") )
@@ -244,15 +248,20 @@ $(function(){
 				target_page = $(current_tab).data('pageid'),
 				tab_content = $("#"+$(current_tab).data('pageid'));
 		$("#"+$(prev_tab).data('pageid')).html('');
-		console.log("loading page:",target_page);
+		$(tab_content).html('<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
 		$.ajax({
 			type: "POST",
 			url: "/pp/"+target_page,
 			dataType: "html",
+			data: {
+				"user_id": config.profile.user_id
+			},
 			success: function (response) {
-				$(tab_content).html(response);
+				$(tab_content).append(response);
 			}
 		});
 	})
+	<?php echo sprintf('$("a[data-pageid=\'%s\']").click();',$active);?>
+
 })
 </script>

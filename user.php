@@ -47,7 +47,7 @@ switch ( $job )
 		echo json_encode($response);
 		break;
 	case "getProfileCounters":
-		$response = $current_user->get_profile_counters();
+		$response = $current_user->get_counters();
 		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;
@@ -56,6 +56,13 @@ switch ( $job )
 		$response = User::get_profile_info($user_id);
 		header('Content-Type: application/json');
 		$response = is_array($response) ? $response : Array("result"=>"false");
+		echo json_encode($response);
+		break;
+	case "updateProfileInfo":
+		$data = get_var("data","array",Array());
+		$response = $current_user->update_profile_info($data);
+		header('Content-Type: application/json');
+		$response = is_array($response) ? $response : Array("result"=>"false","message"=>"error");
 		echo json_encode($response);
 		break;
 

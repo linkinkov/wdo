@@ -12,6 +12,10 @@ var config = {
 		"calendar": null,
 		"specs": []
 	},
+	"profile":
+	{
+		"user_id": 0
+	},
 	"datePickerOptions": {
 		"ranges": {
 			"Сегодня": [ current_date, current_date ],
@@ -87,6 +91,9 @@ var config = {
 		},
 		"alwaysShowCalendars": true,
 		"singleDatePicker": true,
+		"showDropdowns": true,
+		"minDate": moment().subtract(80,"years"),
+		"maxDate": moment().subtract(18,"years")
 	}
 };
 
@@ -98,7 +105,6 @@ var app = {
 				url: "/user.getProfileCounters",
 				dataType: "JSON",
 				success: function (response) {
-					console.log("getProfileCounters:",response);
 					if ( response.result == "true" )
 					{
 						$.each(response.counters,function(key,value){
@@ -166,13 +172,27 @@ var app = {
 				}
 			})
 		},
-		"get_profile_info": function(user_id,callback) {
+		"getProfileInfo": function(user_id,callback) {
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
 				url: "/user.getProfileInfo",
 				data: {
 					"user_id": user_id
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"updateProfileInfo": function(data,callback) {
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/user.updateProfileInfo",
+				data: {
+					"data": data
 				},
 				dataType: "JSON",
 				success: function (response) {

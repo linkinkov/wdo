@@ -44,5 +44,12 @@
 <script src="<?php echo HOST;?>/js/wdo-main.js"></script>
 <script src="<?php echo HOST;?>/js/wdo-bindings.js"></script>
 
+<!-- MAP -->
+<script type="text/javascript" src="/js/leaflet/leaflet-src.js"></script>
+<script type="text/javascript" src="/js/leaflet/leaflet.markercluster-src.js"></script>
+<script type="text/javascript" src="/js/leaflet/leaflet.ajax.min.js"></script>
+<script type="text/javascript" src="/js/leaflet/leafletembed-profile.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+
 <script>
 </script>

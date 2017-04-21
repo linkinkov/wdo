@@ -35,8 +35,10 @@ function formhash(form, password) {
 	})
 	return false;
 }
-function scrollTo(elementID)
+function scrollTo(elementID,o)
 {
+	o = o || false;
+	if ( o ) return;
 	$('html, body').animate({
 			scrollTop: $("#"+elementID).offset().top
 	}, 1000);
@@ -301,5 +303,12 @@ $(function(){
 	$(document).on("click",".project-extra-filter",function(e){
 		$(this).toggleClass("active");
 		reloadProjectsTable();
+	})
+	$(document).on("click",".wdo-option",function(e){
+		var menu = $(this).parent(),
+				data = $(this).data();
+		$(menu).find(".wdo-option").removeClass("active");
+		$(this).addClass("active");
+		$("button[data-name='"+data.name+"']").text($(this).text());
 	})
 })

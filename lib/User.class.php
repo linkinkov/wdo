@@ -40,7 +40,7 @@ class User
 			{
 				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-\:\/]+/", "", $this->$field) );
 			}
-			$this->realUserName = ( $info->type_id ==  1 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
+			$this->realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
 		}
@@ -49,6 +49,39 @@ class User
 			$this->user_id = 0;
 			return false;
 		}
+	}
+
+	public function update_profile_info($data)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( $current_user->user_id == 0 ) return $response;
+		$public_fields = Array("last_name","first_name","company_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik");
+		$set = Array();
+		foreach ( $data as $key=>$value )
+		{
+			if ( in_array($key,$public_fields) )
+			{
+				$value = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-\:\/]+/", "", $value);
+				$set[] = sprintf('`%s` = "%s"',$key,$value);
+			}
+		}
+		// array_walk($public_fields,'sqlize_array');
+		$sql = sprintf("UPDATE `users` SET %s WHERE `user_id` = '%d'",implode(",",$set),$current_user->user_id);
+		try {
+			$db->query($sql);
+			$response["result"] = "true";
+			$response["message"] = "Сохранено";
+		}
+		catch ( Exception $e )
+		{
+			// $response["error"] = $e->getMessage();
+		}
+		return $response;
 	}
 
 	public static function get_profile_info($user_id = false)
@@ -61,7 +94,7 @@ class User
 		);
 		if ( !$user_id ) return $response;
 		if ( $current_user->user_id != $user_id ) return $response;
-		$public_fields = Array("user_id","last_name","first_name","company_name","type_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday");
+		$public_fields = Array("user_id","last_name","first_name","company_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE `user_id` = '%d'",implode(",",$public_fields),$user_id);
 		try {
@@ -70,6 +103,14 @@ class User
 			$info->city_name = City::get_name($info->city_id);
 			if ( sizeof($info) )
 			{
+				if ( $info->type_id == 1 )
+				{
+					$rek_fields = Array("rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik");
+					array_walk($rek_fields,'sqlize_array');
+					$sql = sprintf("SELECT %s FROM `users` WHERE `user_id` = '%d'",implode(",",$rek_fields),$user_id);
+					$rek = $db->queryRow($sql);
+					$info->rekvizity = $rek;
+				}
 				$response["user"] = $info;
 				$response["result"] = "true";
 				unset($response["message"]);
@@ -177,14 +218,14 @@ class User
 		$realUserName = "";
 		if ( intval($user_id) <= 0 ) return $response;
 		try {
-			$sql = sprintf("SELECT `username`, `last_name`, `first_name`,`company_name`,`type_id` FROM `users` WHERE `user_id` = '%d'",intval($user_id));
+			$sql = sprintf("SELECT `last_name`, `first_name`,`company_name`,`type_id` FROM `users` WHERE `user_id` = '%d'",intval($user_id));
 			$info = $db->queryRow($sql);
-			if ( isset($info->username) )
+			if ( isset($info->type_id) )
 			{
 				$info->last_name = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $info->last_name);
 				$info->first_name = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $info->first_name);
 				$info->company_name = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $info->company_name);
-				$realUserName = ( $info->type_id ==  1 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
+				$realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
 			}
 			return $realUserName;
 		}
@@ -192,7 +233,7 @@ class User
 		{
 			// $response["error"] = $e->getMessage();
 		}
-		return $response;
+		return $realUserName;
 	}
 
 	public static function get_user_note($user_id)
