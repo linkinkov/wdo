@@ -413,15 +413,93 @@ else if ( $job == "projects" )
 {
 ?>
 
+	<table class="table" id="projects-table">
+		<thead>
+			<th>Наименование</th>
+			<th>Бюджет</th>
+			<th>Заявки</th>
+	<?php
+		if ( $current_user->user_id == $user->user_id )
+			echo '<th>Исполнитель</th>';
+	?>
+			<th>Статус</th>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+	<script>
+	$(function(){
+		var projectsTable = $("#projects-table").DataTable({
+			"language": {"url": "/js/dataTables/dataTables.russian.lang"},
+			"dom": 'tr<"row"<"col"p>><"row"<"col"i>>',
+			"bProcessing": true,
+			"bServerSide": true,
+			"pagingType": "full_numbers",
+			"ajax": {
+				"url": "/dt/projects",
+				"type": "POST",
+				"data": function( d ) {
+					d.for_profile = true;
+					d.user_id = config.profile.user_id;
+					d.status_id = "-1";
+				}
+			},
+			"columns": [
+				{"data": "project.title","class":"project-table-title","width":"300px"},
+				{"data": "project.cost","class":"project-table-cost"},
+				{"data": "bids","class":"project-table-bids"},
+		<?php
+			if ( $current_user->user_id == $user->user_id )
+			echo '{"data": "performer_name","class":"project-table-performer"},';
+		?>
+				{"data": "project.status_name","name":"status_id","class":"project-table-status"},
+			],
+			"order": [[0, 'asc']],
+			"initComplete": function(table,data) {
+			},
+			"createdRow": function ( row, data, index ) {
+				var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
+				var category = $.sprintf('<br /><br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
+				var cost = data.project.cost + ' <i class="fa fa-rouble"></i>';
+				if ( data.performer_id ) $('td', row).eq(3).html('<a class="wdo-link" href="/profile/id'+data.performer_id+'">'+data.performer_name+'</a>');
+				$('td', row).eq(0).html(title+category);
+				$('td', row).eq(1).html(cost);
+				var extra_title = [];
+				if ( data.project.safe_deal == 1 )
+				{
+					$('td', row).eq(4).addClass('safe-deal');
+					extra_title.push("Безопасная сделка");
+				}
+				if ( data.project.vip == 1 )
+				{
+					$('td', row).eq(4).attr("title","VIP проект").addClass('vip');
+					extra_title.push("VIP проект");
+				}
+				$('td', row).eq(4).attr("title",extra_title.join("; "))
+			},
+			"drawCallback": function( settings ) {
+				$(".paginate_button > a").on("focus", function() {
+					$(this).blur();
+				});
+			}
+		})
+
+		$(".loader").remove();
+	})
+	</script>
+<?php
+} // end showing projects
+
+else if ( $job == "project-responds" )
+{
+?>
+
 <table class="table" id="projects-table">
 	<thead>
 		<th>Наименование</th>
+		<th>Заказчик</th>
 		<th>Бюджет</th>
-		<th>Заявки</th>
-<?php
-	if ( $current_user->user_id == $user->user_id )
-		echo '<th>Исполнитель</th>';
-?>
 		<th>Статус</th>
 	</thead>
 	<tbody>
@@ -430,30 +508,25 @@ else if ( $job == "projects" )
 
 <script>
 $(function(){
-	var projectsTable = $("#projects-table").DataTable({
+	var respondsTable = $("#projects-table").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"dom": 'tr<"row"<"col"p>><"row"<"col"i>>',
 		"bProcessing": true,
 		"bServerSide": true,
 		"pagingType": "full_numbers",
 		"ajax": {
-			"url": "/dt/projects",
+			"url": "/dt/project-responds",
 			"type": "POST",
 			"data": function( d ) {
 				d.for_profile = true;
-				d.user_id = config.profile.user_id;
 				d.status_id = "-1";
 			}
 		},
 		"columns": [
 			{"data": "project.title","class":"project-table-title","width":"300px"},
-			{"data": "project.cost","class":"project-table-cost"},
-			{"data": "bids","class":"project-table-bids"},
-	<?php
-		if ( $current_user->user_id == $user->user_id )
-		echo '{"data": "performer_name","class":"project-table-performer"},';
-	?>
-			{"data": "project.status_name","name":"status_id","class":"project-table-status"},
+			{"data": "project_user.user_id","name":"project.user_id","class":"project-table-user"},
+			{"data": "respond.cost","name":"project_responds.cost","class":"project-table-cost"},
+			{"data": "respond.status_id","name":"project_responds.status_id","class":"project-table-status"},
 		],
 		"order": [[0, 'asc']],
 		"initComplete": function(table,data) {
@@ -461,22 +534,12 @@ $(function(){
 		"createdRow": function ( row, data, index ) {
 			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
 			var category = $.sprintf('<br /><br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
-			var cost = data.project.cost + ' <i class="fa fa-rouble"></i>';
-			if ( data.performer_id ) $('td', row).eq(3).html('<a class="wdo-link" href="/profile/id'+data.performer_id+'">'+data.performer_name+'</a>');
+			var username = '<div class="row"><div class="col" style="padding: 0;flex: 0 0 35px; max-width: 35px; min-width: 35px;"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link"><img class="rounded-circle" src="'+data.project_user.avatar_path+'" /></a></div><div class="col"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link">'+data.project_user.realUserName+'</a></div></div>';
+			var cost = data.respond.cost + ' <i class="fa fa-rouble"></i>';
 			$('td', row).eq(0).html(title+category);
-			$('td', row).eq(1).html(cost);
-			var extra_title = [];
-			if ( data.project.safe_deal == 1 )
-			{
-				$('td', row).eq(4).addClass('safe-deal');
-				extra_title.push("Безопасная сделка");
-			}
-			if ( data.project.vip == 1 )
-			{
-				$('td', row).eq(4).attr("title","VIP проект").addClass('vip');
-				extra_title.push("VIP проект");
-			}
-			$('td', row).eq(4).attr("title",extra_title.join("; "))
+			$('td', row).eq(1).html(username);
+			$('td', row).eq(2).html(cost);
+			$('td', row).eq(3).html('<img src="'+data.respond.image_path+'" title="'+data.respond.status_name+'" />');
 		},
 		"drawCallback": function( settings ) {
 			$(".paginate_button > a").on("focus", function() {
@@ -489,5 +552,5 @@ $(function(){
 })
 </script>
 <?php
-} // end showing projects
+} // end showing self responds
 ?>

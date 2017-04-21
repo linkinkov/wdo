@@ -10,8 +10,9 @@ class ProjectRespond
 		{
 			return;
 		}
-		$sql = sprintf("SELECT `respond_id`, `for_project_id`, `user_id`, `created`, `descr`, `cost`, `status_id`
+		$sql = sprintf("SELECT `respond_id`, `for_project_id`, `user_id`, `created`, `descr`, `cost`, `status_id`,`status_name`
 		FROM `project_responds`
+		LEFT JOIN `project_responds_statuses` ON `project_responds_statuses`.`id` = `project_responds`.`status_id`
 		WHERE `respond_id` = '%d'",$id);
 		try {
 			$respond = $db->queryRow($sql);
