@@ -64,7 +64,7 @@ else
 ?>
 					</div>
 					<hr style="margin: 0; padding: 0;">
-					<div class="row text-center" style="height: 43px; align-items: center;">
+					<div class="row text-center" style="align-items: flex-end;">
 					<?php
 						$current_page = $_SERVER["REQUEST_URI"];
 						if ( $current_page = "/" ) $current_page = "/projects/";
@@ -77,7 +77,7 @@ else
 						foreach ( $pages as $page=>$name)
 						{
 							$class = ('/'.$page.'/' == $current_page) ? "main-nav active" : "main-nav";
-							echo sprintf('<div class="col %s" title="%s" data-page="/%s/" style="padding:10px 5px;">
+							echo sprintf('<div class="col %s" title="%s" data-page="/%s/">
 															<a title="%s" href="/%s/" class="wdo-link">%s</a>
 														</div>',$class,$name,$page,$name,$page,$name);
 						}

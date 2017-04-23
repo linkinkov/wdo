@@ -1,6 +1,7 @@
  <?php
 require_once('_global.php');
-require_once(PD.'/lib/User.class.php');
+require_once('_includes.php');
+// require_once(PD.'/lib/User.class.php');
 // sec_session_start();
 header('Content-Type: application/json');
 sleep(1);

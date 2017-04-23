@@ -12,11 +12,11 @@ if ( session_status() != PHP_SESSION_ACTIVE ) sec_session_start(false);
 
 define('HOST','https://'.$_SERVER["HTTP_HOST"]);
 $distribute_classes = Array(
+	"City",
 	"User",
 	"Project",
 	"ProjectRespond",
 	"Category",
 	"SubCategory",
-	"City",
 
 );
