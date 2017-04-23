@@ -28,7 +28,7 @@ class User
 			return;
 		}
 		$where = (intval($user_id) > 0) ? sprintf("`user_id` = '%d'",$user_id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","last_name","first_name","company_name","type_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps");
+		$public_fields = Array("user_id","username","last_name","first_name","company_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE %s",implode(",",$public_fields),$where);
 		// $sql = "SELECT `user_id`,`username`, `last_name`, `first_name`, `company_name`, `type_id`, `registered`, `last_login`, `as_performer`, `state_id`, `rating` FROM `users` WHERE $where";
@@ -40,6 +40,7 @@ class User
 			{
 				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-\:\/]+/", "", $this->$field) );
 			}
+			$this->city_name = City::get_name($this->city_id);
 			$this->realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);

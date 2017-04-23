@@ -9,7 +9,7 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 require_once('_global.php');
 include_once('_includes.php');
 $db = db::getInstance();
-check_access($db,false);
+check_access($db);
 
 $current_user = new User($_SESSION["user_id"]);
 
@@ -38,7 +38,7 @@ $preselect = get_var("preselect","array",Array());
 					</div>
 					<div class="row">
 						<div class="col">
-							<div class="wdo-btn wdo-btn-xs bg-purple learnMore">Узнать больше</div>
+							<div class="wdo-btn bg-purple learnMore">Узнать больше</div>
 						</div>
 					</div>
 				</div><!-- /.wdo-main-left -->
@@ -47,7 +47,7 @@ $preselect = get_var("preselect","array",Array());
 						<div class="row" style="align-items: center;">
 							<div class="col" style="flex: 0 0 571px">Добавить проект может любой пользователь. Если у вас нет аккаунта, то сперва зарегистрируйтесь, а затем Вы сможете создавать новые проекты</div>
 							<div class="col">
-								<a class="wdo-btn bg-purple text-white"><i class="fa fa-plus"></i> Добавить проект</a>
+								<a href="<?php echo HOST.'/project/add/';?>" class="wdo-btn bg-purple"><i class="fa fa-plus"></i> Добавить проект</a>
 							</div>
 						</div>
 					</div>

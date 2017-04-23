@@ -15,7 +15,12 @@ $user = new User($user_id);
 
 if ( $job == "profile" )
 {
-	if ( $current_user->user_id != $user_id ) exit("Access error");
+	if ( $current_user->user_id != $user_id )
+	{
+		// exit("Access error");
+		// header("Location: /",true,301);
+		header('HTTP/1.0 401 Unauthorized',true,401);
+	}
 	?>
 	<div class="row">
 		<div class="col">
@@ -140,13 +145,9 @@ if ( $job == "profile" )
 			<div class="btn-group" style="width: 100%;">
 				<button type="button" class="btn btn-secondary" style="text-align: left;width: 100%;" data-toggle="dropdown" data-name="city_id"></button>
 				<button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="flex: 0 1 30px;"></button>
-				<div class="dropdown-menu" style="width: 100%;">
-				<?php
-					foreach ( City::getList() as $r )
-					{
-						echo sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d">%s</a>',$r->id,$r->city_name);
-					}
-				?>
+				<div class="dropdown-menu city-list" style="width: 100%;">
+					<a class="dropdown-item wdo-option"><input type="text" class="form-control city-filter" placeholder="Поиск"></a>
+					<?php echo sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d">%s</a>',$user->city_id,$user->city_name);?>
 				</div>
 			</div>
 		</div>
@@ -263,7 +264,7 @@ if ( $job == "profile" )
 	<div class="row"><div class="col"><hr /></div></div>
 	<div class="row">
 		<div class="col">
-			<div class="wdo-btn bg-purple" id="save_profile_info" data-lt="Сохранение" data-ot="Сохранить">Сохранить</div>
+			<div class="wdo-btn bg-purple" id="save_profile_info" data-lt="Сохранение" data-ot="Сохранить" style="width: 50%; margin: 0 auto;">Сохранить</div>
 		</div>
 	</div>
 	<div class="row"><div class="col"><hr /></div></div>
@@ -320,6 +321,24 @@ if ( $job == "profile" )
 				$(".map-container").hide();
 			}
 			map.invalidateSize();
+		})
+
+		$(".city-filter").keyup(function(e){
+			// var search = new RegExp(this.value,'ig');
+			var search = this.value;
+			if ( search == "" ) {$(".wdo-option[data-name='city_id']").remove();return;}
+			app.getCityList(search,function(response){
+				if ( response )
+				{
+					$(".city-list").find("[data-name='city_id']").remove();
+					$.each(response,function(){
+						$(".city-list").append($.sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d">%s</a>',this.id,this.city_name));
+					})
+				}
+			})
+			// $(".wdo-option[data-name='city_id']").each(function(){
+			// 	(search.test($(this).text())) ? $(this).show() : $(this).hide();
+			// })
 		})
 
 		$("#save_profile_info").click(function(){
@@ -533,7 +552,7 @@ $(function(){
 		},
 		"createdRow": function ( row, data, index ) {
 			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
-			var category = $.sprintf('<br /><br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
+			var category = $.sprintf('<br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
 			var username = '<div class="row"><div class="col" style="padding: 0;flex: 0 0 35px; max-width: 35px; min-width: 35px;"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link"><img class="rounded-circle" src="'+data.project_user.avatar_path+'" /></a></div><div class="col"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link">'+data.project_user.realUserName+'</a></div></div>';
 			var cost = data.respond.cost + ' <i class="fa fa-rouble"></i>';
 			$('td', row).eq(0).html(title+category);

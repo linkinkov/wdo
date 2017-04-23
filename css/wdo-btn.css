@@ -1,16 +1,17 @@
+.btn {
+	border-radius: 0 !important;
+}
 .wdo-btn {
 	display: block;
-	width: 100%;
 	color: black;
+	min-width: 130px;
 	cursor: pointer;
-	border: 0px;
+	border: 0;
 	border-radius: 20px;
-	padding: 5px 10px 5px 10px;
+	padding: 5px 15px;
+	font-size: .8rem;
+	text-decoration: none !important;
 	text-align: center;
-	font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-}
-.wdo-btn-xs {
-	padding: 0px !important;
 }
 .wdo-btn.bg-yellow {
 	color: black;
@@ -31,7 +32,7 @@
 }
 
 .learnMore {
-	width: 135px;
+	width: 150px;
 	background-color: #400030;
 	color: #bc94b1 !important;
 	border: 2px solid #bc94b1;

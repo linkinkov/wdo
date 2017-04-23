@@ -1,20 +1,20 @@
 
 <div class="container wave-container">
 	<div class="row">
-		<div class="col margins left">
+		<div class="col margins left" style="padding: 0;">
 			<div class="wave"></div>
 		</div>
 		<div class="col main">
 			<div class="row">
-				<div class="col wdo-main-left" style="padding-left: 12px;flex: 0 0 251px; max-width: 251px; z-index: 10;">
+				<div class="col wdo-main-left" style="padding:0;">
 					<div class="wave"></div>
 				</div><!-- /.wdo-main-left -->
-				<div class="col wdo-main-right" style="margin-left: -6px;">
+				<div class="col" style="padding:0;">
 					<div class="wave grey"></div>
 				</div>
 			</div>
 		</div><!-- /.main -->
-		<div class="col margins right" style="margin-left: -15px;">
+		<div class="col margins right" style="padding:0;">
 			<div class="wave grey"></div>
 		</div>
 	</div>

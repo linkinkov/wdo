@@ -13,7 +13,7 @@
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;">
 					<div class="col strong text-center" style="flex: 0 0 80%;">
-						<p>Мы определили Ваш город как <?php echo $current_user->city_name;?></p>
+						<p>Мы определили Ваш город как <?php echo $_COOKIE["city_name"];?></p>
 						<p>Если мы определили его не правильно, введите свой город</p>
 					</div>
 				</div>
@@ -34,7 +34,7 @@
 
 <!-- login-modal -->
 <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="login-modal-label" aria-hidden="true">
-	<div class="modal-dialog" role="document">
+	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="login-modal-label">Авторизация</h5>
@@ -48,31 +48,26 @@
 						<form method="post" action="<?php echo HOST;?>/login/" onSubmit="formhash(this,this.password);return false;">
 							<br /><input type="text" class="form-control" placeholder="Введите e-mail" name="username" />
 							<br /><input type="password" class="form-control" placeholder="Введите пароль" name="password" />
-							<br /><button type="submit" class="wdo-btn bg-yellow strong">Вход</button>
+							<br /><button type="submit" class="wdo-btn bg-yellow strong" style="width: 70%; margin: 0 auto;">Вход</button>
 						</form>
-						<br /><a class="wdo-link" href="#" style="color: #4b5257;" data-toggle="modal" data-target="#restore-password-modal">Забыли пароль?</a>
-					</div>
-					<div class="col">
-						<!-- Put this div tag to the place, where Auth block will be -->
-						<!--<div id="vk_auth"></div>
-						<script type="text/javascript">
-						VK.Widgets.Auth("vk_auth", {authUrl: '/login/'});
-						</script>-->
-						<div class="bottom right">
+						<hr />
+						<span class="pull-left">
+							<a class="wdo-link" href="#" style="color: #4b5257;" data-toggle="modal" data-target="#restore-password-modal">Забыли пароль?</a>
+						</span>
+						<span class="pull-right">
 							<a class="wdo-link" href="#" style="color: #4b5257;" data-toggle="modal" data-target="#register-modal">У меня нет аккаунта</a>
-						</div>
+						</span>
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer" style="height: 55px; background: url(/images/ornament-3.png) repeat-x bottom 10px right;">
-			</div>
+			<div class="modal-footer" style="height: 55px; background: url(/images/ornament-3.png) repeat-x bottom 10px right;"></div>
 		</div>
 	</div>
 </div>
 
 <!-- restore-password-modal -->
 <div class="modal fade" id="restore-password-modal" tabindex="-1" role="dialog" aria-labelledby="restore-password-modal-label" aria-hidden="true">
-	<div class="modal-dialog" role="document">
+	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="restore-password-modal-label">Восстановление пароля</h5>
@@ -82,14 +77,14 @@
 			</div>
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;">
-					<div class="col strong text-center" style="flex: 0 0 80%;">
+					<div class="col strong text-center">
 						<p>Ссылка на восстановление пароля будет отправлена на почту</p>
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament-2.png) repeat-x bottom right 10px;">
-					<div class="col" style="flex: 0 0 50%;">
+					<div class="col">
 						<br /><input type="text" class="form-control" placeholder="Введите e-mail" name="username" />
-						<br /><div class="wdo-btn bg-yellow strong">Отправить</div>
+						<br /><div class="wdo-btn bg-yellow strong" style="width: 70%; margin: 0 auto;">Отправить</div>
 						<br /><br /><br />
 					</div>
 				</div>
@@ -100,7 +95,7 @@
 
 <!-- register-modal -->
 <div class="modal fade" id="register-modal" tabindex="-1" role="dialog" aria-labelledby="register-modal-label" aria-hidden="true">
-	<div class="modal-dialog" role="document">
+	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="register-modal-label">Регистрация</h5>
@@ -110,11 +105,11 @@
 			</div>
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
-					<div class="col" style="flex: 0 0 70%;">
+					<div class="col">
 						<br /><input type="text" class="form-control" placeholder="Введите e-mail" name="username" />
 						<br /><input type="password" class="form-control" placeholder="Введите пароль" name="password" />
 						<br /><input type="password" class="form-control" placeholder="Повторите пароль" name="password_confirm" />
-						<br /><div class="wdo-btn bg-yellow strong">Отправить</div>
+						<br /><div class="wdo-btn bg-yellow strong" style="width: 70%; margin: 0 auto;">Отправить</div>
 						<br /><br /><br />
 					</div>
 				</div>

@@ -200,6 +200,35 @@ var app = {
 				}
 			})
 		}
+	},
+	"getCityList": function(search,callback){
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/get.cityList",
+				data: {
+					"search": search,
+					"limit": 3
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+	},
+	"getSubCategories": function(parent_id,callback){
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/get.subCatList",
+				data: {
+					"parent_id": parent_id
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
 	}
 }
 

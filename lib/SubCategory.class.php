@@ -22,7 +22,7 @@ class SubCategory
 		}
 	}
 
-	public static function getList($parent_id = false)
+	public static function get_list($parent_id = false)
 	{
 		global $db;
 		if ( intval($parent_id) == 0 )

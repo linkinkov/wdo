@@ -45,11 +45,20 @@
 <script src="<?php echo HOST;?>/js/wdo-bindings.js"></script>
 
 <!-- MAP -->
-<script type="text/javascript" src="/js/leaflet/leaflet-src.js"></script>
-<script type="text/javascript" src="/js/leaflet/leaflet.markercluster-src.js"></script>
-<script type="text/javascript" src="/js/leaflet/leaflet.ajax.min.js"></script>
-<script type="text/javascript" src="/js/leaflet/leafletembed-profile.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="<?php echo HOST;?>/js/leaflet/leaflet-src.js"></script>
+<script type="text/javascript" src="<?php echo HOST;?>/js/leaflet/leaflet.markercluster-src.js"></script>
+<script type="text/javascript" src="<?php echo HOST;?>/js/leaflet/leaflet.ajax.min.js"></script>
+<script type="text/javascript" src="<?php echo HOST;?>/js/leaflet/leafletembed-profile.js"></script>
+<!--<script type="text/javascript" src="/js/underscore.js"></script>-->
+<!--<script type="text/javascript" src="/js/dropzone.js"></script>-->
+
+<script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/vendor/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/jquery.fileupload.js"></script>
+<!--<script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/jquery.fileupload-ui.js"></script>-->
+<script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/jquery.fileupload-process.js"></script>
+<script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/jquery.fileupload-validate.js"></script>
+
 
 <script>
 </script>

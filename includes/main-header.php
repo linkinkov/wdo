@@ -12,7 +12,7 @@
 					</div>
 					<div class="row">
 						<div class="col text-center">
-							<a href="#" data-toggle="modal" data-target="#city-select-modal" class="text-yellow"><?php echo $current_user->city_name;?></a>
+							<a href="#" data-toggle="modal" data-target="#city-select-modal" class="text-yellow"><?php echo $_COOKIE["city_name"];?></a>
 						</div>
 					</div>
 				</div><!-- /.wdo-main-left -->
@@ -63,42 +63,57 @@ else
 }
 ?>
 					</div>
-					<hr style="height: 0;margin: 0; padding: 0;">
-					<div class="row header-nav-row">
-						<a title="Проекты" href="/projects/" class="col wdo-link header-nav active">Проекты</a>
-						<a title="Исполнители" href="/performers/" class="col wdo-link header-nav">Исполнители</a>
-						<a title="О сервисе" href="/about/" class="col wdo-link header-nav">О сервисе</a>
-						<a title="Реклама" href="/adv/" class="col wdo-link header-nav">Реклама</a>
-<?php
-if ( $current_user->user_id > 0 ) // user authorized
-{
-?>
-						<div class="col wd-link header-nav" style="display: flex; align-items: center;">
-							<img class="rounded-circle" src="<?php echo HOST;?>/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=25&h=25" />
-							<div class="btn-group">
-								<div href="#" class="wdo-link dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="align-items: end-flex;">
-									&nbsp;Профиль<span data-type="total" class="badge badge-pill badge-info profile-counter" style="position: absolute; top: 0; right: -20px;">3</span>
-								</div>
-								<div class="dropdown-menu dropdown-menu-right profile-menu" style="width: 230px;">
-									<a class="wdo-link dropdown-item" href="/profile/"><strong>Мой кабинет</strong></a>
-									<a class="wdo-link dropdown-item" href="/profile/messages"><span class="pull-right"><span data-type="messages" class="badge badge-pill badge-info profile-counter">2</span></span>Сообщения</a>
-									<a class="wdo-link dropdown-item" href="/profile/responds"><span class="pull-right"><span data-type="responds" class="badge badge-pill badge-info profile-counter">3</span></span>Отзывы</a>
-									<a class="wdo-link dropdown-item" href="/profile/project-responds"><span class="pull-right"><span data-type="project-responds" class="badge badge-pill badge-info profile-counter">4</span></span>Заявки</a>
-									<a class="wdo-link dropdown-item" href="/profile/warnings"><span class="pull-right"><span data-type="warnings" class="badge badge-pill badge-info profile-counter">6</span></span>Предупреждения</a>
-									<div class="dropdown-divider"></div>
-									<a class="wdo-link dropdown-item" href="/logout/">Выход</a>
+					<hr style="margin: 0; padding: 0;">
+					<div class="row text-center" style="height: 43px; align-items: center;">
+					<?php
+						$current_page = $_SERVER["REQUEST_URI"];
+						if ( $current_page = "/" ) $current_page = "/projects/";
+						$pages = Array(
+							"projects" => "Проекты",
+							"performers" => "Исполнители",
+							"about" => "О сервисе",
+							"adv" => "Реклама"
+						);
+						foreach ( $pages as $page=>$name)
+						{
+							$class = ('/'.$page.'/' == $current_page) ? "main-nav active" : "main-nav";
+							echo sprintf('<div class="col %s" title="%s" data-page="/%s/" style="padding:10px 5px;">
+															<a title="%s" href="/%s/" class="wdo-link">%s</a>
+														</div>',$class,$name,$page,$name,$page,$name);
+						}
+						if ( $current_user->user_id > 0 ) // user authorized
+						{
+						?>
+						<div class="col main-nav" style="padding-left: 20px;">
+							<div style="display: flex; align-items: center;">
+								<img class="rounded-circle" src="<?php echo HOST;?>/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=25&h=25" />
+								<div class="btn-group">
+									<div href="#" class="wdo-link dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="align-items: end-flex;">
+										&nbsp;Профиль<span data-type="total" class="badge badge-pill badge-info profile-counter" style="position: absolute; top: 0; right: -20px;">3</span>
+									</div>
+									<div class="dropdown-menu dropdown-menu-right profile-menu" style="width: 230px;">
+										<a class="wdo-link dropdown-item" href="/profile/"><strong>Мой кабинет</strong></a>
+										<a class="wdo-link dropdown-item" href="/profile/messages"><span class="pull-right"><span data-type="messages" class="badge badge-pill badge-info profile-counter">2</span></span>Сообщения</a>
+										<a class="wdo-link dropdown-item" href="/profile/responds"><span class="pull-right"><span data-type="responds" class="badge badge-pill badge-info profile-counter">3</span></span>Отзывы</a>
+										<a class="wdo-link dropdown-item" href="/profile/project-responds"><span class="pull-right"><span data-type="project-responds" class="badge badge-pill badge-info profile-counter">4</span></span>Заявки</a>
+										<a class="wdo-link dropdown-item" href="/profile/warnings"><span class="pull-right"><span data-type="warnings" class="badge badge-pill badge-info profile-counter">6</span></span>Предупреждения</a>
+										<div class="dropdown-divider"></div>
+										<a class="wdo-link dropdown-item" href="/logout/">Выход</a>
+									</div>
 								</div>
 							</div>
 						</div>
-<?php
-}
-else
-{
-?>
-							<a class="col wdo-btn bg-yellow header-nav" data-toggle="modal" data-target="#login-modal">Вход / Регистрация</a>
-<?php
-}
-?>
+						<?php
+						}
+						else
+						{
+						?>
+						<div class="col main-nav" style="flex:0 0 200px;min-width: 200px;">
+							<a class="wdo-btn bg-yellow" data-toggle="modal" data-target="#login-modal">Вход / Регистрация</a>
+						</div>
+						<?php
+						}
+						?>
 					</div>
 				</div><!-- /.wdo-main-right -->
 			</div><!-- /.wdo-main-header -->

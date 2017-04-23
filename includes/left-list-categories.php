@@ -1,6 +1,6 @@
 <ul class="list-group categories">
 	<?php
-	$cats = Category::getList();
+	$cats = Category::get_list();
 	foreach ( $cats as $cat )
 	{
 		echo sprintf('<li class="list-group-item justify-content-between category" data-cat_id="%d">
@@ -11,7 +11,7 @@
 			</label>
 			<span class="pull-right"><i class="fa fa-chevron-left icon-rotate-90 toggle-category"></i></span>
 		</li>',$cat->id,$cat->id,$cat->cat_name);
-		$subcats = SubCategory::getList($cat->id);
+		$subcats = SubCategory::get_list($cat->id);
 		echo sprintf('<ul class="list-group subcategories" data-parent_cat_id="%d">',$cat->id);
 		foreach ( $subcats as $subcat )
 		{

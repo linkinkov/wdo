@@ -35,11 +35,11 @@ class City
 		}
 	}
 
-	public static function getList($search = false)
+	public static function get_list($search = false,$limit = 30)
 	{
 		global $db;
 		$where = ( $search ) ? " WHERE `city_name` LIKE '%".$search."%'" : "";
-		$sql = sprintf("SELECT `id`,`city_name` FROM `cities` %s",$where);
+		$sql = sprintf("SELECT `id`,`city_name` FROM `cities` %s LIMIT %d",$where,$limit);
 		try {
 			$list = $db->queryRows($sql);
 			return $list;

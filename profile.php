@@ -9,10 +9,20 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 require_once('_global.php');
 include_once('_includes.php');
 $db = db::getInstance();
-check_access($db,false);
+check_access($db);
 
 $current_user = new User($_SESSION["user_id"]);
 $user_id = get_var("id","int",$_SESSION["user_id"]);
+// print_r($user_id);
+if ( $user_id <= 0 )
+{
+	// http_response_code(404);
+	// header("Location: ".HOST."/error/error",true,404);
+	header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
+	$error = 404;
+	include(PD.'/errors/error.php');
+	exit;
+}
 $user = new User($user_id);
 // $user->get_responds_counters();
 $self_profile = ( $current_user->user_id == $user->user_id ) ? true : false;
@@ -125,7 +135,7 @@ if ( $self_profile )
 								<li class="breadcrumb-item active"><?php echo $user->realUserName;?></li>
 							</ol>
 							<?php
-							if ( !$self_profile )
+							if ( !$self_profile && $current_user->user_id > 0 )
 							{
 								$note = User::get_user_note($user->user_id);
 								echo sprintf('<blockquote class="blockquote"><footer class="blockquote-footer">Ваша заметка</footer><p style="max-width: 400px;white-space: pre-wrap;word-wrap: break-word;" id="user_note">%s</p></blockquote>',$note["userNote"]);
@@ -134,28 +144,30 @@ if ( $self_profile )
 						</div>
 						<div class="col" style="border-left: 1px solid #ccc;  flex: 0 0 35%; max-width: 35%; min-width: 35%; text-align: center;">
 						<?php
+						$top_cats = Array();
 						if ( $user->as_performer == 1 )
 						{
-						?>
-						<?php
-							echo implode(' / ',$user->get_top_categories());
-						?>
-							<hr />
-						<?php
+							$top_cats = $user->get_top_categories();
+							echo implode(' / ',$top_cats);
+							
 						}
 						else
 						{
-							echo '<br /><br />';
+							echo '<br />';
 						}
+						if ( !$self_profile && $current_user->user_id > 0 )
+						{
+							if ( sizeof($top_cats) ) echo '<hr />';
 						?>
 							<p><i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="<?php echo $user->user_id;?>" data-realUserName="<?php echo $user->realUserName;?>">Написать сообщение</a></p>
 							<p><i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="<?php echo $user->user_id;?>" data-realUserName="<?php echo $user->realUserName;?>">Добавить заметку</a></p>
-						<?php
-						if ( $user->as_performer == 1 && !$self_profile )
-						{
-						?>
-							<div class="wdo-btn bg-purple">Предложить работу</div>
-						<?php
+							<?php
+							if ( $user->as_performer == 1 && !$self_profile )
+							{
+							?>
+								<div class="wdo-btn bg-purple">Предложить работу</div>
+							<?php
+							}
 						}
 						?>
 						</div>
@@ -229,7 +241,6 @@ if ( $self_profile )
 <script>
 $(function(){
 	<?php echo sprintf('config.profile.user_id = "%d";',$user->user_id);?>
-	console.log("showing user: ",config.profile.user_id);
 	$(".timestamp").each(function(e){
 		var title = moment.unix($(this).data('timestamp')).format("LLL");
 		( $(this).hasClass("fromNow") )
@@ -241,13 +252,14 @@ $(function(){
 			$(this).parent().html('<text class="text-success">Сейчас на сайте</text>');
 			$("#online_tracker").show();
 		}
-	})
+	});
 	$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 		var current_tab = e.target,
 				prev_tab = e.relatedTarget,
 				target_page = $(current_tab).data('pageid'),
 				tab_content = $("#"+$(current_tab).data('pageid'));
 		$("#"+$(prev_tab).data('pageid')).html('');
+		window.location.hash = '#'+target_page;
 		$(tab_content).html('<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
 		$.ajax({
 			type: "POST",
@@ -256,12 +268,24 @@ $(function(){
 			data: {
 				"user_id": config.profile.user_id
 			},
+			error: function(err)
+			{
+				window.location = '/';
+			},
 			success: function (response) {
 				$(tab_content).append(response);
 			}
 		});
 	})
-	<?php echo sprintf('$("a[data-pageid=\'%s\']").click();',$active);?>
+
+	if ( window.location.hash != "" )
+	{
+		$("a[data-pageid='"+window.location.hash.replace("#","")+"']").click();
+	}
+	else
+	{
+		<?php echo sprintf('$("a[data-pageid=\'%s\']").click();',$active);?>
+	}
 
 })
 </script>

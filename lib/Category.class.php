@@ -31,7 +31,7 @@ class Category
 		return $name;
 	}
 
-	public static function getList($search = false)
+	public static function get_list($search = false)
 	{
 		global $db;
 		$where = ( $search ) ? " WHERE `cat_name` LIKE '%".$search."%'" : "";

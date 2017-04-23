@@ -163,6 +163,10 @@ function updateProfileCounter(type,counter)
 	$(indicator).text(counter);
 }
 
+function ytVidId(url) {
+	var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+	return (url.match(p)) ? RegExp.$1 : false;
+}
 $(function(){
 	app.user.updateProfileCounters();
 	$('#city-select-modal').on('shown.bs.modal', function (e){

@@ -1,9 +1,9 @@
 <?php
-// require_once('_global.php');
-// include_once('_includes.php');
-require_once(PD.'/lib/Resize.class.php');
-require_once(PD.'/lib/Avatar.class.php');
-require_once(PD.'/lib/Attach.class.php');
+require_once('_global.php');
+include_once('_includes.php');
+require_once('lib/Resize.class.php');
+require_once('lib/Avatar.class.php');
+require_once('lib/Attach.class.php');
 $db = db::getInstance();
 
 $job = isset($_GET["job"]) ? trim($_GET["job"]) : false;
@@ -18,8 +18,15 @@ switch ( $job )
 		break;
 	case "cityList":
 		$search = get_var("search","string");
-		$cities = City::getList($search);
+		$limit = get_var("limit","int",30);
+		$cities = City::get_list($search,$limit);
 		header('Content-Type: application/json');
 		echo json_encode($cities);
+		break;
+	case "subCatList":
+		$parent_id = get_var("parent_id","int",1);
+		$list = SubCategory::get_list($parent_id);
+		header('Content-Type: application/json');
+		echo json_encode($list);
 		break;
 }

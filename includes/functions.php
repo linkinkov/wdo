@@ -18,7 +18,7 @@ function sec_session_start($regen = true) {
 		$secure,
 		$httponly);
 	session_name($session_name);
-	session_start();
+	@session_start();
 	if ( $regen ) session_regenerate_id(true);
 }
 
@@ -100,6 +100,52 @@ function get_var($var_name = false, $type="string", $default = false, $method="R
 			break;
 	}
 	return $var;
+}
+
+function determine_user_city()
+{
+	include_once(PD.'/includes/ipgeobase/ipgeobase.php');
+	$gb = new IPGeoBase();
+	if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		$ip = $_SERVER['HTTP_CLIENT_IP'];
+	} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	} else {
+		$ip = $_SERVER['REMOTE_ADDR'];
+	}
+	$ip = "193.169.111.6";
+	// $ip = "188.242.136.98";
+	if ( $data = $gb->getRecord($ip) )
+	{
+		if (isset($data["city"]) && $data["city"] != "")
+		{
+			$city = iconv("windows-1251", "utf-8", $data["city"]);
+			$city_info = City::get_list($city);
+			if ( sizeof($city_info) )
+			{
+				$city_id = $city_info[0]->id;
+				$city_name = $city_info[0]->city_name;
+				setcookie("city_id", $city_id);
+				setcookie("city_name", $city_name);
+				$_COOKIE["city_id"] = $city_id;
+				$_COOKIE["city_name"] = $city_name;
+			}
+			else
+			{
+				setcookie("city_id", "1");
+				setcookie("city_name", "Москва");
+				$_COOKIE["city_id"] = "1";
+				$_COOKIE["city_name"] = "Москва";
+			}
+		}
+		else
+		{
+			setcookie("city_id", "1");
+			setcookie("city_name", "Москва");
+			$_COOKIE["city_id"] = "1";
+			$_COOKIE["city_name"] = "Москва";
+		}
+	}
 }
 
 function is_timestamp($timestamp)
@@ -189,6 +235,7 @@ function sqlize_array(&$item)
 function check_access($db,$regen = true)
 {
 	if ( session_status() != PHP_SESSION_ACTIVE ) sec_session_start($regen);
+	else if ( $regen ) session_regenerate_id($regen);
 	if(!login_check($db))
 	{
 		$_SESSION["user_id"] = 0;

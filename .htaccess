@@ -1,11 +1,13 @@
 Options +FollowSymLinks
 RewriteEngine on
 RewriteRule ^projects/?$ index.php
+RewriteRule ^(performers|about|adv)/?$ $1.php
 RewriteRule ^(projects)/([a-zA-Z0-9_-]+)/$ index.php?preselect[cat_name]=$2
 RewriteRule ^(projects)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ index.php?preselect[cat_name]=$2&preselect[subcat_name]=$3
 
 RewriteRule ^(project)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_name=$2&subcat_name=$3&id=$4&title=$5 [L,QSA]
 RewriteRule ^(project)/([a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_name=$2&subcat_name=&id=$3&title=$4 [L,QSA]
+RewriteRule ^project/add/?$ addProject.php
 
 RewriteRule ^update.([a-zA-Z0-9_-]+)$ update.php?type=$1 [L,QSA]
 RewriteRule ^get.([a-zA-Z0-9_-]+)$ get.php?job=$1 [L,QSA]
@@ -17,6 +19,10 @@ RewriteRule ^profile/id([0-9]+)$ profile.php?id=$1
 
 RewriteRule ^(login|logout)/?$ $1.php [L,QSA]
 RewriteRule ^dt/([a-zA-Z0-9_-]+)$ /dt/dt.$1.php
+
+ErrorDocument 404 /errors/error.php?code=404
+ErrorDocument 403 /
+ErrorDocument 500 /errors/error.php?code=500
 RewriteRule ^404/([0-9]+)?$ /errors/error.php?code=$1
 RewriteRule ^403/([0-9]+)?$ /errors/error.php?code=$1
 RewriteRule ^500/([0-9]+)?$ /errors/error.php?code=$1

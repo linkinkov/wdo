@@ -21,6 +21,7 @@ body {
 	font-size: 0.95rem;
 	font-weight: 400;
 	line-height: 1.5;
+	min-width: 1000px;
 }
 @media (max-width: 1024px)
 {
@@ -57,9 +58,6 @@ body { padding-right: 0 !important }
 	min-height: 500px;
 	padding-bottom: 50px;
 }
-.container.wave-container * {
-	padding: 0;
-}
 .container.footer-container {
 	background-color: #ece7e7;
 	margin-top: -10px;
@@ -81,18 +79,13 @@ body { padding-right: 0 !important }
 	background-color: #3f082b;
 }
 .container .main {
-	flex: 0 0 1000px !important;
+	min-width: 1000px;
 }
 .wdo-main-header {
-	min-height: 130px !important; max-height: 130px !important;
+	min-height: 130px !important; 
 }
 .wdo-main-left {
-	flex: 0 0 243px;
 	max-width: 243px;
-}
-.wdo-main-right {
-	flex: 0 0 757px;
-	max-width: 757px;
 }
 .container.banner-container .wdo-main-left {
 	height: 360px;
@@ -157,32 +150,30 @@ body { padding-right: 0 !important }
 .bottom-shadow {
 	box-shadow: 0px 20px 30px -15px;
 }
-.header-nav-row {
-	align-items: center; min-height: 41px;
-}
 .mini-header-nav,.mini-header-nav:hover,.mini-header-nav:active,.mini-header-nav:focus {
 	font-weight: 800;
 	color: #a7a522;
 	padding: 17px;
 }
-.header-nav {
-	color: black;
-	text-align: center;
-	padding: 7px 3px 7px 3px;
+.main-nav {
+	padding:10px 5px;
 	font-weight: 800;
 }
-.header-nav.active {
+.main-nav.active {
 	color: white;
 	background-color: #940a63;
 }
-.header-nav.active:hover {
-	color: white !important;
-}
-.header-nav .badge-pill {
+.main-nav .badge-pill {
 	background-color: rgba(80,10,55,0.8);
 }
-.header-nav .dropdown-toggle::after {
+.main-nav .dropdown-toggle::after {
 	display:none
+}
+.main-nav a {
+	color: black;
+}
+.main-nav.active a {
+	color: white !important;
 }
 .profile-counter {
 	display: none;
@@ -281,6 +272,11 @@ i.fa.active {
 }
 .project-entry.no-pointer td {
 	cursor: default;
+}
+.project-upload-attach {
+	display: inline-block;
+	text-align: center;
+	padding: 0.5rem;
 }
 /* ----- END project ----- */
 
@@ -509,6 +505,20 @@ i.fa.active {
 .subcategories .list-group-item {
 	border: 0px;
 	padding: 0.15rem 1.25rem;
+}
+.custom-checkbox {
+	padding-left: 3.5rem;
+}
+.custom-checkbox .custom-control-indicator {
+	padding: .8rem;
+	border: 1px solid #ccc;
+	border-radius: 0;
+}
+.custom-checkbox .custom-control-input:checked~.custom-control-indicator {
+	background-color: #cecd48;
+}
+.custom-control-input:focus~.custom-control-indicator {
+	box-shadow: none;
 }
 .custom-control-input:checked~.custom-control-indicator {
 	background-color: #4a0933;
