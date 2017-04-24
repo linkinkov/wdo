@@ -81,7 +81,10 @@ try {
 $recordsTotal = 0;
 $recordsFiltered = 0;
 
-$sql = "SELECT COUNT(`respond_id`) as recordsTotal FROM `project_responds` WHERE 1 $projectStr $status_not_blocked $respond_user_id";
+$sql = "SELECT COUNT(`respond_id`) as recordsTotal 
+	FROM `project_responds` 
+	$join
+	WHERE 1 $projectStr $status_not_blocked $respond_user_id";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
@@ -93,7 +96,8 @@ try {
 
 
 $sql = "SELECT COUNT(`respond_id`) as recordsFiltered 
-	FROM `project_responds` 
+	FROM `project_responds`
+	$join
 	WHERE 1 $projectStr $statusStr $status_not_blocked $respond_user_id";
 try {
 	$tdr = $db->queryRow($sql);
@@ -106,14 +110,17 @@ try {
 
 if ( sizeof ($aaData) )
 {
-	$idx = 0;
+	$idx = -1;
 	foreach ( $aaData as $row )
 	{
+		$idx++;
 		$row->DT_RowId = $row->respond_id;
 		$row->DT_RowClass = "";
 		$respond = new ProjectRespond($row->respond_id);
 		if ( $respond->error == true ) {
 			unset($aaData[$idx]);
+			$recordsTotal--;
+			$recordsFiltered--;
 			continue;
 		}
 		$respond->cost = number_format($respond->cost,0,","," ");
@@ -127,6 +134,13 @@ if ( sizeof ($aaData) )
 		{
 			$row->DT_RowClass = "project-entry no-pointer";
 			$row->project = new Project($respond->for_project_id);
+			if ( $row->project->error == 1 )
+			{
+				unset($aaData[$idx]);
+				$recordsTotal--;
+				$recordsFiltered--;
+				continue;
+			}
 			$row->project_user = new User($row->project->user_id);
 			if ( $row->respond->status_id == 1 ) $row->respond->status_name = 'Рассматривается';
 			$row->respond->image_path = HOST.'/images/respond-status-'.$row->respond->status_id.'.png';
@@ -140,7 +154,6 @@ if ( sizeof ($aaData) )
 			unset($row->respond->cost);
 			unset($row->respond->status_id);
 		}
-		$idx++;
 	}
 }
 

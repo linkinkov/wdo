@@ -81,7 +81,7 @@ $user->get_counters();
 					<div class="row">
 						<div class="col">
 							<hr />
-							<h5>Контакты</h5>
+							<h5 class="text-purple">Контакты</h5>
 							<hr />
 						</div>
 					</div>
@@ -99,13 +99,14 @@ $user->get_counters();
 					<div class="row">
 						<div class="col">
 							<hr />
-							<h5>Календарь исполнителя</h5>
+							<h5 class="text-purple">Календарь исполнителя</h5>
 							<hr />
 						</div>
 					</div>
 					<div class="row">
-						<div class="col">
-							<div id="user_calendar"></div>
+						<div class="col text-center">
+							<div class="calendar-view"></div>
+							<a class="wdo-link" data-toggle="modal" data-target="#user-calendar-modal">Редактировать</a>
 						</div>
 					</div>
 					<?php
@@ -114,7 +115,7 @@ $user->get_counters();
 					<div class="row">
 						<div class="col">
 							<hr />
-							<h5>Статистика</h5>
+							<h5 class="text-purple">Статистика</h5>
 							<hr />
 						</div>
 					</div>
@@ -301,9 +302,22 @@ $(function(){
 	{
 		<?php echo sprintf('$("a[data-pageid=\'%s\']").click();',$active);?>
 	}
-	var date = new Date();
-	$("#user_calendar").multiDatesPicker({
-		addDates: []
+	$(".calendar-view").multiDatesPicker({
+		disabled: true
 	});
+	app.user.getCalendar(function(response){
+		if ( response.result == "true" )
+		{
+			if ( response.dates.length > 0 )
+			{
+				var dates = [];
+				$.each(response.dates,function(){
+					var date = moment.unix(this.timestamp).toDate();
+					dates.push(date);
+				})
+				$(".calendar-view").multiDatesPicker('addDates',dates);
+			}
+		}
+	})
 })
 </script>

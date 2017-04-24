@@ -350,6 +350,48 @@ class User
 		}
 		return $list;
 	}
+
+	public function calendar($action,$dates)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа"
+		);
+		if ( $this->user_id == 0 ) return $response;
+		try {
+			if ( $action == "get" )
+			{
+				$dates = $db->queryRows(sprintf("SELECT `timestamp` FROM `user_calendar` WHERE `user_id` = '%d'",$this->user_id));
+				$response["dates"] = $dates;
+				unset($response["message"]);
+			}
+			else if ( $action == "set" )
+			{
+				if ( is_array($dates) )
+				{
+					$db->autocommit(false);
+					$reset = sprintf("DELETE FROM `user_calendar` WHERE `user_id` = '%d'",$this->user_id);
+					$db->query($reset);
+					foreach ( $dates as $timestamp )
+					{
+						$insert = sprintf("INSERT INTO `user_calendar` (`user_id`,`timestamp`) VALUES ('%d','%d')",$this->user_id,$timestamp);
+						$db->query($insert);
+					}
+					$db->commit();
+					$db->autocommit(true);
+				}
+				$response["message"] = "Сохранено";
+			}
+			$response["result"] = "true";
+		}
+		catch ( Exception $e )
+		{
+
+		}
+		return $response;
+	}
 }
 
 ?>

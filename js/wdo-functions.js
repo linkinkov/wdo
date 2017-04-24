@@ -225,6 +225,30 @@ $(function(){
 		});
 	})
 
+	$('#user-calendar-modal').on('show.bs.modal', function(e){
+		var related = e.relatedTarget,
+				modal = e.delegateTarget,
+				submit_btn = $(modal).find(".wdo-btn[name='save-calendar']"),
+				calendar = $(modal).find(".calendar");
+		set_btn_state(submit_btn,"reset");
+		$(calendar).multiDatesPicker();
+		app.user.getCalendar(function(response){
+			if ( response.result == "true" )
+			{
+				if ( response.dates.length > 0 )
+				{
+					var dates = [];
+					$.each(response.dates,function(){
+						var date = moment.unix(this.timestamp).toDate();
+						dates.push(date);
+					})
+					console.log("adding:",dates);
+					$(calendar).multiDatesPicker('addDates',dates);
+				}
+			}
+		})
+	})
+
 	$(".wdo-btn[name='send-pm']").click(function(){
 		var btn = this,
 				recipient_id = $(this).data('recipient'),
@@ -254,6 +278,26 @@ $(function(){
 			}
 		});
 	})
+
+	$(".wdo-btn[name='save-calendar']").click(function(){
+		var btn = this,
+				calendar = $("#user-calendar-modal").find(".calendar"),
+				calendar_view = $(".calendar-view");
+		set_btn_state(btn,"loading");
+		var dates_tmp = $(calendar).multiDatesPicker('getDates'),
+				dates = [];
+		$.each(dates_tmp,function(idx,val){
+			dates.push(moment(val).format("X"));
+		})
+		app.user.saveCalendar(dates,function(response){
+			set_btn_state(btn,"reset",response.message);
+			$(calendar).multiDatesPicker('resetDates');
+			$(calendar_view).multiDatesPicker('resetDates');
+			$(calendar).multiDatesPicker('addDates', dates_tmp);
+			$(calendar_view).multiDatesPicker('addDates', dates_tmp);
+		});
+	})
+
 	var login_btn = $('#login-modal').find("button[type='submit']");
 	$('#login-modal').find("form input").each(function(){
 		$(this).on("keyup",function(e){

@@ -19,3 +19,7 @@ table.ui-datepicker-calendar {border-collapse: separate;}
 	background-color: #cecd48 !important;
 	color: #000 !important;
 }
+.calendar-wide .ui-datepicker {
+	width: 80%;
+	margin: 0 auto;
+}

@@ -32,7 +32,7 @@ CREATE TABLE `attaches` (
   `created` int(10) NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`attach_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +41,6 @@ CREATE TABLE `attaches` (
 
 LOCK TABLES `attaches` WRITE;
 /*!40000 ALTER TABLE `attaches` DISABLE KEYS */;
-INSERT INTO `attaches` VALUES (1,'image',0,15,'4a80759004adb1c1668f8ea0c8059bcc.jpg','',1492422482,3),(2,'image',0,15,'870ddc6c8868c50256a3231634b29e9f.gif','',1492425442,3),(3,'video',0,15,'','https://www.youtube.com/watch?v=xn0Ah0J5p5Y',1492444977,3),(4,'image',0,15,'4a80759004adb1c1668f8ea0c8059bcc.jpeg','',1492422482,3),(5,'image',0,15,'870ddc6c8868c50256a3231634b29e9f.gif','',1492425442,3),(6,'video',0,15,'','https://www.youtube.com/watch?v=Uk5DIFq1bsU',1492444977,3),(7,'image',0,15,'4a80759004adb1c1668f8ea0c8059bcc.jpg','',1492422482,3),(8,'image',0,15,'870ddc6c8868c50256a3231634b29e9f.gif','',1492425442,3),(9,'video',0,15,'','https://www.youtube.com/watch?v=H9mNjb9XYy8',1492444977,3),(35,'video',214,0,'','https://www.youtube.com/watch?v=aJaRUYE3C-I',1493028065,1),(36,'video',214,0,'','youtu.be/H9mNjb9XYy8',1493028065,1),(37,'image',214,0,'homuncul-4.jpg','',1493028065,1),(38,'image',214,0,'Selection_005.png','',1493028065,1),(39,'video',215,0,'','https://www.youtube.com/watch?v=aJaRUYE3C-I',1493028144,1),(40,'video',215,0,'','youtu.be/H9mNjb9XYy8',1493028144,1),(41,'image',215,0,'Selection_002.png','',1493028144,1),(42,'video',216,0,'','https://www.youtube.com/watch?v=aJaRUYE3C-I',1493028218,1),(43,'video',216,0,'','youtu.be/H9mNjb9XYy8',1493028218,1),(44,'image',216,0,'Selection_003.png','',1493028218,1),(45,'video',217,0,'','https://www.youtube.com/watch?v=aJaRUYE3C-I',1493030164,1),(46,'video',217,0,'','youtu.be/H9mNjb9XYy8',1493030164,1),(47,'image',217,0,'homuncul-4.jpg','',1493030164,1),(48,'image',218,0,'5_yapfiles.ru.gif','',1493035622,1),(49,'image',218,0,'8428490.jpg','',1493035622,1),(50,'image',219,0,'man-talking-on-phone-clip-art-at-clker','',1493039910,1);
 /*!40000 ALTER TABLE `attaches` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -227,7 +226,7 @@ CREATE TABLE `project` (
   `views` int(11) NOT NULL,
   `for_user_id` int(11) NOT NULL,
   PRIMARY KEY (`project_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=221 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -236,7 +235,6 @@ CREATE TABLE `project` (
 
 LOCK TABLES `project` WRITE;
 /*!40000 ALTER TABLE `project` DISABLE KEYS */;
-INSERT INTO `project` VALUES (104,'Видеограф на свадьбу','Должна быть просторная игровая комната, с отдельным залом для обеда, в игровой комнате должно быть все для развлечения детей',4984,1483277355,4,1,1492661181,1492647581,1492747581,1,2,2,1,1,28,1),(200,'project 200','project 200 descr',3556,1474982989,1,1,1474984989,1475071389,1475071389,2,0,1,0,0,0,0),(203,'title test','test descr',0,1493025577,1,1,1493630106,1493630106,1493630106,1,3,2,0,0,1,0),(204,'title test','test descr',0,1493025765,1,1,1493630106,1493630106,1493630106,1,3,2,1,0,0,0),(205,'title test','test descr',0,1493025776,1,1,1493630106,1493630106,1493630106,1,3,2,1,1,1,0),(215,'На трамвайчике','Покатать на теплоходе на праздники с 9 по 11 мая',1400,1493028144,1,1,1494277200,1494277200,1494363599,3,10,2,1,0,1,0),(216,'Видеографввыфв','Покатать на теплоходе на праздники с 9 по 11 мая',1400,1493028218,1,1,1494277200,1494277200,1494363599,1,2,2,1,0,1,0),(217,'wqeweqw','Покатать на теплоходе на праздники с 9 по 11 мая',4400,1493030164,1,1,1494277200,1494277200,1494363599,1,2,2,1,0,1,0),(218,'Для демо','test descr',0,1493035622,1,1,1493640394,1493640395,1493640395,1,2,2,0,0,3,3),(219,'Музыкант','test descr',0,1493039909,1,1,1493644624,1493644624,1493644624,2,5,2,0,0,1,3),(220,'Музыкант','test descr',0,1493039948,1,1,1493644624,1493644624,1493644624,2,5,2,0,0,2,3);
 /*!40000 ALTER TABLE `project` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -256,7 +254,7 @@ CREATE TABLE `project_responds` (
   `cost` mediumint(9) NOT NULL,
   `status_id` tinyint(1) NOT NULL,
   PRIMARY KEY (`respond_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,7 +263,6 @@ CREATE TABLE `project_responds` (
 
 LOCK TABLES `project_responds` WRITE;
 /*!40000 ALTER TABLE `project_responds` DISABLE KEYS */;
-INSERT INTO `project_responds` VALUES (1,104,1,1492078859,'1 - Выбери меня, выбери меня! Ведь я - птица счастья завтрашнего дня!!',312,1),(2,15,1,1492178859,'sdelayu za 10',0,2),(3,104,2,1492446383,'3 - The URL property name defined by each list object can be configured via the urlProperty option. By default, it is set to href, which allows to pass a list of HTML link elements as first argument.\n\nFor images, the thumbnail property defines the URL of the image thumbnail, which is used for the indicator navigation displayed at the bottom of the Gallery, if the controls are visible.\n\n',1500,2),(4,104,3,1492446734,'4 - The URL property name defined by each list object can be configured via the urlProperty option. By default, it is set to href, which allows to pass a list of HTML link elements as first argument.\n\nFor images, the thumbnail property defines the URL of the image thumbnail, which is used for the indicator navigation displayed at the bottom of the Gallery, if the controls are visible.',32000,2),(5,104,3,1492446758,'5 - Objects with a video type will be displayed in a HTML5 video element if the browser supports the video content type.\n\nFor videos, the poster property defines the URL of the poster image to display, before the video is started.',39999,2),(6,15,1,1492078859,'6 - Выбери меня, выбери меня! Ведь я - птица счастья завтрашнего дня!!',0,2),(7,17,3,1492178859,'sdelayu za 10',123,3),(8,104,2,1492446383,'8 - The URL property name defined by each list object can be configured via the urlProperty option. By default, it is set to href, which allows to pass a list of HTML link elements as first argument.\n\nFor images, the thumbnail property defines the URL of the image thumbnail, which is used for the indicator navigation displayed at the bottom of the Gallery, if the controls are visible.\n\n',1500,2),(9,104,3,1492446734,'9 - The URL property name defined by each list object can be configured via the urlProperty option. By default, it is set to href, which allows to pass a list of HTML link elements as first argument.\n\nFor images, the thumbnail property defines the URL of the image thumbnail, which is used for the indicator navigation displayed at the bottom of the Gallery, if the controls are visible.',32000,2),(10,104,3,1492446758,'10 - Objects with a video type will be displayed in a HTML5 video element if the browser supports the video content type.\n\nFor videos, the poster property defines the URL of the poster image to display, before the video is started.',49999,2),(11,104,1,1492078859,'11 - Выбери меня, выбери меня! Ведь я - птица счастья завтрашнего дня!!',0,2),(12,25,1,1492178859,'sdelayu za 10',0,1),(13,104,2,1492446383,'13 - The URL property name defined by each list object can be configured via the urlProperty option. By default, it is set to href, which allows to pass a list of HTML link elements as first argument.\n\nFor images, the thumbnail property defines the URL of the image thumbnail, which is used for the indicator navigation displayed at the bottom of the Gallery, if the controls are visible.\n\n',1500,1),(14,104,3,1492446734,'14 - The URL property name defined by each list object can be configured via the urlProperty option. By default, it is set to href, which allows to pass a list of HTML link elements as first argument.\n\nFor images, the thumbnail property defines the URL of the image thumbnail, which is used for the indicator navigation displayed at the bottom of the Gallery, if the controls are visible.',32000,2),(15,104,3,1492446758,'15 - Objects with a video type will be displayed in a HTML5 video element if the browser supports the video content type.\n\nFor videos, the poster property defines the URL of the poster image to display, before the video is started.',19999,1),(16,28,1,1492078859,'16 - Выбери меня, выбери меня! Ведь я - птица счастья завтрашнего дня!!',0,3),(17,104,1,1492178859,'sdelayu za 10',0,2),(18,104,2,1492446383,'AAAA\r\n\r\nTEPER\' YASNO !@#$^&*',12,1),(19,104,3,1492446734,'dfszfdt, it i\r\n\r\nthumbnail, which is used for the indicator navigation displayed at the bottom of the Gallery, if the controls are visible.',1234,2),(20,104,2,1492446758,'Objdacontent type.\r\n\r\nFor videos, the poster property defines the URL of the poster image to display, before the video is started.',2134,3);
 /*!40000 ALTER TABLE `project_responds` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -355,11 +352,10 @@ DROP TABLE IF EXISTS `user_calendar`;
 CREATE TABLE `user_calendar` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `occuped_start` int(10) NOT NULL,
-  `occuped_end` int(10) NOT NULL,
+  `timestamp` int(10) NOT NULL,
   `descr` varchar(1024) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -368,6 +364,7 @@ CREATE TABLE `user_calendar` (
 
 LOCK TABLES `user_calendar` WRITE;
 /*!40000 ALTER TABLE `user_calendar` DISABLE KEYS */;
+INSERT INTO `user_calendar` VALUES (47,1,1493240400,''),(48,1,1493326800,'');
 /*!40000 ALTER TABLE `user_calendar` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -550,7 +547,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (0,'GUEST','0-','0-','GUEST','','','','',0,0,1492371605,1,'::1',0,0,3,1,0,'','','','',0,'','','','0','0','0','0','0'),(1,'admin@weedo.ru','4052a28f3e6dd1985e5a914959366a7c2928c7f24b9eb2735d020bd318de7eaae0f361c3e970c993302a2592ffe4296ff0c4be937b8ac6a40c53a88ffc93f050','390e7342f25f7547ad72477ed1c6109b08d204057710fe8807e57096b33fd8e80f200d5464413b3a73c565aee5b0eac02563e313e734492b0268c90bc40489ed','Тетерин','Евгений','WEEDO COMPANY','+79312553075','skype://stuff.r59',2,1,1492271605,1,'127.0.0.1',1493045065,1,1,1,0,'http://vk.com/e.teterin','59.98545387678666,30.209140777587894','Halliluyah!!!','ХЗ!',-178426800,'123','321','456','12321321','12341','563664564','7896034563','4524234'),(2,'manager','0cd70e6f975a5b33c004c985bd54ee205ae4948bc5b5bf884fd7c00d05003a8ea282cef4de856774d6dfa4a624eb82688731a6b154f25f4bcf7aee134afe7208','85efddff8007206baa90b823d8f970aefbde37bb60d605ab9c6e925fea73d21bcdda2b9a77a995d689daa94bdd3654f3043c55c275e36800742c457f5f2ba707','Менеджер 1','','Manager Company','','',1,1,1492171605,2,'192.168.2.245',1491926934,1,1,1,0,'','','','',0,'','','','0','0','0','0','0'),(3,'demo','2a04e3d3ff6353d201fd021ff9795b2a389de6ed973e40ce6357e669abd63b58b0f79482e58d0bfd2285bc6ecaba3c00c3169c53b6cc182331c5ff423c4cb282','e31c083c156a6014a56da3f6657a075ff39fefa38ab675e2c1593b724ac59d20c58c2f9840a8357b6e0df6c258f3ce8c0889099c3931b7b98eb933bc21a69b1f','Демо','','OOO Гранат & Company & Friends','','',3,1,1491971605,1,'127.0.0.1',1493040347,0,1,1,0,'','','','',316299600,'','','','','','','','');
+INSERT INTO `users` VALUES (0,'GUEST','0-','0-','GUEST','','','','',0,0,1492371605,1,'::1',0,0,3,1,0,'','','','',0,'','','','0','0','0','0','0'),(1,'admin@weedo.ru','4052a28f3e6dd1985e5a914959366a7c2928c7f24b9eb2735d020bd318de7eaae0f361c3e970c993302a2592ffe4296ff0c4be937b8ac6a40c53a88ffc93f050','390e7342f25f7547ad72477ed1c6109b08d204057710fe8807e57096b33fd8e80f200d5464413b3a73c565aee5b0eac02563e313e734492b0268c90bc40489ed','Тетерин','Евгений','WEEDO COMPANY','+79312553075','skype://stuff.r59',2,1,1492271605,1,'127.0.0.1',1493068235,1,1,1,0,'http://vk.com/e.teterin','59.98545387678666,30.209140777587894','Halliluyah!!!','ХЗ!',-178426800,'123','321','456','12321321','12341','563664564','7896034563','4524234'),(2,'manager','0cd70e6f975a5b33c004c985bd54ee205ae4948bc5b5bf884fd7c00d05003a8ea282cef4de856774d6dfa4a624eb82688731a6b154f25f4bcf7aee134afe7208','85efddff8007206baa90b823d8f970aefbde37bb60d605ab9c6e925fea73d21bcdda2b9a77a995d689daa94bdd3654f3043c55c275e36800742c457f5f2ba707','Менеджер 1','','Manager Company','','',1,1,1492171605,2,'192.168.2.245',1491926934,1,1,1,0,'','','','',0,'','','','0','0','0','0','0'),(3,'demo','2a04e3d3ff6353d201fd021ff9795b2a389de6ed973e40ce6357e669abd63b58b0f79482e58d0bfd2285bc6ecaba3c00c3169c53b6cc182331c5ff423c4cb282','e31c083c156a6014a56da3f6657a075ff39fefa38ab675e2c1593b724ac59d20c58c2f9840a8357b6e0df6c258f3ce8c0889099c3931b7b98eb933bc21a69b1f','Демо','','OOO Гранат & Company & Friends','','',3,1,1491971605,1,'127.0.0.1',1493040347,0,1,1,0,'','','','',316299600,'','','','','','','','');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -591,4 +588,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-04-24 17:45:45
+-- Dump completed on 2017-04-25  0:13:48

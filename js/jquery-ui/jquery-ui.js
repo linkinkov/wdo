@@ -127,10 +127,10 @@ function Datepicker() {
 	this._dayOverClass = "ui-datepicker-days-cell-over"; // The name of the day hover marker class
 	this.regional = []; // Available regional settings, indexed by language code
 	this.regional[ "" ] = { // Default regional settings
-		closeText: "Done", // Display text for close link
-		prevText: "Prev", // Display text for previous month link
-		nextText: "Next", // Display text for next month link
-		currentText: "Today", // Display text for current month link
+		closeText: "Закрыть", // Display text for close link
+		prevText: "Пред.", // Display text for previous month link
+		nextText: "След.", // Display text for next month link
+		currentText: "Сегодня", // Display text for current month link
 		monthNames: [ "Январь","Февраль","Март","Апрель","Май","Июнь",
 			"Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь" ], // Names of months for drop-down and formatting
 		monthNamesShort: [ "Янв", "Фев", "Мар", "Апр", "Май", "Июнь", "Июль", "Авг", "Сент", "Окт", "Ноя", "Дек" ], // For formatting
@@ -139,7 +139,7 @@ function Datepicker() {
 		dayNamesMin: [ "Вс","Пн","Вт","Ср","Чт","Пт","Сб" ], // Column headings for days starting at Sunday
 		weekHeader: "Нед", // Column header for week of the year
 		dateFormat: "mm/dd/yy", // See format options on parseDate
-		firstDay: 0, // The first day of the week, Sun = 0, Mon = 1, ...
+		firstDay: 1, // The first day of the week, Sun = 0, Mon = 1, ...
 		isRTL: false, // True if right-to-left language, false if left-to-right
 		showMonthAfterYear: false, // True if the year select precedes month, false for month then year
 		yearSuffix: "" // Additional text to append to the year in the month headers
@@ -1029,7 +1029,7 @@ $.extend( Datepicker.prototype, {
 			inst = this._getInst( target[ 0 ] );
 
 		if ( this._isDisabledDatepicker( target[ 0 ] ) ) {
-			return;
+			// return;
 		}
 		this._adjustInstDate( inst, offset +
 			( period === "M" ? this._get( inst, "showCurrentAtPos" ) : 0 ), // undo positioning

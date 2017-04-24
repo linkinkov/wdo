@@ -63,9 +63,12 @@ class Attach
 				}
 				elseif ( file_exists($requested) )
 				{
+				// echo "getting:".$requested.", cached:".$cached." / ".dirname($cached);
+				// exit;
 					ob_clean();
 					$resizeObj = new resize($requested);
 					$resizeObj->resizeImage($w, $h, 'auto');
+					if ( !file_exists(dirname($cached)) ) @mkdir(dirname($cached));
 					$resizeObj->saveImage($cached, 50);
 					header('Content-Type: '.$content_type);
 					header('Content-Length: ' . filesize($cached));
@@ -93,7 +96,7 @@ class Attach
 		}
 	}
 
-	public function get_by_for_type($for='for_project_id',$id=false)
+	public static function get_by_for_type($for='for_project_id',$id=false)
 	{
 		global $db;
 		if ( !$id ) return false;
@@ -156,16 +159,20 @@ class Attach
 			$filepath = $file->getPathname();
 			$filename = $file->getFilename();
 			$extension = $file->getExtension();
+			$filename_new = md5($filename.microtime().$current_user->user_id).'.'.$extension;
 			$type = ( preg_match('/(gif|jpe?g|png)$/i',$extension) ) ? 'image' : 'document';
-			$sql = sprintf("INSERT INTO `attaches` (`attach_type`,`%s`,`file_name`,`created`,`user_id`) VALUES ('%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$type,$id,$filename,$current_user->user_id);
+			$sql = sprintf("INSERT INTO `attaches` (`attach_type`,`%s`,`file_name`,`created`,`user_id`) VALUES ('%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$type,$id,$filename_new,$current_user->user_id);
 			$db->autocommit(false);
 			try 
 			{
 				$db->query($sql);
 				if ( !file_exists($target_dir) ) @mkdir($target_dir);
-				if ( @rename($filepath,$target_dir.$filename) )
+				if ( @rename($filepath,$target_dir.$filename_new) )
 				{
 					$db->commit();
+					array_map('unlink', glob("$upload_dir/thumbnail/$filename"));
+					rmdir("$upload_dir/thumbnail");
+					rmdir("$upload_dir");
 				}
 				else
 				{

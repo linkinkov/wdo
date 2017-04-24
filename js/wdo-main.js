@@ -199,6 +199,30 @@ var app = {
 					callback(response);
 				}
 			})
+		},
+		"getCalendar": function(callback) {
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/user.calendar",
+				data: {"action":"get"},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"saveCalendar": function(dates,callback) {
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				data: {"action":"set","dates": dates},
+				url: "/user.calendar",
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
 		}
 	},
 	"getCityList": function(search,callback){

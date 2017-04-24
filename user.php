@@ -65,5 +65,12 @@ switch ( $job )
 		$response = is_array($response) ? $response : Array("result"=>"false","message"=>"error");
 		echo json_encode($response);
 		break;
-
+	case "calendar":
+		$action = get_var("action","string","get");
+		$dates = get_var("dates","array",Array());
+		$response = $current_user->calendar($action,$dates);
+		header('Content-Type: application/json');
+		$response = is_array($response) ? $response : Array("result"=>"false");
+		echo json_encode($response);
+		break;
 }

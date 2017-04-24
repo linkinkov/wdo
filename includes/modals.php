@@ -169,3 +169,35 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+<!-- user-calendar-modal -->
+<div class="modal fade" id="user-calendar-modal" tabindex="-1" role="dialog" aria-labelledby="user-calendar-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="width: 600px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="user-calendar-modal-label">Календарь исполнителя</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row" style="justify-content: center;">
+					<div class="col strong text-center">
+						<p>Отметьте даты в которые вы будете заняты</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						<div class="calendar calendar-wide"></div>
+					</div>
+				</div><!-- /.row -->
+				<div class="row" style="justify-content: center;background: url(/images/ornament-2.png) repeat-x bottom right 10px;">
+					<div class="col">
+						<div class="wdo-btn bg-purple" name="save-calendar" data-ot="Сохранить" data-lt="Сохранение" style="width: 50%; margin: 0 auto;">Сохранить</div>
+						<br /><br /><br />
+					</div>
+				</div><!-- /.row -->
+			</div><!-- /.modal-body -->
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
