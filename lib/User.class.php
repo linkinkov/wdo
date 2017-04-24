@@ -326,6 +326,30 @@ class User
 		$this->balance = 100500;
 		return $this->balance;
 	}
+
+	public static function get_list($search="")
+	{
+		global $db;
+		$search = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $search);
+		$list = Array();
+		$sql = sprintf("SELECT `user_id` FROM `users` WHERE `last_name` LIKE '%%%s%%' OR `first_name` LIKE '%%%s%%' OR `company_name` LIKE '%%%s%%' LIMIT 5",$search,$search,$search);
+		try {
+			// echo $sql;
+			$rows = $db->queryRows($sql);
+			if ( $rows )
+				foreach ( $rows as $row )
+					$list[] = Array(
+						"user_id"=>$row->user_id,
+						"userName"=>User::get_real_user_name($row->user_id),
+						"avatar_path"=>HOST.'/user.getAvatar?user_id='.$row->user_id
+					);
+		}
+		catch ( Exception $e )
+		{
+
+		}
+		return $list;
+	}
 }
 
 ?>

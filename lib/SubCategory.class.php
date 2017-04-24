@@ -22,6 +22,15 @@ class SubCategory
 		}
 	}
 
+	public static function get_name($subcat_id)
+	{
+		global $db;
+		$subcat_id = intval($subcat_id);
+		if ( !$subcat_id ) return "";
+		$name = $db->getValue("subcats","subcat_name","subcat_name",Array("id"=>$subcat_id));
+		return $name;
+	}
+
 	public static function get_list($parent_id = false)
 	{
 		global $db;

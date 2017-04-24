@@ -163,7 +163,9 @@ $(function(){
 		echo 'restoreSelectedSpecs();';
 	}
 	?>
-	config.projects.calendar = $('.calendar').daterangepicker(config.datePickerOptions);
+	var opts = config.datePickerOptions;
+	opts.endDate = moment().add(1,"months");
+	config.projects.calendar = $('.calendar').daterangepicker(opts);
 	$('.calendar').on('apply.daterangepicker', function(ev, picker) {
 		reloadProjectsTable();
 	});
@@ -205,7 +207,7 @@ $(function(){
 			{"data": "project.title","class":"project-table-title","width":"300px"},
 			{"data": "project.start_date","class":"project-table-created"},
 			{"data": "project.cost","class":"project-table-cost"},
-			{"data": "bids","class":"project-table-bids"},
+			{"data": "bids","class":"project-table-bids text-center align-top"},
 		],
 		"order": [[0, 'asc']],
 		"initComplete": function(table,data) {
@@ -215,7 +217,7 @@ $(function(){
 		},
 		"createdRow": function ( row, data, index ) {
 			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
-			var category = $.sprintf('<br /><br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
+			var category = $.sprintf('<br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
 			var start_date = moment.unix(data.project.start_date).format("DD.MM.YYYY");
 			var duration = "";
 			if ( data.project.continuous == 1 )
@@ -240,6 +242,7 @@ $(function(){
 				extra_title.push("VIP проект");
 			}
 			$('td', row).eq(3).attr("title",extra_title.join("; "))
+			if ( extra_title.length == 0 ) $('td', row).eq(3).removeClass('align-top');
 			$(row).click(function(){
 				window.location.href = data.project_link;
 			})

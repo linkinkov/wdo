@@ -1,5 +1,7 @@
 <?php
 
+require_once(PD.'/lib/Attach.class.php');
+
 class Project
 {
 	public function __construct($id = false)
@@ -109,27 +111,77 @@ class Project
 		return $response;
 	}
 	
-	public static function delete($user_id)
+	public static function publish($data)
 	{
 		global $db;
-		global $lang;
-		global $user;
-		$sql = sprintf("UPDATE `users` SET `username` = CONCAT(`username`,'-',UNIX_TIMESTAMP()), `deleted` = 1 WHERE `user_id` = '%d'",$user_id);
-		$target_user = new User($user_id);
-		if ( intval($user_id) && $db->query($sql) )
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Проверьте данные"
+		);
+		$all_fields = Array("title","descr","cost","accept_till","start_date","end_date","cat_id","subcat_id","safe_deal","vip","for_user_id","youtube_links");
+		$req_fields = Array("title","descr","accept_till","start_date","end_date","cat_id","subcat_id");
+		foreach ( $req_fields as $field )
 		{
-			$response["result"] = "true";
-			$response["message"] = $lang["user_deleted"];
-			$user->log_activity("users",Array("action"=>"delete","descr"=>sprintf("%s",$target_user->username)));
+			if ( !isset($data[$field]) )
+			{
+				$response["field"] = $field;
+				return $response;
+			}
 		}
-		else
+		foreach ( $all_fields as $field )
 		{
-			$response["result"] = "true";
-			$response["message"] = $lang["error_occured"];
+			if ( !isset($data[$field]) )
+			{
+				$data[$field] = 0;
+			}
+		}
+		if ( $data["safe_deal"] == "true" ) $data["safe_deal"] = 1;
+		if ( $data["vip"] == "true" ) $data["vip"] = 1;
+		$sql = sprintf("INSERT INTO `project` (`title`,`descr`,`cost`,`created`,`status_id`,`user_id`,`accept_till`,`start_date`,`end_date`,`cat_id`,`subcat_id`,`city_id`,`safe_deal`,`vip`,`views`,`for_user_id`)
+		VALUES ('%s','%s','%d',UNIX_TIMESTAMP(),1,'%d','%d','%d','%d','%d','%d','%d','%d','%d',0,'%d')",
+			$data["title"],
+			$data["descr"],
+			intval($data["cost"]),
+			intval($current_user->user_id),
+			intval($data["accept_till"]),
+			intval($data["start_date"]),
+			intval($data["end_date"]),
+			intval($data["cat_id"]),
+			intval($data["subcat_id"]),
+			intval($_COOKIE['city_id']),
+			intval($data["safe_deal"]),
+			intval($data["vip"]),
+			intval($data["for_user_id"])
+		);
+		try {
+			$db->autocommit(false);
+			if ( $db->query($sql) && $db->insert_id > 0 )
+			{
+				$project_id = $db->insert_id;
+				if ( Attach::save_from_user_upload_dir('for_project_id',$project_id,$data["youtube_links"]) )
+				{
+					$db->commit();
+					$response["result"] = "true";
+					$response["message"] = "Сохранено";
+					$cat_tr = strtolower(r2t(Category::get_name($data["cat_id"])));
+					$subcat_tr = strtolower(r2t(SubCategory::get_name($data["subcat_id"])));
+					$title_tr = strtolower(r2t($data["title"]));
+					$response["project_link"] = HOST.'/project/'.$cat_tr.'/'.$subcat_tr.'/p'.$project_id.'/'.$title_tr.'.html';
+					$db->autocommit(true);
+				}
+				else
+				{
+					$response["error"] = "Не удалось прикрепить файлы к проекту";
+				}
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["error"] = $e->getMessage();
 		}
 		return $response;
 	}
-	
 }
 
 ?>

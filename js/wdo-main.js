@@ -59,7 +59,7 @@ var config = {
 		"alwaysShowCalendars": true,
 		"showCustomRangeLabel": false
 	},
-	"datePickerOptionsBirthday": {
+	"datePickerOptionsSingle": {
 		"opens":"left",
 		"locale": {
 			"format": "DD/MM/YYYY",

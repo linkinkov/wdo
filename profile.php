@@ -16,27 +16,21 @@ $user_id = get_var("id","int",$_SESSION["user_id"]);
 // print_r($user_id);
 if ( $user_id <= 0 )
 {
-	// http_response_code(404);
-	// header("Location: ".HOST."/error/error",true,404);
-	header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
-	$error = 404;
+	header($_SERVER["SERVER_PROTOCOL"]." 401 Not authorized", true, 404);
+	$error = 401;
 	include(PD.'/errors/error.php');
 	exit;
 }
 $user = new User($user_id);
-// $user->get_responds_counters();
 $self_profile = ( $current_user->user_id == $user->user_id ) ? true : false;
 $user->get_counters();
-if ( $self_profile )
-{
-}
-// echo "Showing profile: $user_id";
-// echo "<pre>";print_r($user);echo "</pre>";
 ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <?php include(PD.'/includes/html-head.php');?>
+<link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/css/jquery-ui.multidatespicker.css" />
+<link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/jquery-ui/jquery-bootstrap-datepicker.css" />
 </head>
 <body>
 
@@ -98,6 +92,25 @@ if ( $self_profile )
 							<p><span class="pull-right"><i title="Skype" class="text-purple fa fa-skype fa-lg fa-fw"></i></span><?php echo ($user->skype) ? $user->skype : "Не указан";?></p>
 						</div>
 					</div>
+					<?php
+					if ( $user->as_performer == 1 )
+					{
+					?>
+					<div class="row">
+						<div class="col">
+							<hr />
+							<h5>Календарь исполнителя</h5>
+							<hr />
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div id="user_calendar"></div>
+						</div>
+					</div>
+					<?php
+					}
+					?>
 					<div class="row">
 						<div class="col">
 							<hr />
@@ -238,6 +251,8 @@ if ( $self_profile )
 <?php include(PD.'/includes/modals.php');?>
 <?php include(PD.'/includes/scripts.php');?>
 
+<script src="<?php echo HOST;?>/js/jquery-ui/jquery-ui.js"></script>
+<script src="<?php echo HOST;?>/js/jquery-ui.multidatespicker.js"></script>
 <script>
 $(function(){
 	<?php echo sprintf('config.profile.user_id = "%d";',$user->user_id);?>
@@ -286,6 +301,9 @@ $(function(){
 	{
 		<?php echo sprintf('$("a[data-pageid=\'%s\']").click();',$active);?>
 	}
-
+	var date = new Date();
+	$("#user_calendar").multiDatesPicker({
+		addDates: []
+	});
 })
 </script>

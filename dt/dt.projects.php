@@ -64,7 +64,7 @@ $cityStr = ( isset($_COOKIE["city_id"]) && intval($_COOKIE["city_id"]) > 0 ) ? s
 $statusStr = ( $status_id > 0 ) ? sprintf(' AND `status_id` = "%d"',$status_id) : '';
 $selectedStr = ( $selected != "" ) ? sprintf(' AND `subcat_id` IN (%s)',$selected) : '';
 $timerange = sprintf(' AND (`start_date` >= "%d" AND `end_date` <= "%d")', $start_date, $end_date);
-$for_user_id = sprintf(' AND (`for_user_id` = "%d" OR `for_user_id` = "%d")',0,$current_user->user_id);
+$for_user_id = sprintf(' AND (`user_id` = "%d" OR `for_user_id` = "0" OR `for_user_id` = "%d")',$current_user->user_id,$current_user->user_id);
 if ( $user_id > 0 )
 {
 	$user_id = sprintf(' AND (`user_id` = "%d")',$user_id);
@@ -112,7 +112,6 @@ try {
 } catch (Exception $e) {
 	$response["error"] = $e->getMessage();
 	// echo $sql_main;
-	header('Content-Type: application/json');
 	echo json_encode($response);
 	exit();
 }
@@ -124,7 +123,6 @@ try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
 } catch (Exception $e) {
-	header('Content-Type: application/json');
 	echo json_encode($response);
 	exit();
 }
@@ -137,7 +135,6 @@ try {
 	$tdr = $db->queryRow($sql);
 	$recordsFiltered = $tdr->recordsFiltered;
 } catch (Exception $e) {
-	header('Content-Type: application/json');
 	echo json_encode($response);
 	exit();
 }
@@ -204,6 +201,5 @@ $response = Array(
 	"lastUpdate"=>time()
 );
 
-header('Content-Type: application/json');
 echo json_encode($response);
 ?>

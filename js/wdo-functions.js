@@ -35,6 +35,10 @@ function formhash(form, password) {
 	})
 	return false;
 }
+function showAlert(type,message)
+{
+	console.log("ALERT!!",type,message);
+}
 function scrollTo(elementID,o)
 {
 	o = o || false;
@@ -173,10 +177,10 @@ $(function(){
 		update_city_list(this,e);
 	})
 	$('#restore-password-modal').on('show.bs.modal', function(e){
-		$("#login-modal").modal("hide");
+		if ( $("#login-modal").hasClass('in') ) $("#login-modal").modal("hide");
 	})
 	$('#register-modal').on('show.bs.modal', function(e){
-		$("#login-modal").modal("hide");
+		if ( $("#login-modal").hasClass('in') ) $("#login-modal").modal("hide");
 	})
 	$('#send-pm-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
@@ -313,6 +317,6 @@ $(function(){
 				data = $(this).data();
 		$(menu).find(".wdo-option").removeClass("active");
 		$(this).addClass("active");
-		$("button[data-name='"+data.name+"']").text($(this).text());
+		$("button[data-name='"+data.name+"']").removeClass("warning").text($(this).text());
 	})
 })

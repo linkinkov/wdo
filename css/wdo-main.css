@@ -215,7 +215,7 @@ i.fa.active {
 
 #projects-table {
 	border-collapse: separate !important;
-	border-spacing: 0px 15px !important;
+	border-spacing: 0px 10px !important;
 }
 #projects-table_info {
 	text-align: center;
@@ -275,6 +275,17 @@ i.fa.active {
 	text-align: center;
 	padding: 0.5rem;
 }
+.performer_found {
+	background-color: #fff;
+	margin-left: 20px;
+	padding: 10px;
+	cursor: pointer;
+	border: 1px solid rgba(228,227,139,0.4);
+	max-width: 230px;
+}
+.performer_found:hover,.performer_found.active {
+	background-color: rgba(228,227,139,0.4);
+}
 /* ----- END project ----- */
 
 /* ----- project-respond  ----- */
@@ -292,23 +303,23 @@ i.fa.active {
 	padding: 15px;
 	border-bottom: 0;
 }
-.project-respond-attaches {
+.attaches {
 	border-top: 1px solid #dfd9d9;
 	padding-top: 10px;
 }
-.project-respond-attaches .img-thumbnail {
+.attaches .img-thumbnail {
 	min-height: 100px;
 	max-height: 100px;
 	cursor: pointer;
 }
 
 .responds-filter-all {
-  cursor: pointer;
-  width: 105px;
-  height: 25px;
-  background: url('/images/responds-filter-all.png') no-repeat center;
-  float: left;
-  margin-left: 5px;
+	cursor: pointer;
+	width: 105px;
+	height: 25px;
+	background: url('/images/responds-filter-all.png') no-repeat center;
+	float: left;
+	margin-left: 5px;
 }
 .responds-filter-all:hover {
   background: url('/images/responds-filter-all-checked.png') no-repeat center;
@@ -403,7 +414,9 @@ i.fa.active {
 	background-color: #e3e284;
 	color: #000;
 }
-
+.warning {
+	border: 1px solid #a7a522;
+}
 /* ----- END CUSTOM SELECT ---- */
 .word-break {
 	-ms-word-break: break-all;
@@ -527,19 +540,22 @@ i.fa.active {
 td.safe-deal {
 	background-image: url('/images/advantage-safe-deal.png');
 	background-repeat: no-repeat;
-	background-position: center right 20px;
-	background-size: 20%;
+	/*background-position: center right 20px;*/
+	background-position: bottom 10px right 50%;
+	background-size: 18%;
 }
 td.vip {
 	background-image: url('/images/advantage-vip.png');
 	background-repeat: no-repeat;
-	background-position: center right 10px;
-	background-size: 20%;
+	/*background-position: center right 10px;*/
+	background-position: bottom 10px right 50%;
+	background-size: 19%;
 }
 td.safe-deal.vip {
 	background-image: url('/images/advantage-safe-deal.png'),url('/images/advantage-vip.png');
-	background-position: center right 10px, center right 40px;
-	background-size: 20%, 23%;
+	/*background-position: center right 10px, center right 40px;*/
+	background-position: bottom 10px right 35%, bottom 10px right 70%;
+	background-size: 18%, 19%;
 }
 .jumbotron {
 	margin-bottom: 0;

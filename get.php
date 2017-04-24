@@ -16,6 +16,13 @@ switch ( $job )
 		$h = get_var("h","int",35);
 		Attach::getByID($attach_id,$w,$h);
 		break;
+	case "AttachList":
+		$for = get_var("for","string",'for_project_id');
+		$id = get_var("id","int",0);
+		$list = Attach::get_by_for_type($for,$id);
+		header('Content-Type: application/json');
+		echo json_encode($list);		
+		break;
 	case "cityList":
 		$search = get_var("search","string");
 		$limit = get_var("limit","int",30);
@@ -26,6 +33,12 @@ switch ( $job )
 	case "subCatList":
 		$parent_id = get_var("parent_id","int",1);
 		$list = SubCategory::get_list($parent_id);
+		header('Content-Type: application/json');
+		echo json_encode($list);
+		break;
+	case "UserList":
+		$search = get_var("search","string","");
+		$list = User::get_list($search);
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;

@@ -22,9 +22,17 @@ if ( !$id ) die("wrong id");
 
 $project = new Project($id);
 
-if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
+if ( $project->status_id == 5 && $current_user->user_id != $project->user_id )
 {
-	header("Location: /404/",true,302);
+	$error = 404;
+	include(PD.'/errors/error.php');
+	exit;
+}
+if ( $project->for_user_id > 0 && $current_user->user_id != $project->for_user_id && $current_user->user_id != $project->user_id )
+{
+	$error = 404;
+	include(PD.'/errors/error.php');
+	exit;
 }
 ?>
 
@@ -235,12 +243,48 @@ if ( $project->status_id == 5 && $_SESSION["user_id"] != $project->user_id )
 					<div class="row">
 						<div class="col">
 							<div class="jumbotron jumbotron-fluid">
-								<div class="container">
+								<div class="container" style="max-width: 700px;">
 									<p class="lead" style="white-space: pre-wrap;"><?php echo $project->descr;?></p>
 								</div>
 							</div>
 						</div>
 					</div>
+					<?php
+					$attaches = Attach::get_by_for_type('for_project_id',$project->project_id);
+					if ( sizeof($attaches) )
+					{
+						echo '
+						<div class="row"><div class="col"><hr /></div></div>
+						<text class="text-muted">Прикрепленные файлы</text><br /><br />
+						<div class="row">
+							<div class="col">
+								<div class="attaches gallery">';
+						foreach ( $attaches as $at )
+						{
+							if ( $at->attach_type == 'image' )
+							{
+								$obj = sprintf('<a href="/get.Attach?attach_id=%d&w=500&h=500"><img class="img-thumbnail" src="/get.Attach?attach_id=%d&w=100&h=100" /></a>',$at->attach_id,$at->attach_id);
+							}
+							else if ( $at->attach_type == 'video' )
+							{
+								$obj = sprintf('<a href="%s" type="text/html" data-youtube="%s" poster="http://img.youtube.com/vi/%s/0.jpg">
+								<img class="img-thumbnail" src="http://img.youtube.com/vi/%s/0.jpg" />
+								</a>',$at->url,$at->youtube_id,$at->youtube_id,$at->youtube_id);
+							}
+							else if ( $at->attach_type == 'document' )
+							{
+								$obj = sprintf('<a class="download" href="/get.Attach?attach_id=%d"><img class="img-thumbnail" src="/images/document.png" /></a>',$at->attach_id);
+							}
+							echo $obj;
+						}
+						echo '
+								</div>
+							</div>
+						</div>';
+					}
+					?>
+
+
 					<div class="row"><div class="col"><hr /></div></div>
 					<h44 class="text-purple-dark strong">Заявки исполнителей</h44>
 					<?php if ( $project->is_project_author == 1 )
@@ -312,7 +356,7 @@ $(function(){
 			var container = $('<div />', {class: "project-respond-container"}),
 					respond = $('<div/>', {class: "project-respond"}),
 					attach_container = $('<div/>',{class: "attach-container gallery"}),
-					attaches = $('<div/>',{class: "project-respond-attaches"}),
+					attaches = $('<div/>',{class: "attaches"}),
 					header = $('<div/>',{class: "project-respond-header"}),
 					header_html = '',
 					html = ''
@@ -419,7 +463,6 @@ $(function(){
 				var target = event.target || event.srcElement,
 						link = target.src ? target.parentNode : target,
 						options = {index: link, event: event},
-						// links = this.getElementsByTagName('a');
 						links = $(this).find("a").not(".download");
 				blueimp.Gallery(links, options);
 			});

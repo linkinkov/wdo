@@ -284,7 +284,7 @@ if ( $job == "profile" )
 					else if ( key == "as_performer" ) { if ( value == 1 ) $(".custom-checkbox-as_performer").click(); }
 					else $("[data-name='"+key+"']").val(value);
 				})
-				$('input[data-name="birthday"]').daterangepicker(config.datePickerOptionsBirthday);
+				$('input[data-name="birthday"]').daterangepicker(config.datePickerOptionsSingle);
 				$('input[data-name="birthday"]').on('apply.daterangepicker', function(ev, picker) {
 					$(this).data('timestamp',picker.startDate.format("X"));
 				});
@@ -472,14 +472,14 @@ else if ( $job == "projects" )
 			if ( $current_user->user_id == $user->user_id )
 			echo '{"data": "performer_name","class":"project-table-performer"},';
 		?>
-				{"data": "project.status_name","name":"status_id","class":"project-table-status"},
+				{"data": "project.status_name","name":"status_id","class":"project-table-status text-center align-top"},
 			],
 			"order": [[0, 'asc']],
 			"initComplete": function(table,data) {
 			},
 			"createdRow": function ( row, data, index ) {
 				var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
-				var category = $.sprintf('<br /><br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
+				var category = $.sprintf('<br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
 				var cost = data.project.cost + ' <i class="fa fa-rouble"></i>';
 				if ( data.performer_id ) $('td', row).eq(3).html('<a class="wdo-link" href="/profile/id'+data.performer_id+'">'+data.performer_name+'</a>');
 				$('td', row).eq(0).html(title+category);
@@ -495,7 +495,8 @@ else if ( $job == "projects" )
 					$('td', row).eq(4).attr("title","VIP проект").addClass('vip');
 					extra_title.push("VIP проект");
 				}
-				$('td', row).eq(4).attr("title",extra_title.join("; "))
+				$('td', row).eq(4).attr("title",extra_title.join("; "));
+				if ( extra_title.length == 0 ) $('td', row).eq(4).removeClass('align-top');
 			},
 			"drawCallback": function( settings ) {
 				$(".paginate_button > a").on("focus", function() {
