@@ -565,7 +565,7 @@ $(function(){
 						var obj = $('<div class="col performer_found" data-user_id="'+this.user_id+'">'
 						+'<div class="row" style="align-items: center;">'
 						+'	<div class="col" style="max-width: 50px;">'
-						+'		<img class="rounded-circle shadow" src="'+this.avatar_path+'&w=50&h=50" />'
+						+'		<img class="rounded-circle shadow" src="'+this.avatar_path+'&w=35&h=35" />'
 						+'	</div>'
 						+'	<div class="col">'
 						+'		'+this.userName+''

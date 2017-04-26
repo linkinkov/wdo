@@ -14,7 +14,7 @@
 						<a class="mini-header-nav" href="<?php echo HOST;?>/adv/">Реклама</a>
 						<?php
 						if ( $current_user->user_id > 0 )
-							echo '<a class="mini-header-nav" href="<?php echo HOST;?>/logout/">Выход</a>';
+							echo '<a class="mini-header-nav" href="'.HOST.'/logout/">Выход</a>';
 						else
 							echo '<a class="mini-header-nav" href="" data-toggle="modal" data-target="#login-modal">Вход</a>'
 						?>

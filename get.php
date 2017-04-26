@@ -6,6 +6,8 @@ require_once('lib/Avatar.class.php');
 require_once('lib/Attach.class.php');
 $db = db::getInstance();
 
+check_access($db);
+$current_user = new User($_SESSION["user_id"]);
 $job = isset($_GET["job"]) ? trim($_GET["job"]) : false;
 if ( !$job ) die("no data");
 switch ( $job )

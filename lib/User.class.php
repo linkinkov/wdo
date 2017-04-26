@@ -351,12 +351,14 @@ class User
 		return $this->balance;
 	}
 
-	public static function get_list($search="")
+	public static function get_list($search="",$city_id=false)
 	{
 		global $db;
+		global $current_user;
 		$search = filter_string($search,'in');
 		$list = Array();
-		$sql = sprintf("SELECT `user_id` FROM `users` WHERE `last_name` LIKE '%%%s%%' OR `first_name` LIKE '%%%s%%' OR `company_name` LIKE '%%%s%%' LIMIT 5",$search,$search,$search);
+		if ( !$city_id ) $city_id = $_COOKIE["city_id"];
+		$sql = sprintf("SELECT `user_id` FROM `users` WHERE `city_id` = '%d' AND `user_id` != '%d' AND (`last_name` LIKE '%%%s%%' OR `first_name` LIKE '%%%s%%' OR `company_name` LIKE '%%%s%%') LIMIT 5",$city_id,$current_user->user_id,$search,$search,$search);
 		try {
 			// echo $sql;
 			$rows = $db->queryRows($sql);
@@ -387,7 +389,11 @@ class User
 			"result" => "false",
 			"message" => "Ошибка доступа"
 		);
-		if ( $user_id == 0 ) return $response;
+		if ( $user_id == 0 )
+		{
+			$response["error"] = "true";
+			return $response;
+		}
 		try {
 			if ( $action == "get" )
 			{
@@ -417,6 +423,7 @@ class User
 		catch ( Exception $e )
 		{
 
+			$response["error"] = $e->getMessage();
 		}
 		return $response;
 	}
