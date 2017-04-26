@@ -92,11 +92,11 @@ else
 										&nbsp;Мой кабинет<span data-type="total" class="badge badge-pill badge-info profile-counter" style="position: absolute; top: 0; right: -20px;">3</span>
 									</div>
 									<div class="dropdown-menu dropdown-menu-right profile-menu" style="width: 230px;">
-										<a class="wdo-link dropdown-item" href="/profile/"><strong>Профиль</strong></a>
-										<a class="wdo-link dropdown-item" href="/profile/messages"><span class="pull-right"><span data-type="messages" class="badge badge-pill badge-info profile-counter">2</span></span>Сообщения</a>
-										<a class="wdo-link dropdown-item" href="/profile/responds"><span class="pull-right"><span data-type="responds" class="badge badge-pill badge-info profile-counter">3</span></span>Отзывы</a>
-										<a class="wdo-link dropdown-item" href="/profile/project-responds"><span class="pull-right"><span data-type="project-responds" class="badge badge-pill badge-info profile-counter">4</span></span>Заявки</a>
-										<a class="wdo-link dropdown-item" href="/profile/warnings"><span class="pull-right"><span data-type="warnings" class="badge badge-pill badge-info profile-counter">6</span></span>Предупреждения</a>
+										<a class="wdo-link dropdown-item" href="/profile/#profile"><strong>Профиль</strong></a>
+										<a class="wdo-link dropdown-item" href="/profile/#messages"><span class="pull-right"><span data-type="messages" class="badge badge-pill badge-info profile-counter"></span></span>Сообщения</a>
+										<a class="wdo-link dropdown-item" href="/profile/#responds"><span class="pull-right"><span data-type="responds" class="badge badge-pill badge-info profile-counter"></span></span>Отзывы</a>
+										<a class="wdo-link dropdown-item" href="/profile/#project-responds"><span class="pull-right"><span data-type="project-responds" class="badge badge-pill badge-info profile-counter"></span></span>Заявки</a>
+										<a class="wdo-link dropdown-item" href="/profile/#warnings"><span class="pull-right"><span data-type="warnings" class="badge badge-pill badge-info profile-counter"></span></span>Предупреждения</a>
 										<div class="dropdown-divider"></div>
 										<a class="wdo-link dropdown-item" href="/logout/">Выход</a>
 									</div>

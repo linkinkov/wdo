@@ -11,7 +11,7 @@ if ( !$job ) die("no data");
 switch ( $job )
 {
 	case "Attach":
-		$attach_id = get_var("attach_id","int",0);
+		$attach_id = get_var("attach_id","string","");
 		$w = get_var("w","int",35);
 		$h = get_var("h","int",35);
 		Attach::getByID($attach_id,$w,$h);

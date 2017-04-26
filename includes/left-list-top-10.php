@@ -5,10 +5,10 @@
 	{
 		$userName = User::get_real_user_name($r->user_id);
 		if ( !is_array($userName) && $userName != "" )
-			echo sprintf('<li class="list-group-item justify-content-between">
-			<img class="rounded-circle" src="%s" /> <div style="max-width: 90px; word-wrap: break-word;">%s</div>
+			echo sprintf('<li href="%s" class="wdo-link list-group-item justify-content-between">
+			<img class="rounded-circle shadow" src="%s" /> <div class="user-name">%s</div>
 			<span class="badge bg-yellow badge-pill">%d</span>
-			</li>',HOST.'/user.getAvatar?user_id='.$r->user_id.'&w=45&h=45',$userName,$r->rating);
+			</li>',HOST.'/profile/id'.$r->user_id,HOST.'/user.getAvatar?user_id='.$r->user_id.'&w=45&h=45',$userName,$r->rating);
 	}
 	?>
 	<li class="list-group-item justify-content-between" style="align-self: center;"><a href="/performers/" class="wdo-link text-yellow">Все исполнители</a></li>

@@ -5,6 +5,7 @@ require_once(PD.'/lib/Resize.class.php');
 require_once(PD.'/lib/Avatar.class.php');
 require_once(PD.'/lib/Attach.class.php');
 $db = db::getInstance();
+check_access($db,false);
 $current_user = new User($_SESSION["user_id"]);
 
 $job = isset($_GET["job"]) ? trim($_GET["job"]) : false;
@@ -68,8 +69,16 @@ switch ( $job )
 	case "calendar":
 		$action = get_var("action","string","get");
 		$dates = get_var("dates","array",Array());
-		$response = $current_user->calendar($action,$dates);
+		$user_id = get_var("user_id","int",$current_user->user_id);
+		if ( $action == "set" ) $response = $current_user->calendar($current_user->user_id,$action,$dates);
+		else if ( $action == "get" ) $response = User::calendar($user_id,$action,$dates);
 		header('Content-Type: application/json');
+		$response = is_array($response) ? $response : Array("result"=>"false");
+		echo json_encode($response);
+		break;
+	case "deleteAvatar":
+		header('Content-Type: application/json');
+		$response = $current_user->delete_avatar();
 		$response = is_array($response) ? $response : Array("result"=>"false");
 		echo json_encode($response);
 		break;

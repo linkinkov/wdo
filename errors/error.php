@@ -14,6 +14,7 @@ if ( !isset($error) )
 	check_access($db,false);
 
 	$current_user = new User($_SESSION["user_id"]);
+	$current_user->set_city_auto();
 }
 
 ?>

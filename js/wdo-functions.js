@@ -37,7 +37,9 @@ function formhash(form, password) {
 }
 function showAlert(type,message)
 {
-	console.log("ALERT!!",type,message);
+	var modal = $("#alert-modal");
+	$("#alert-modal-message").text(message);
+	$(modal).modal('show');
 }
 function scrollTo(elementID,o)
 {
@@ -177,10 +179,10 @@ $(function(){
 		update_city_list(this,e);
 	})
 	$('#restore-password-modal').on('show.bs.modal', function(e){
-		if ( $("#login-modal").hasClass('in') ) $("#login-modal").modal("hide");
+		if ( $("#login-modal").hasClass('show') ) $("#login-modal").modal("hide");
 	})
 	$('#register-modal').on('show.bs.modal', function(e){
-		if ( $("#login-modal").hasClass('in') ) $("#login-modal").modal("hide");
+		if ( $("#login-modal").hasClass('show') ) $("#login-modal").modal("hide");
 	})
 	$('#send-pm-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
@@ -214,7 +216,7 @@ $(function(){
 			{
 				var matches = response.userNote.match(/\n/g),
 						breaks = matches ? matches.length : 2;
-				$(textarea).val(response.userNote).attr('rows',breaks + 2);
+				$(textarea).val(_.unescape(response.userNote)).attr('rows',breaks + 2);
 			}
 			else
 			{
@@ -232,18 +234,38 @@ $(function(){
 				calendar = $(modal).find(".calendar");
 		set_btn_state(submit_btn,"reset");
 		$(calendar).multiDatesPicker();
-		app.user.getCalendar(function(response){
+		app.user.getCalendar(config.profile.user_id,function(response){
 			if ( response.result == "true" )
 			{
 				if ( response.dates.length > 0 )
 				{
-					var dates = [];
+					var dates = [],
+							disabledDates = [],
+							disabledDays = [];
 					$.each(response.dates,function(){
 						var date = moment.unix(this.timestamp).toDate();
-						dates.push(date);
+						if (this.editable == 1)
+						{
+							dates.push(date);
+						}
+						else
+						{
+							disabledDays.push(jQuery.datepicker.formatDate('yy-mm-dd', date));
+							disabledDates.push(date);
+						}
 					})
-					console.log("adding:",dates);
-					$(calendar).multiDatesPicker('addDates',dates);
+					if ( disabledDates.length > 0 ) $(calendar).multiDatesPicker({
+						'addDisabledDates': disabledDates,
+						'beforeShowDay': function(date){
+							var str = jQuery.datepicker.formatDate('yy-mm-dd', date);
+							if ( $.inArray(str, disabledDays) != -1 )
+								return [false,'special'];
+							else
+								return [true,''];
+						}
+					});
+					if ( dates.length > 0 ) $(calendar).multiDatesPicker('addDates',dates);
+					$(calendar).find(".ui-datepicker-unselectable.ui-state-disabled.special").attr("title","На этот день у вас уже запланировано мероприятие");
 				}
 			}
 		})
@@ -308,9 +330,14 @@ $(function(){
 	$(document).on("click",".wdo-btn",function(e){
 		if ( $(this).hasClass("disabled") ) return false;
 	})
-	$(document).on("click",".custom-control-description-cat, .toggle-category",function(e){
+	$(document).on("click",".list-group-item,.custom-control-description-cat, .toggle-category",function(e){
 		e.stopPropagation();
 		e.preventDefault();
+		if ( $(this).hasClass("category") )
+		{
+			slideCategory($(this).data('cat_id'));
+			return;
+		}
 		var li = $(this).parent().parent();
 		var data = $(li).data();
 		if ( $(li).hasClass("subcategory") )

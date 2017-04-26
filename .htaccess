@@ -10,6 +10,7 @@ RewriteRule ^(project)/([,a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_na
 RewriteRule ^project/add/?$ addProject.php
 RewriteRule ^project/publish/?$ addProject.php?job=publish
 RewriteRule ^project/preview/?$ previewProject.php
+RewriteRule ^project_respond/publish/?$ addProjectRespond.php?job=publish
 
 RewriteRule ^update.([a-zA-Z0-9_-]+)$ update.php?type=$1 [L,QSA]
 RewriteRule ^get.([a-zA-Z0-9_-]+)$ get.php?job=$1 [L,QSA]

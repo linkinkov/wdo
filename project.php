@@ -2,7 +2,6 @@
 if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 {
 	$redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-	// header('HTTP/1.1 301 Moved Permanently');
 	header('Location: ' . $redirect, true, 301);
 	exit();
 }
@@ -12,6 +11,7 @@ $db = db::getInstance();
 check_access($db,false);
 
 $current_user = new User($_SESSION["user_id"]);
+$current_user->set_city_auto();
 
 $id = get_var("id","int");
 $cat_name = get_var("cat_name","string");
@@ -19,6 +19,13 @@ $subcat_name = get_var("subcat_name","string");
 $title = get_var("title","string");
 
 if ( !$id ) die("wrong id");
+$ref = isset($_SESSION["LAST_PAGE"]) ? trim($_SESSION["LAST_PAGE"]) : false;
+if ( $ref == "profile/project-responds" )
+{
+	$data["ts_project_responds"] = time();
+	$current_user->update_profile_info($data);
+}
+$_SESSION["LAST_PAGE"] = "/project";
 
 $project = new Project($id);
 
@@ -32,6 +39,12 @@ if ( $project->for_user_id > 0 && $current_user->user_id != $project->for_user_i
 {
 	$error = 404;
 	include(PD.'/errors/error.php');
+	exit;
+}
+
+if ( isset($_GET["add_respond"]) )
+{
+	include("addProjectRespond.php");
 	exit;
 }
 ?>
@@ -96,13 +109,15 @@ if ( $project->for_user_id > 0 && $current_user->user_id != $project->for_user_i
 					<div class="row">
 						<div class="col" style="flex: 0 0 75%; max-width: 75%;">
 							<?php
+							$translated["cat_name"] = strtolower(r2t($project->cat_name));
+							$translated["subcat_name"] = strtolower(r2t($project->subcat_name));
 							echo sprintf('
 							<a class="wdo-link" href="%s"><h5 style="font-weight: 800;">%s</h5></a>
 							<a class="wdo-link text-purple" href="%s">%s</a> / <a class="wdo-link text-purple" href="%s">%s</a> | <text class="timestamp" data-timestamp="%s"></text>',
 							HOST.$_SERVER['REQUEST_URI'],
 							$project->title,
-							HOST.'/projects/'.strtolower(r2t($project->cat_name)).'/',$project->cat_name,
-							HOST.'/projects/'.strtolower(r2t($project->cat_name)).'/'.strtolower(r2t($project->subcat_name)).'/',$project->subcat_name,
+							HOST.'/projects/'.$translated["cat_name"].'/',$project->cat_name, // category href link
+							HOST.'/projects/'.$translated["cat_name"].'/'.$translated["subcat_name"].'/',$project->subcat_name, // subcategory href link
 							$project->created
 							);?>
 							<span class="pull-right">
@@ -223,7 +238,7 @@ if ( $project->for_user_id > 0 && $current_user->user_id != $project->for_user_i
 							$pu = new User($project->user_id);
 							$pu->get_counters();
 							echo sprintf('
-							<a href="%s" class="wdo-link"><img class="rounded-circle" src="%s" />
+							<a href="%s" class="wdo-link"><img class="rounded-circle shadow" src="%s" />
 							<br />
 							%s</a>',
 								HOST.'/profile/id'.$project->user_id,
@@ -282,7 +297,39 @@ if ( $project->for_user_id > 0 && $current_user->user_id != $project->for_user_i
 							</div>
 						</div>';
 					}
+					if ( $pu->user_id != $current_user->user_id )
+					{
 					?>
+					<div class="row"><div class="col"><hr /></div></div>
+					<?php
+					}
+					?>
+					<div class="row">
+						<div class="col text-center">
+							<?php
+							if ( $current_user->user_id == 0 )
+							{
+								echo sprintf('<a class="wdo-btn text-white btn-sm bg-purple" data-toggle="modal" data-target="#login-modal">Подать заявку</a>');
+							}
+							else if ( $pu->user_id != $current_user->user_id )
+							{
+								$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$project->user_id)));
+								if ( $project->status_id != 1 )
+								{
+									echo sprintf('<div class="wdo-btn btn-sm bg-purple disabled">'.$project->status_name.'</div>');
+								}
+								else if ( $already_has_respond == 0 )
+								{
+									echo sprintf('<a href="?add_respond" id="add_respond" class="wdo-btn btn-sm bg-purple" data-ot="Подать заявку" data-lt="Загрузка">Подать заявку</a>',$project->project_id);
+								}
+								else
+								{
+									echo sprintf('<div class="wdo-btn bg-purple disabled">У вас уже есть заявка на данный проект</div>');
+								}
+							}
+							?>
+						</div>
+					</div>
 
 
 					<div class="row"><div class="col"><hr /></div></div>
@@ -364,7 +411,7 @@ $(function(){
 			+'	<div class="col" style="border-right: 1px solid #eee;">'
 			+'		<div class="row">'
 			+'			<div class="col text-center" style="padding-top: 10px; max-width: 100px;">'
-			+'				<img class="rounded-circle" src="'+data.user.avatar_path+'&w=50&h=50" /><br />'
+			+'				<img class="rounded-circle shadow" src="'+data.user.avatar_path+'&w=50&h=50" /><br />'
 			+'				'+moment.unix(data.respond.created).format("YYYY-MM-DD HH:MM")
 			+'			</div>'
 			+'			<div class="col" style="padding-top: 10px;padding-left: 0;">'
@@ -379,7 +426,7 @@ $(function(){
 			+'		<text style="line-height: 2rem;">В сервисе <span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
 			if ( data.respond.cost )
 			{
-				html += '<hr /><div class="project-cost" style="margin: 0 auto;">'+data.respond.cost+' <i class="fa fa-rouble"></i></div>';
+				html += '<hr /><div class="project-cost" style="margin: 20px auto;">'+data.respond.cost+' <i class="fa fa-rouble"></i></div>';
 			}
 			html += ''
 			+'	</div>'
@@ -433,7 +480,7 @@ $(function(){
 					var object = '';
 					if ( this.attach_type == 'image' )
 					{
-						object = '<a href="/get.Attach?attach_id='+this.attach_id+'&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id='+this.attach_id+'&w=100&h=100" /></a>';
+						object = '<a href="/get.Attach?attach_id='+this.attach_id+'&w=500&h=500"><img class="img-thumbnail" src="/get.Attach?attach_id='+this.attach_id+'&w=100&h=100" /></a>';
 					}
 					else if ( this.attach_type == 'video' )
 					{
@@ -483,7 +530,11 @@ $(function(){
 					},
 					dataType: "JSON",
 					success: function (response) {
-						respondsTable.ajax.reload(false,false);
+						if ( response.result == "false" )
+						{
+							showAlert("error",response.message);
+						}
+						else respondsTable.ajax.reload(false,false);
 					}
 				});
 			})

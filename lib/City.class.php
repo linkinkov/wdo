@@ -11,8 +11,11 @@ class City
 		$sql = sprintf("SELECT `city_name` FROM `cities` WHERE `id` = '%d'",$id);
 		try {
 			$info = $db->queryRow($sql);
-			$this->id = $id;
-			if ( isset($this->city_name) ) $this->city_name = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->city_name) );
+			if ( isset($info->city_name) )
+			{
+				$this->id = $id;
+				$this->city_name = $info->city_name;
+			}
 		}
 		catch (Exception $e)
 		{

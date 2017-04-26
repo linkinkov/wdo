@@ -13,6 +13,9 @@
 	text-decoration: none !important;
 	text-align: center;
 }
+.wdo-btn.btn-sm {
+	display: inline-block;
+}
 .wdo-btn.bg-yellow {
 	color: black;
 }

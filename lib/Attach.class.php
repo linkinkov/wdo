@@ -6,7 +6,7 @@ class Attach
 	public static function getByID($attach_id = false, $w=35, $h=35)
 	{
 		global $db;
-		$sql = sprintf("SELECT `attach_id`,`attach_type`,`for_project_id`,`for_respond_id`,`file_name`,`user_id` FROM `attaches` WHERE `attach_id` = '%d'",$attach_id);
+		$sql = sprintf("SELECT `attach_id`,`attach_type`,`for_project_id`,`for_respond_id`,`file_name`,`user_id` FROM `attaches` WHERE `attach_id` = '%s'",$attach_id);
 		$info = $db->queryRow($sql);
 		if ( sizeof($info) )
 		{
@@ -39,7 +39,6 @@ class Attach
 			else if ( $info->attach_type == "image" )
 			{
 				$content_type = 'image/'.substr($extension,1);
-				// exit;
 				if ( $extension == ".gif" )
 				{
 					if ( !file_exists($requested) )
@@ -154,36 +153,43 @@ class Attach
 				}
 			}
 		}
+		if ( file_exists($upload_dir) )
 		foreach (new DirectoryIterator($upload_dir) as $file) {
 			if( $file->isDot() || $file->isDir() ) continue;
 			$filepath = $file->getPathname();
 			$filename = $file->getFilename();
 			$extension = $file->getExtension();
 			$filename_new = md5($filename.microtime().$current_user->user_id).'.'.$extension;
+			$attach_id = md5($filename_new.microtime().$current_user->user_id);
 			$type = ( preg_match('/(gif|jpe?g|png)$/i',$extension) ) ? 'image' : 'document';
-			$sql = sprintf("INSERT INTO `attaches` (`attach_type`,`%s`,`file_name`,`created`,`user_id`) VALUES ('%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$type,$id,$filename_new,$current_user->user_id);
+			$sql = sprintf("INSERT INTO `attaches` (`attach_id`,`attach_type`,`%s`,`file_name`,`created`,`user_id`) VALUES ('%s','%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$attach_id,$type,$id,$filename_new,$current_user->user_id);
 			$db->autocommit(false);
 			try 
 			{
 				$db->query($sql);
 				if ( !file_exists($target_dir) ) @mkdir($target_dir);
-				if ( @rename($filepath,$target_dir.$filename_new) )
+				if ( rename($filepath,$target_dir.$filename_new) )
 				{
 					$db->commit();
-					array_map('unlink', glob("$upload_dir/thumbnail/$filename"));
-					rmdir("$upload_dir/thumbnail");
-					rmdir("$upload_dir");
 				}
 				else
 				{
+					echo "can't rename\n";
+					echo "from: $filepath\n";
+					echo "to: $target_dir\n";
+					echo "new filename: $filename_new\n";
 					return false;
 				}
 			}
 			catch ( Exception $e )
 			{
-				return false;
+				// return false;
+				return $e->getMessage();
 			}
 		}
+		array_map('unlink', glob("$upload_dir/thumbnail/*.*"));
+		@rmdir("$upload_dir/thumbnail");
+		@rmdir("$upload_dir");
 		return true;
 	}
 }

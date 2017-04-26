@@ -59,7 +59,7 @@ if ( $for_profile )
 			}
 		}
 	}
-	$orderStr = isset($orderArr) ? implode(", ", $orderArr) : "`project`.`project_id` ASC";
+	$orderStr = isset($orderArr) ? implode(", ", $orderArr) : "`project`.`modified_timestamp` ASC";
 	$respond_user_id = sprintf(' AND `project_responds`.`user_id` = "%d"',$current_user->user_id);
 	$status_not_blocked = '';
 	$join = 'LEFT JOIN `project` ON `project`.`project_id` = `project_responds`.`for_project_id`';
@@ -123,7 +123,7 @@ if ( sizeof ($aaData) )
 			$recordsFiltered--;
 			continue;
 		}
-		$respond->cost = number_format($respond->cost,0,","," ");
+		if ( isset($respond->cost) ) $respond->cost = number_format($respond->cost,0,","," ");
 		$row->respond = $respond;
 		$row->user = new User($respond->user_id);
 		$row->user->get_counters();
@@ -132,7 +132,7 @@ if ( sizeof ($aaData) )
 		
 		if ( $for_profile )
 		{
-			$row->DT_RowClass = "project-entry no-pointer";
+			$row->DT_RowClass = "project-respond-entry no-pointer";
 			$row->project = new Project($respond->for_project_id);
 			if ( $row->project->error == 1 )
 			{
@@ -148,12 +148,16 @@ if ( sizeof ($aaData) )
 			$subcat_tr = strtolower(r2t($row->project->subcat_name));
 			$title_tr = strtolower(r2t($row->project->title));
 			$row->project_link = HOST.'/project/'.$cat_tr.'/'.$subcat_tr.'/p'.$row->project->project_id.'/'.$title_tr.'.html';
+			if ( $row->respond->modify_timestamp >= $current_user->ts_project_responds )
+			{
+				$row->DT_RowClass .= " unreaded";
+			}
 		}
-		else if ( $row->is_project_author != 1 )
-		{
-			unset($row->respond->cost);
-			unset($row->respond->status_id);
-		}
+		// else if ( $row->is_project_author != 1 )
+		// {
+		// 	unset($row->respond->cost);
+		// 	unset($row->respond->status_id);
+		// }
 	}
 }
 

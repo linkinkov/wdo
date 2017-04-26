@@ -24,7 +24,7 @@ class Project
 			$prj = $db->queryRow($sql);
 			if ( sizeof($prj) )
 			{
-				foreach ( $prj as $p => $v ) $this->$p = htmlentities($v);
+				foreach ( $prj as $p => $v ) $this->$p = ($v);
 			}
 			else
 			{
@@ -34,7 +34,7 @@ class Project
 			$filter = Array("title","descr","cost");
 			foreach ( $filter as $field )
 			{
-				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->$field) );
+				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
 			$this->continuous = 0;
 			$this->duration_ms = 86400;
@@ -136,13 +136,19 @@ class Project
 				$data[$field] = 0;
 			}
 		}
-		if ( $data["safe_deal"] == "true" ) $data["safe_deal"] = 1;
-		if ( $data["vip"] == "true" ) $data["vip"] = 1;
+		$status_id = 1;
+		if ( $data["safe_deal"] == "true" )$data["safe_deal"] = 1;
+		if ( $data["vip"] == "true" )
+		{
+			$data["vip"] = 1;
+			$status_id = 5;
+		}
 		$sql = sprintf("INSERT INTO `project` (`title`,`descr`,`cost`,`created`,`status_id`,`user_id`,`accept_till`,`start_date`,`end_date`,`cat_id`,`subcat_id`,`city_id`,`safe_deal`,`vip`,`views`,`for_user_id`)
-		VALUES ('%s','%s','%d',UNIX_TIMESTAMP(),1,'%d','%d','%d','%d','%d','%d','%d','%d','%d',0,'%d')",
-			$data["title"],
-			$data["descr"],
+		VALUES ('%s','%s','%d',UNIX_TIMESTAMP(),'%d','%d','%d','%d','%d','%d','%d','%d','%d','%d',0,'%d')",
+			filter_string($data["title"],'in'),
+			filter_string($data["descr"],'in'),
 			intval($data["cost"]),
+			intval($status_id),
 			intval($current_user->user_id),
 			intval($data["accept_till"]),
 			intval($data["start_date"]),
@@ -163,7 +169,7 @@ class Project
 				{
 					$db->commit();
 					$response["result"] = "true";
-					$response["message"] = "Сохранено";
+					$response["message"] = "Проект опубликован";
 					$cat_tr = strtolower(r2t(Category::get_name($data["cat_id"])));
 					$subcat_tr = strtolower(r2t(SubCategory::get_name($data["subcat_id"])));
 					$title_tr = strtolower(r2t($data["title"]));
@@ -178,7 +184,7 @@ class Project
 		}
 		catch ( Exception $e )
 		{
-			$response["error"] = $e->getMessage();
+			// $response["error"] = $e->getMessage();
 		}
 		return $response;
 	}

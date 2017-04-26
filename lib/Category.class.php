@@ -12,8 +12,16 @@ class Category
 		$sql = sprintf("SELECT `cat_name` FROM `cats` WHERE `id` = '%d'",$id);
 		try {
 			$info = $db->queryRow($sql);
-			$this->id = $id;
-			if ( isset($this->cat_name) ) $this->cat_name = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->cat_name) );
+			if ( isset($info->cat_name) )
+			{
+				$this->id = $id;
+				$this->cat_name = $info->cat_name;
+			}
+			else
+			{
+				$this->id = 0;
+				return false;
+			}
 		}
 		catch (Exception $e)
 		{

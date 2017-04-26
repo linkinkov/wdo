@@ -108,7 +108,17 @@ var app = {
 					if ( response.result == "true" )
 					{
 						$.each(response.counters,function(key,value){
-							updateProfileCounter(key,value);
+							if ( $.type(value) == 'object' )
+							{
+								if ( key == 'project_responds' )
+								{
+									updateProfileCounter('project-responds',value.unreaded);
+								}
+							}
+							else
+							{
+								updateProfileCounter(key,value);
+							}
 						})
 					}
 				}
@@ -200,12 +210,12 @@ var app = {
 				}
 			})
 		},
-		"getCalendar": function(callback) {
+		"getCalendar": function(user_id,callback) {
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
 				url: "/user.calendar",
-				data: {"action":"get"},
+				data: {"user_id":user_id,"action":"get"},
 				dataType: "JSON",
 				success: function (response) {
 					callback(response);

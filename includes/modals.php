@@ -11,11 +11,11 @@
 			</div>
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
-					<div class="col">
+					<div class="col text-center">
 						<br /><input type="text" class="form-control" placeholder="Введите e-mail" name="username" />
 						<br /><input type="password" class="form-control" placeholder="Введите пароль" name="password" />
 						<br /><input type="password" class="form-control" placeholder="Повторите пароль" name="password_confirm" />
-						<br /><div class="wdo-btn bg-yellow strong" style="width: 70%; margin: 0 auto;">Отправить</div>
+						<br /><div class="wdo-btn btn-sm bg-yellow strong">Отправить</div>
 						<br /><br /><br />
 					</div>
 				</div><!-- /.row -->
@@ -65,11 +65,11 @@
 			</div>
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;">
-					<div class="col" style="border-right: 1px solid #eee;">
+					<div class="col text-center">
 						<form method="post" action="<?php echo HOST;?>/login/" onSubmit="formhash(this,this.password);return false;">
 							<br /><input type="text" class="form-control" placeholder="Введите e-mail" name="username" />
 							<br /><input type="password" class="form-control" placeholder="Введите пароль" name="password" />
-							<br /><button type="submit" class="wdo-btn bg-yellow strong" style="width: 70%; margin: 0 auto;">Вход</button>
+							<br /><button type="submit" class="wdo-btn btn-sm bg-yellow strong">Вход</button>
 						</form>
 						<hr />
 						<span class="pull-left">
@@ -103,9 +103,9 @@
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament-2.png) repeat-x bottom right 10px;">
-					<div class="col">
+					<div class="col text-center">
 						<br /><input type="text" class="form-control" placeholder="Введите e-mail" name="username" />
-						<br /><div class="wdo-btn bg-yellow strong" style="width: 70%; margin: 0 auto;">Отправить</div>
+						<br /><div class="wdo-btn btn-sm bg-yellow strong">Отправить</div>
 						<br /><br /><br />
 					</div>
 				</div><!-- /.row -->
@@ -127,13 +127,13 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col">
-						<text class="text-muted strong">Кому:</text> <img name="userAvatar" src="" class="rounded-circle" /> <a name="userName" href="" class="wdo-link"></a>
+						<text class="text-muted strong">Кому:</text> <img name="userAvatar" src="" class="rounded-circle shadow" /> <a name="userName" href="" class="wdo-link"></a>
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
-					<div class="col">
+					<div class="col text-center">
 						<br /><textarea class="form-control" placeholder="Введите сообщение" name="message-text"></textarea>
-						<br /><div class="wdo-btn bg-yellow strong" name="send-pm" data-ot="Отправить" data-lt="Отправка" data-recipient-id="" style="max-width: 75%; margin: 0 auto;"><i class="fa"></i>Отправить</div>
+						<br /><div class="wdo-btn btn-sm bg-yellow strong" name="send-pm" data-ot="Отправить" data-lt="Отправка" data-recipient-id=""><i class="fa"></i>Отправить</div>
 						<br /><br /><br />
 					</div>
 				</div><!-- /.row -->
@@ -155,13 +155,13 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col">
-						<img name="userAvatar" src="" class="rounded-circle" /> <a name="userName" href="" class="wdo-link"></a>
+						<img name="userAvatar" src="" class="rounded-circle shadow" /> <a name="userName" href="" class="wdo-link"></a>
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
-					<div class="col">
+					<div class="col text-center">
 						<br /><textarea class="form-control" placeholder="Введите заметку" name="note-text"></textarea>
-						<br /><div class="wdo-btn bg-yellow strong" name="save-note" data-ot="Сохранить" data-lt="Сохранение" data-recipient-id="" style="max-width: 75%; margin: 0 auto;"><i class="fa"></i>Сохранить</div>
+						<br /><div class="wdo-btn btn-sm bg-yellow strong" name="save-note" data-ot="Сохранить" data-lt="Сохранение" data-recipient-id=""><i class="fa"></i>Сохранить</div>
 						<br /><br /><br />
 					</div>
 				</div><!-- /.row -->
@@ -175,7 +175,7 @@
 	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="user-calendar-modal-label">Календарь исполнителя</h5>
+				<h5 class="modal-title" id="user-calendar-modal-label">Отметить даты как занятые</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -183,7 +183,7 @@
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;">
 					<div class="col strong text-center">
-						<p>Отметьте даты в которые вы будете заняты</p>
+						<p>На занятую дату Вы не будете получать заявки</p>
 					</div>
 				</div>
 				<div class="row">
@@ -192,12 +192,35 @@
 					</div>
 				</div><!-- /.row -->
 				<div class="row" style="justify-content: center;background: url(/images/ornament-2.png) repeat-x bottom right 10px;">
-					<div class="col">
-						<div class="wdo-btn bg-purple" name="save-calendar" data-ot="Сохранить" data-lt="Сохранение" style="width: 50%; margin: 0 auto;">Сохранить</div>
+					<div class="col text-center">
+						<div class="wdo-btn btn-sm bg-yellow" name="save-calendar" data-ot="Сохранить" data-lt="Сохранение">Сохранить</div>
 						<br /><br /><br />
 					</div>
 				</div><!-- /.row -->
 			</div><!-- /.modal-body -->
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- alert-modal -->
+<div class="modal" id="alert-modal" tabindex="-1" role="dialog" aria-labelledby="alert-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="width: 600px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="alert-modal-label">Внимание!</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row" style="justify-content: center;">
+					<div class="col text-center">
+						<h5 id="alert-modal-message"></h5>
+					</div>
+				</div>
+			</div><!-- /.modal-body -->
+			<div class="modal-footer" style="height: 55px; background: url(/images/ornament-3.png) repeat-x bottom 10px right;"></div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->

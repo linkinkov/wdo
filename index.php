@@ -12,7 +12,14 @@ $db = db::getInstance();
 check_access($db);
 
 $current_user = new User($_SESSION["user_id"]);
-
+$current_user->set_city_auto();
+$ref = isset($_SESSION["LAST_PAGE"]) ? trim($_SESSION["LAST_PAGE"]) : false;
+if ( $ref == "profile/project-responds" )
+{
+	$data["ts_project_responds"] = time();
+	$current_user->update_profile_info($data);
+}
+$_SESSION["LAST_PAGE"] = "/projects";
 $preselect = get_var("preselect","array",Array());
 ?>
 <!DOCTYPE html>
@@ -45,9 +52,9 @@ $preselect = get_var("preselect","array",Array());
 				<div class="col wdo-main-right" style="display: flex; align-items: flex-end; padding-bottom: 15px;">
 					<div style="z-index: 1;">
 						<div class="row" style="align-items: center;">
-							<div class="col" style="flex: 0 0 571px">Добавить проект может любой пользователь. Если у вас нет аккаунта, то сперва зарегистрируйтесь, а затем Вы сможете создавать новые проекты</div>
-							<div class="col">
-								<a href="<?php echo HOST.'/project/add/';?>" class="wdo-btn bg-purple"><i class="fa fa-plus"></i> Добавить проект</a>
+							<div class="col" style="min-width: 571px; padding-right: 0;">Добавить проект может любой пользователь. Если у вас нет аккаунта, то сперва зарегистрируйтесь, а затем Вы сможете создавать новые проекты</div>
+							<div class="col text-right" style="padding-left: 0;">
+								<a href="<?php echo HOST.'/project/add/';?>" class="wdo-btn bg-purple btn-sm"><i class="fa fa-plus"></i> Добавить проект</a>
 							</div>
 						</div>
 					</div>

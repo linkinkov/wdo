@@ -6,43 +6,22 @@ $db->query("set names utf8");
 
 require_once('lib/mysqli.class.php');
 $db = db::getInstance();
-$url = 'https://www.youtube.com/watch?v=H9mNjb9XYy8&qwejozxcn';
-$url = 'http://youtu.be/dQw4w9WgXcQ';
-if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $url, $match)) {
-	$video_id = $match[1];
-}
-// preg_match_all('/http[s]\:\/\/[www\.]youtube.com\/watch\?v=([a-zA-Z0-9]+)/',$url,$id);
-print_r($video_id);
 
-exit;
-
-$r_id = 2;
 $user_id = 1;
+$session = "j610kltmug32mursiag47fdqs3";
+$arr = glob(PD."/users/avatars/cache/$user_id-*.{jpg,jpeg,png,gif}",GLOB_BRACE);
+print_r($arr);
 
-$filename = md5($r_id.$user_id.time());
-echo $filename;
 
-exit;
 /*
-$rows = $db->query("SELECT `project_id`,`project_cat_id` FROM `projects`");
-while ( $row = $rows->fetch_object() )
-{
-	$subcat_id = ( $row->project_cat_id == 1 ) ? rand(1,3) : rand(4,6);
-	$sql = "UPDATE `projects` SET `project_subcat_id` = '$subcat_id' WHERE `project_id` = '$row->project_id'";
-	$db->query($sql);
-	echo "set subcat = $subcat_id for project $row->project_id ($row->project_cat_id)\n";
-}
+$username = "manager";
+$new_pass = "manager";
 
+$passwordSalt = hash('sha512', uniqid(openssl_random_pseudo_bytes(16), TRUE));
+$password = hash('sha512', hash('sha512',$new_pass) . $passwordSalt);
+
+echo $passwordSalt."\n".$password."\n";
 */
-$rows = $db->queryRows("SELECT `id`,`subcat_name` FROM `subcats`");
-foreach ( $rows as $row )
-{
-	$sql = sprintf("UPDATE `subcats` SET `transliterated` = '%s' WHERE `id` = '%d'",r2t($row->subcat_name),$row->id);
-	$db->query($sql);
-	// echo "set subcat = $subcat_id for project $row->project_id ($row->project_cat_id)\n";
-}
-
-
 exit;
 for($i=131; $i<=200; $i++)
 {

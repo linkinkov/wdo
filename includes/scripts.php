@@ -49,7 +49,7 @@
 <script type="text/javascript" src="<?php echo HOST;?>/js/leaflet/leaflet.markercluster-src.js"></script>
 <script type="text/javascript" src="<?php echo HOST;?>/js/leaflet/leaflet.ajax.min.js"></script>
 <script type="text/javascript" src="<?php echo HOST;?>/js/leaflet/leafletembed-profile.js"></script>
-<!--<script type="text/javascript" src="/js/underscore.js"></script>-->
+<script type="text/javascript" src="<?php echo HOST;?>/js/underscore.js"></script>
 <!--<script type="text/javascript" src="/js/dropzone.js"></script>-->
 
 <script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/vendor/jquery.ui.widget.js"></script>

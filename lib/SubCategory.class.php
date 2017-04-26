@@ -12,8 +12,16 @@ class SubCategory
 		$sql = sprintf("SELECT `subcat_name` FROM `subcats` WHERE `id` = '%d'",$id);
 		try {
 			$info = $db->queryRow($sql);
-			$this->id = $id;
-			if ( isset($this->subcat_name) ) $this->subcat_name = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $this->subcat_name) );
+			if ( isset($info->subcat_name) )
+			{
+				$this->id = $id;
+				$this->subcat_name = filter_string($info->subcat_name,'out');
+			}
+			else
+			{
+				$this->id = 0;
+				return false;
+			}
 		}
 		catch (Exception $e)
 		{

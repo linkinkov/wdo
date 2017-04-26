@@ -12,6 +12,8 @@ $db = db::getInstance();
 check_access($db);
 
 $current_user = new User($_SESSION["user_id"]);
+$current_user->set_city_auto();
+
 $user_id = get_var("id","int",$_SESSION["user_id"]);
 // print_r($user_id);
 if ( $user_id <= 0 )
@@ -21,6 +23,7 @@ if ( $user_id <= 0 )
 	include(PD.'/errors/error.php');
 	exit;
 }
+
 $user = new User($user_id);
 $self_profile = ( $current_user->user_id == $user->user_id ) ? true : false;
 $user->get_counters();
@@ -28,6 +31,7 @@ $user->get_counters();
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<title>WeeDo | <?php echo $user->realUserName;?></title>
 <?php include(PD.'/includes/html-head.php');?>
 <link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/css/jquery-ui.multidatespicker.css" />
 <link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/jquery-ui/jquery-bootstrap-datepicker.css" />
@@ -44,7 +48,7 @@ $user->get_counters();
 				<div class="col wdo-main-left right-shadow">
 					<div class="row">
 						<div class="col text-center" style="padding-top: 20px;">
-							<img class="rounded-circle" src="<?php echo $user->avatar_path;?>&w=150&h=150" />
+							<img class="rounded-circle shadow" data-name="avatar" src="<?php echo $user->avatar_path;?>&w=150&h=150" />
 							<i class="fa fa-circle text-success" id="online_tracker" style="display: none; position: absolute; right: 25px;" title="Сейчас на сайте"></i>
 						</div>
 					</div>
@@ -67,7 +71,7 @@ $user->get_counters();
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col account-management">
-							<h5 class="strong">Баланс: <text class="text-purple-dark"><i class="fa fa-rouble"></i> <?php echo number_format($user->get_balance(),0,","," ");?></text></h5>
+							<h6 class="strong">Баланс: <text class="text-purple-dark"><i class="fa fa-rouble"></i> <?php echo number_format($user->get_balance(),0,","," ");?></text></h6>
 							<div style="text-align: center; margin-top: 35px;">
 								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">Пополнить баланс</a></h6>
 								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">Вывести средства</a></h6>
@@ -99,14 +103,14 @@ $user->get_counters();
 					<div class="row">
 						<div class="col">
 							<hr />
-							<h5 class="text-purple">Календарь исполнителя</h5>
+							<h6 class="text-purple">Календарь исполнителя</h6>
 							<hr />
 						</div>
 					</div>
 					<div class="row">
 						<div class="col text-center">
 							<div class="calendar-view"></div>
-							<a class="wdo-link" data-toggle="modal" data-target="#user-calendar-modal">Редактировать</a>
+							<?php if ( $self_profile ) echo '<a class="wdo-link" data-toggle="modal" data-target="#user-calendar-modal">Редактировать</a>';?>
 						</div>
 					</div>
 					<?php
@@ -149,25 +153,31 @@ $user->get_counters();
 								<li class="breadcrumb-item active"><?php echo $user->realUserName;?></li>
 							</ol>
 							<?php
+							if ( $user->signature != "" )
+							{
+								echo sprintf('<div id="signature">%s</div>',htmlspecialchars_decode($user->signature));
+							}
 							if ( !$self_profile && $current_user->user_id > 0 )
 							{
 								$note = User::get_user_note($user->user_id);
-								echo sprintf('<blockquote class="blockquote"><footer class="blockquote-footer">Ваша заметка</footer><p style="max-width: 400px;white-space: pre-wrap;word-wrap: break-word;" id="user_note">%s</p></blockquote>',$note["userNote"]);
+								if ( $note["userNote"] != "" )
+								{
+									echo sprintf('
+									<blockquote class="blockquote">
+										<footer class="blockquote-footer">Ваша заметка</footer>
+										<p style="max-width: 400px;white-space: pre-wrap;word-wrap: break-word;" id="user_note">%s</p>
+									</blockquote>',filter_string($note["userNote"],'out'));
+								}
 							}
 							?>
 						</div>
-						<div class="col" style="border-left: 1px solid #ccc;  flex: 0 0 35%; max-width: 35%; min-width: 35%; text-align: center;">
+						<div class="col" style="border-left: 1px solid #ccc;  flex: 0 0 35%; max-width: 35%; min-width: 35%; text-align: center;align-self: center;">
 						<?php
 						$top_cats = Array();
 						if ( $user->as_performer == 1 )
 						{
 							$top_cats = $user->get_top_categories();
 							echo implode(' / ',$top_cats);
-							
-						}
-						else
-						{
-							echo '<br />';
 						}
 						if ( !$self_profile && $current_user->user_id > 0 )
 						{
@@ -179,7 +189,7 @@ $user->get_counters();
 							if ( $user->as_performer == 1 && !$self_profile )
 							{
 							?>
-								<div class="wdo-btn bg-purple">Предложить работу</div>
+								<a href="<?php echo HOST.'/project/add?for_performer='.$user->user_id;?>" class="wdo-btn bg-purple">Предложить работу</a>
 							<?php
 							}
 						}
@@ -305,7 +315,7 @@ $(function(){
 	$(".calendar-view").multiDatesPicker({
 		disabled: true
 	});
-	app.user.getCalendar(function(response){
+	app.user.getCalendar(config.profile.user_id,function(response){
 		if ( response.result == "true" )
 		{
 			if ( response.dates.length > 0 )
@@ -315,7 +325,9 @@ $(function(){
 					var date = moment.unix(this.timestamp).toDate();
 					dates.push(date);
 				})
+				console.log("got dates:",dates,response);
 				$(".calendar-view").multiDatesPicker('addDates',dates);
+				$(".calendar-view").find(".ui-state-highlight").attr("title","На этот день у исполнителя уже запланировано мероприятие, уточните, сможет ли он принять дополнительные заказы.");
 			}
 		}
 	})

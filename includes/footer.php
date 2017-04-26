@@ -6,7 +6,7 @@
 		</div>
 		<div class="col main">
 			<div class="row">
-				<div class="col wdo-main-left" style="padding:0;">
+				<div class="col wdo-main-left" style="padding:0;max-width: 240px;">
 					<div class="wave"></div>
 				</div><!-- /.wdo-main-left -->
 				<div class="col" style="padding:0;">

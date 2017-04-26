@@ -18,6 +18,7 @@ if ( $current_user->user_id <= 0 )
 	exit;
 }
 $job = get_var("job","string","");
+$_SESSION["LAST_PAGE"] = "/addProject";
 if ( $job == "publish" )
 {
 	$data = get_var("data","array",Array());
@@ -26,6 +27,7 @@ if ( $job == "publish" )
 	echo json_encode($response);
 	exit;
 }
+$for_performer = get_var("for_performer","int",0);
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -87,7 +89,7 @@ if ( $job == "publish" )
 							<text class="text-muted">Название</text>
 						</div>
 						<div class="col">
-							<input type="text" class="form-control" data-name="title" value="title test" placeholder="Название проекта, например: Фотограф на свадьбу" />
+							<input type="text" class="form-control" data-name="title" placeholder="Название проекта, например: Фотограф на свадьбу" />
 						</div>
 					</div>
 
@@ -97,7 +99,7 @@ if ( $job == "publish" )
 							<text class="text-muted">Бюджет</text>
 						</div>
 						<div class="col">
-							<input type="text" class="form-control" data-name="cost" placeholder="Бюджет в рублях" />
+							<input type="number" class="form-control" data-name="cost" placeholder="Бюджет в рублях" />
 						</div>
 					</div>
 
@@ -127,7 +129,7 @@ if ( $job == "publish" )
 							<text class="text-muted">Описание</text>
 						</div>
 						<div class="col">
-							<textarea class="form-control" rows="7" data-name="descr" placeholder="Детальное описание проекта">test descr</textarea>
+							<textarea class="form-control" rows="7" data-name="descr" placeholder="Детальное описание проекта"></textarea>
 						</div>
 					</div>
 
@@ -149,7 +151,7 @@ if ( $job == "publish" )
 								<br />
 							</div>
 							<label for="fileupload" class="wdo-btn bg-purple" data-lt="Загрузка..." data-ot="Выберите файлы">Выберите файлы (<small>Не более 10</small>)</label>
-							<input id="fileupload" type="file" name="files[]" multiple style="display: none;">
+							<input id="fileupload" type="file" name="files[]" multiple style="display: none;" accept=".png,.jpg,.jpeg,.gif,.pdf,.xls,.xlsx,.doc,.docx">
 						</div>
 					</div>
 
@@ -170,8 +172,30 @@ if ( $job == "publish" )
 							<text class="text-muted">Введите имя или название исполнителя, если хотите, чтобы проект был виден только ему</text>
 							<input type="text" class="form-control" placeholder="Введите имя исполнителя" id="search_performer"/>
 							<hr />
-							<div id="performers" class="row text-center" style="align-items: center;"></div>
-							<hr id="performers_separator" style="display: none;" />
+							<div id="performers" class="row text-center" style="align-items: center; display: none; border-bottom: 1px solid #ccc; padding-bottom: 15px; ">
+								<?php
+								if ( $for_performer > 0 && $for_performer != $current_user->user_id )
+								{
+									$fu = new User($for_performer);
+									if ( $fu->as_performer == 1 )
+									{
+										echo sprintf('
+											<div class="col performer_found active" data-user_id="%d">
+												<div class="row" style="align-items: center;">
+													<div class="col" style="max-width: 50px;">
+														<img class="rounded-circle shadow" src="%s">
+													</div>
+													<div class="col">	
+														%s
+													</div>
+												</div>
+											</div>
+										',$fu->user_id,$fu->avatar_path,$fu->realUserName);
+										echo '<script>document.getElementById("performers").style.display = "block";</script>';
+									}
+								}
+								?>
+							</div>
 						</div>
 					</div>
 				</div><!-- /.wdo-main-right -->
@@ -240,8 +264,8 @@ if ( $job == "publish" )
 					</div>
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
-						<div class="col">
-							<div class="wdo-btn bg-purple disabled" style="width: 300px;margin: 0 auto;" id="preview">Опубликовать проект</div>
+						<div class="col text-center">
+							<div class="wdo-btn btn-sm bg-purple disabled" id="preview" data-lt="Загрузка" data-ot="Опубликовать проект">Опубликовать проект</div>
 						</div>
 					</div>
 				</div><!-- /.wdo-main-right -->
@@ -434,7 +458,8 @@ $(function(){
 
 	$("#preview").click(function(){
 		if ( $(this).hasClass("disabled") ) return false;
-		var ar = [];
+		var ar = [],
+				btn = $(this);
 		$("input[data-name='youtube-link']").each(function(){
 			if ( $(this).val() != "" )
 				ar.push($(this).val())
@@ -475,12 +500,12 @@ $(function(){
 		}
 		if ( data.title == "" || data.title === undefined ) {
 			$("[data-name='title']").addClass("warning");
-			text = 'Укажите название проекта';
+			text = 'Введите название проекта';
 			error++;
 		}
 		if ( data.descr == "" || data.descr === undefined ) {
 			$("[data-name='descr']").addClass("warning");
-			text = 'Укажите описание проекта';
+			text = 'Введите описание проекта';
 			error++;
 		}
 		if ( data.accept_till <= 0 || data.accept_till === undefined ) {
@@ -497,6 +522,7 @@ $(function(){
 			( error == 1 ) ? $(this).text(text) : $(this).text('Пожалуйста, проверьте данные');
 			return;
 		}
+		set_btn_state(btn,'loading');
 		$.ajax({
 			type: "POST",
 			url: "/project/publish",
@@ -504,17 +530,28 @@ $(function(){
 			data: {"data": data},
 			dataType: "JSON",
 			success: function (response) {
+				if ( response.message )
+				{
+					set_btn_state(btn,'reset',response.message);
+				}
+				else
+				{
+					set_btn_state(btn,'reset');
+				}
 				if ( response.result == "true" )
 				{
 					window.location = response.project_link;
 				}
 			}
-		});
+		})
 	})
 	var search_performer = "";
 	$("#search_performer").keyup(function(){
 		var search = $(this).val();
+		if ( search == "" ) $("#performers").html('');
 		if ( search == search_performer ) return;
+		console.log("search:",search,", search_performer:",search_performer);
+		search_performer = search;
 		$.ajax({
 			type: "POST",
 			url: "/get.UserList",
@@ -528,7 +565,7 @@ $(function(){
 						var obj = $('<div class="col performer_found" data-user_id="'+this.user_id+'">'
 						+'<div class="row" style="align-items: center;">'
 						+'	<div class="col" style="max-width: 50px;">'
-						+'		<img class="rounded-circle" src="'+this.avatar_path+'&w=50&h=50" />'
+						+'		<img class="rounded-circle shadow" src="'+this.avatar_path+'&w=50&h=50" />'
 						+'	</div>'
 						+'	<div class="col">'
 						+'		'+this.userName+''
@@ -543,6 +580,11 @@ $(function(){
 	})
 })
 $(document).on("click",".performer_found",function(e){
+	if ( $(this).hasClass("active") )
+	{
+		$(this).toggleClass("active");
+		return;
+	};
 	$(".performer_found").removeClass("active");
 	$(this).addClass("active");
 })

@@ -12,7 +12,12 @@
 						<a class="mini-header-nav" href="<?php echo HOST;?>/performers/">Исполнители</a>
 						<a class="mini-header-nav" href="<?php echo HOST;?>/about/">О сервисе</a>
 						<a class="mini-header-nav" href="<?php echo HOST;?>/adv/">Реклама</a>
-						<a class="mini-header-nav" href="<?php echo HOST;?>/logout/">Выход</a>
+						<?php
+						if ( $current_user->user_id > 0 )
+							echo '<a class="mini-header-nav" href="<?php echo HOST;?>/logout/">Выход</a>';
+						else
+							echo '<a class="mini-header-nav" href="" data-toggle="modal" data-target="#login-modal">Вход</a>'
+						?>
 				</div>
 			</div><!-- /.wdo-main-header -->
 		</div><!-- /.main -->

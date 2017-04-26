@@ -102,6 +102,13 @@ function get_var($var_name = false, $type="string", $default = false, $method="R
 	return $var;
 }
 
+function filter_string($string,$dir='in')
+{
+	return ($dir == 'in')
+	? mb_ereg_replace("[^\r\na-zA-Zа-яА-Я0-9_ <>&\'\"\[\]()!\/:,.?@;-]+","",htmlspecialchars($string, ENT_QUOTES, 'utf-8')) 
+	: html_entity_decode(htmlspecialchars($string));
+}
+
 function determine_user_city()
 {
 	include_once(PD.'/includes/ipgeobase/ipgeobase.php');
@@ -113,7 +120,7 @@ function determine_user_city()
 	} else {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
-	$ip = "193.169.111.6";
+	// $ip = "193.169.111.6";
 	// $ip = "188.242.136.98";
 	if ( $data = $gb->getRecord($ip) )
 	{
@@ -146,6 +153,23 @@ function determine_user_city()
 			$_COOKIE["city_name"] = "Москва";
 		}
 	}
+	else
+	{
+		setcookie("city_id", "1");
+		setcookie("city_name", "Москва");
+		$_COOKIE["city_id"] = "1";
+		$_COOKIE["city_name"] = "Москва";
+	}
+}
+
+function delTree($dir)
+{
+	if ( !file_exists($dir) ) return;
+	$files = array_diff(scandir($dir), array('.','..'));
+	foreach ($files as $file) {
+		(is_dir("$dir/$file")) ? delTree("$dir/$file") : unlink("$dir/$file");
+	}
+	return rmdir($dir);
 }
 
 function is_timestamp($timestamp)

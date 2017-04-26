@@ -28,22 +28,25 @@ class User
 			return;
 		}
 		$where = (intval($user_id) > 0) ? sprintf("`user_id` = '%d'",$user_id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","last_name","first_name","company_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps");
+		$public_fields = Array("user_id","username","last_name","first_name","company_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps","signature");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE %s",implode(",",$public_fields),$where);
-		// $sql = "SELECT `user_id`,`username`, `last_name`, `first_name`, `company_name`, `type_id`, `registered`, `last_login`, `as_performer`, `state_id`, `rating` FROM `users` WHERE $where";
 		try {
 			$info = $db->queryRow($sql);
 			if ( sizeof($info) ) foreach ( $info as $p => $v ) $this->$p = htmlentities($v); else $this->error = true;
 			$filter = Array("username","last_name","first_name","company_name","phone","skype","signature","rezume");
 			foreach ( $filter as $field )
 			{
-				if ( isset($this->$field) ) $this->$field = ( mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-\:\/]+/", "", $this->$field) );
+				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
 			$this->city_name = City::get_name($this->city_id);
 			$this->realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
+			if ( $this->user_id == $_SESSION["user_id"] )
+			{
+				$this->ts_project_responds = $db->getValue("users","ts_project_responds","last_visit",Array("user_id"=>$this->user_id));
+			}
 		}
 		catch (Exception $e)
 		{
@@ -55,24 +58,23 @@ class User
 	public function update_profile_info($data)
 	{
 		global $db;
-		global $current_user;
 		$response = Array(
 			"result" => "false",
 			"message" => "Ошибка"
 		);
-		if ( $current_user->user_id == 0 ) return $response;
-		$public_fields = Array("last_name","first_name","company_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik");
+		if ( $this->user_id == 0 ) return $response;
+		$public_fields = Array("last_name","first_name","company_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds");
 		$set = Array();
 		foreach ( $data as $key=>$value )
 		{
 			if ( in_array($key,$public_fields) )
 			{
-				$value = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-\:\/]+/", "", $value);
+				$value = filter_string($value,'in');
 				$set[] = sprintf('`%s` = "%s"',$key,$value);
 			}
 		}
 		// array_walk($public_fields,'sqlize_array');
-		$sql = sprintf("UPDATE `users` SET %s WHERE `user_id` = '%d'",implode(",",$set),$current_user->user_id);
+		$sql = sprintf("UPDATE `users` SET %s WHERE `user_id` = '%d'",implode(",",$set),$this->user_id);
 		try {
 			$db->query($sql);
 			$response["result"] = "true";
@@ -125,6 +127,25 @@ class User
 
 	}
 
+	public function set_city_auto()
+	{
+		if ( $this->user_id == 0 && (!isset($_COOKIE["city_id"]) || !isset($_COOKIE["city_name"]) || intval($_COOKIE["city_id"]) <= 0) )
+		{
+			determine_user_city();
+		}
+		else if ( isset($_COOKIE["city_id"]) && isset($_COOKIE["city_name"]) && intval($_COOKIE["city_id"]) > 0 )
+		{
+
+		}
+		else
+		{
+			setcookie("city_id",$this->city_id);
+			setcookie("city_name",$this->city_name);
+			$_COOKIE["city_id"] = $this->city_id;
+			$_COOKIE["city_name"] = $this->city_name;
+		}
+	}
+
 	public function get_top_categories()
 	{
 		global $db;
@@ -156,7 +177,6 @@ class User
 			",$this->user_id);
 			$ids = $db->queryRows($sql);
 			$cats = Array();
-			// print_r($ids);
 			if ( sizeof($ids) )
 			{
 				foreach ( $ids as $cat )
@@ -191,6 +211,7 @@ class User
 			if ( $current_user->user_id == $this->user_id )
 			{
 				$this->counters->messages = intval($db->getValue("messages","COUNT(`message_id`)","counter",Array("user_id_to"=>$this->user_id,"readed"=>0)));
+				$this->counters->project_responds->unreaded = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$this->user_id,"modify_timestamp"=>">".$this->ts_project_responds)));
 				$this->counters->project_responds->won = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$this->user_id,"status_id"=>3)));
 				$this->counters->project_responds->won_sum = intval($db->getValue("project_responds","SUM(`cost`)","counter",Array("user_id"=>$this->user_id,"status_id"=>3),"AND","user_id"));
 			}
@@ -223,10 +244,11 @@ class User
 			$info = $db->queryRow($sql);
 			if ( isset($info->type_id) )
 			{
-				$info->last_name = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $info->last_name);
-				$info->first_name = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $info->first_name);
-				$info->company_name = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $info->company_name);
+				$info->last_name = $info->last_name;
+				$info->first_name = $info->first_name;
+				$info->company_name = $info->company_name;
 				$realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
+				$realUserName = filter_string($realUserName,'out');
 			}
 			return $realUserName;
 		}
@@ -269,6 +291,7 @@ class User
 		);
 		if ( trim($message_text) == "" ) {$response["message"] = "Введите текст"; return $response;}
 		if ( $current_user->user_id == 0 ) return $response;
+		$message_text = filter_string($message_text,'in');
 		$uniq_id = md5(time().$message_text.$user_id);
 		$sql = sprintf("INSERT INTO `messages` (`message_id`,`message_text`,`user_id_from`,`user_id_to`,`timestamp`) 
 		VALUES ('%s','%s','%d','%d',UNIX_TIMESTAMP())",
@@ -297,6 +320,7 @@ class User
 		);
 		if ( $current_user->user_id == 0 ) return $response;
 		// if ( trim($note_text) == "" ) {$response["message"] = "Введите текст"; return $response;}
+		$note_text = filter_string($note_text,'in');
 		$sql = sprintf("REPLACE INTO `user_notes` (`note_text`,`user_id`,`for_user_id`,`timestamp`) 
 		VALUES ('%s','%d','%d',UNIX_TIMESTAMP())",
 		$note_text,
@@ -330,7 +354,7 @@ class User
 	public static function get_list($search="")
 	{
 		global $db;
-		$search = mb_ereg_replace("/[^a-zA-Zа-яА-Я0-9_@\.\-]+/", "", $search);
+		$search = filter_string($search,'in');
 		$list = Array();
 		$sql = sprintf("SELECT `user_id` FROM `users` WHERE `last_name` LIKE '%%%s%%' OR `first_name` LIKE '%%%s%%' OR `company_name` LIKE '%%%s%%' LIMIT 5",$search,$search,$search);
 		try {
@@ -338,11 +362,15 @@ class User
 			$rows = $db->queryRows($sql);
 			if ( $rows )
 				foreach ( $rows as $row )
+				{
+					$userName = User::get_real_user_name($row->user_id);
+					if ( !mb_ereg_match($search,$userName,"i") ) continue;
 					$list[] = Array(
 						"user_id"=>$row->user_id,
-						"userName"=>User::get_real_user_name($row->user_id),
+						"userName"=>$userName,
 						"avatar_path"=>HOST.'/user.getAvatar?user_id='.$row->user_id
 					);
+				}
 		}
 		catch ( Exception $e )
 		{
@@ -351,7 +379,7 @@ class User
 		return $list;
 	}
 
-	public function calendar($action,$dates)
+	public static function calendar($user_id,$action,$dates,$editable=1)
 	{
 		global $db;
 		global $current_user;
@@ -359,11 +387,11 @@ class User
 			"result" => "false",
 			"message" => "Ошибка доступа"
 		);
-		if ( $this->user_id == 0 ) return $response;
+		if ( $user_id == 0 ) return $response;
 		try {
 			if ( $action == "get" )
 			{
-				$dates = $db->queryRows(sprintf("SELECT `timestamp` FROM `user_calendar` WHERE `user_id` = '%d'",$this->user_id));
+				$dates = $db->queryRows(sprintf("SELECT `timestamp`,`editable` FROM `user_calendar` WHERE `user_id` = '%d'",$user_id));
 				$response["dates"] = $dates;
 				unset($response["message"]);
 			}
@@ -372,11 +400,11 @@ class User
 				if ( is_array($dates) )
 				{
 					$db->autocommit(false);
-					$reset = sprintf("DELETE FROM `user_calendar` WHERE `user_id` = '%d'",$this->user_id);
+					$reset = sprintf("DELETE FROM `user_calendar` WHERE `user_id` = '%d' AND `editable` = '%d'",$user_id,$editable);
 					$db->query($reset);
 					foreach ( $dates as $timestamp )
 					{
-						$insert = sprintf("INSERT INTO `user_calendar` (`user_id`,`timestamp`) VALUES ('%d','%d')",$this->user_id,$timestamp);
+						$insert = sprintf("INSERT INTO `user_calendar` (`user_id`,`timestamp`,`editable`) VALUES ('%d','%d','%d')",$user_id,$timestamp,$editable);
 						$db->query($insert);
 					}
 					$db->commit();
@@ -391,6 +419,71 @@ class User
 
 		}
 		return $response;
+	}
+
+	public function avatar_update()
+	{
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа"
+		);
+		if ( $current_user->user_id == 0 ) return $response;
+		$opts = array(
+			'user_dirs' => true,
+			'param_name' => 'avatar',
+			'access_control_allow_credentials' => true,
+			'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
+			'max_file_size' => 6000000,
+			'print_response' => false,
+			'min_width' => 150,
+			'min_height' => 150,
+			'max_width' => 1500,
+			'max_height' => 1500,
+			'correct_image_extensions' => true
+		);
+		$response = Array("result"=>"false");
+		$upload_handler = new UploadHandler($opts);
+		if ( is_array($upload_handler->response) && sizeof($upload_handler->response["avatar"]) && !isset($upload_handler->response["avatar"][0]->error) )
+		{
+			$session = session_id();
+			// $user_id = $_SESSION["user_id"];
+			$user_id = $current_user->user_id;
+			$filename = $upload_handler->response["avatar"][0]->name;
+			$file_path = PD.'/files/'.$session.'/'.$filename;
+			$exten = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+			$target_path = PD.'/../users/avatars/'.$user_id.'.'.$exten;
+			if ( @rename($file_path,$target_path) )
+			{
+				array_map('unlink', array_values( preg_grep( '/^((?!'.$exten.').)*$/', glob(PD."/../users/avatars/$user_id.*",GLOB_BRACE) ) ));
+				array_map('unlink', glob(PD."/../users/avatars/cache/$user_id-*.{jpg,jpeg,png,gif}",GLOB_BRACE));
+				$response = Array("result" => "true","avatar_path"=>HOST.'/user.getAvatar?user_id='.$user_id.'&w=150&h=150&'.time());
+			}
+			else
+			{
+				$response["message"] = "Невозможно записать файл";
+			}
+			delTree(PD."/../upload/files/$session");
+		}
+		else
+		{
+			if ( isset($upload_handler->response["avatar"][0]->error) )
+				$response["message"] = $upload_handler->response["avatar"][0]->error;
+			else
+				$response["message"] = "Непредвиденная ошибка";
+		}
+		return $response;
+	}
+
+	public function delete_avatar()
+	{
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа"
+		);
+		if ( $current_user->user_id == 0 ) return $response;
+
 	}
 }
 

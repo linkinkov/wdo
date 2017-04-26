@@ -5,6 +5,7 @@ require_once(PD.'/lib/Resize.class.php');
 require_once(PD.'/lib/Avatar.class.php');
 require_once(PD.'/lib/Attach.class.php');
 $db = db::getInstance();
+check_access($db);
 $current_user = new User($_SESSION["user_id"]);
 $job = get_var("job","string",false);
 $user_id = get_var("user_id","int",$current_user->user_id);
@@ -21,6 +22,14 @@ if ( $job == "profile" )
 		// header("Location: /",true,301);
 		header('HTTP/1.0 401 Unauthorized',true,401);
 	}
+	$ref = isset($_SESSION["LAST_PAGE"]) ? trim($_SESSION["LAST_PAGE"]) : false;
+	if ( $ref == "profile/project-responds" )
+	{
+		$data["ts_project_responds"] = time();
+		$current_user->update_profile_info($data);
+	}
+
+	$_SESSION["LAST_PAGE"] = "profile/profile-info";
 	?>
 	<div class="row">
 		<div class="col">
@@ -90,11 +99,16 @@ if ( $job == "profile" )
 			Фото
 		</div>
 		<div class="col text-center">
-			<img class="rounded-circle" data-name="avatar" src="" />
+			<img class="rounded-circle shadow" data-name="avatar" src="" />
 		</div>
 		<div class="col text-justify" style="align-self: center;">
-			<p><a class="wdo-link underline" href="">Сменить фото</a></p>
-			<p><a class="wdo-link underline" href="">Удалить фото</a></p>
+			<p>
+				<label for="avatar_upload" class="wdo-link underline" data-lt="Загрузка..." data-ot="Сменить фото">Сменить фото</label>
+				<input id="avatar_upload" type="file" name="avatar[]" style="display: none;" accept=".jpg,.jpeg,.png,.gif">
+			</p>
+			<p>
+				<label class="wdo-link underline" id="avatar_delete">Удалить фото</label>
+			</p>
 			<p class="text-muted"><small>Не менее 150x150px<br />Не более 1500x1500px</small></p>
 		</div>
 	</div>
@@ -146,7 +160,7 @@ if ( $job == "profile" )
 				<button type="button" class="btn btn-secondary" style="text-align: left;width: 100%;" data-toggle="dropdown" data-name="city_id"></button>
 				<button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="flex: 0 1 30px;"></button>
 				<div class="dropdown-menu city-list" style="width: 100%;">
-					<a class="dropdown-item wdo-option"><input type="text" class="form-control city-filter" placeholder="Поиск"></a>
+					<a class="dropdown-item disabled"><input type="text" class="form-control city-filter" placeholder="Поиск"></a>
 					<?php echo sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d">%s</a>',$user->city_id,$user->city_name);?>
 				</div>
 			</div>
@@ -263,8 +277,8 @@ if ( $job == "profile" )
 
 	<div class="row"><div class="col"><hr /></div></div>
 	<div class="row">
-		<div class="col">
-			<div class="wdo-btn bg-purple" id="save_profile_info" data-lt="Сохранение" data-ot="Сохранить" style="width: 50%; margin: 0 auto;">Сохранить</div>
+		<div class="col text-center">
+			<div class="wdo-btn btn-sm bg-purple" id="save_profile_info" data-lt="Сохранение" data-ot="Сохранить">Сохранить</div>
 		</div>
 	</div>
 	<div class="row"><div class="col"><hr /></div></div>
@@ -282,7 +296,7 @@ if ( $job == "profile" )
 					else if ( key == "city_id" ) $(".wdo-option[data-name='"+key+"'][data-value='"+value+"']").addClass("active").click();
 					else if ( key == "rekvizity" ) $.each(value,function(field,val) {$("input[data-name='"+field+"']").val(val);})
 					else if ( key == "as_performer" ) { if ( value == 1 ) $(".custom-checkbox-as_performer").click(); }
-					else $("[data-name='"+key+"']").val(value);
+					else $("[data-name='"+key+"']").val(_.unescape(value));
 				})
 				$('input[data-name="birthday"]').daterangepicker(config.datePickerOptionsSingle);
 				$('input[data-name="birthday"]').on('apply.daterangepicker', function(ev, picker) {
@@ -291,6 +305,48 @@ if ( $job == "profile" )
 			}
 		});
 
+		var upload_btn = $("label[for='avatar_upload']");
+		$('#avatar_upload').fileupload({
+			dataType: 'JSON',
+			url: '/upload/',
+			submit:  function (e, data) {
+				set_btn_state(upload_btn,"loading");
+			},
+			done: function (e, data) {
+				var response = data.result;
+				if ( response.result == "true" )
+				{
+					$("img[data-name='avatar']").attr("src",response.avatar_path);
+				}
+				else if ( response.message )
+				{
+					showAlert('error',response.message);
+				}
+			},
+			acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+			maxFileSize: 8000000,
+			stop: function(e, data) {
+				set_btn_state(upload_btn,"reset");
+			}
+		});
+		$("#avatar_delete").click(function(){
+			$.ajax({
+				type: "POST",
+				url: "/user.deleteAvatar",
+				xhrFields: {withCredentials: true},
+				dataType: "JSON",
+				success: function (response) {
+					if ( response.true )
+					{
+						$("img[data-name='avatar']").attr("src",response.avatar_path);
+					}
+					else
+					{
+						showAlert("error","Ошибка");
+					}
+				}
+			});
+		})
 		$(".custom-control").click(function(e){
 			$(this).find(".custom-control-input").blur();
 		})
@@ -430,6 +486,16 @@ if ( $job == "profile" )
 
 else if ( $job == "projects" )
 {
+	if ( $user->user_id == $current_user->user_id )
+	{
+		$ref = isset($_SESSION["LAST_PAGE"]) ? trim($_SESSION["LAST_PAGE"]) : false;
+		if ( $ref == "profile/project-responds" )
+		{
+			$data["ts_project_responds"] = time();
+			$current_user->update_profile_info($data);
+		}
+	}
+	$_SESSION["LAST_PAGE"] = "profile/projects";
 ?>
 
 	<table class="table" id="projects-table">
@@ -513,9 +579,10 @@ else if ( $job == "projects" )
 
 else if ( $job == "project-responds" )
 {
+	$_SESSION["LAST_PAGE"] = "profile/project-responds";
 ?>
 
-<table class="table" id="projects-table">
+<table class="table" id="project-responds-table">
 	<thead>
 		<th>Наименование</th>
 		<th>Заказчик</th>
@@ -528,7 +595,7 @@ else if ( $job == "project-responds" )
 
 <script>
 $(function(){
-	var respondsTable = $("#projects-table").DataTable({
+	var respondsTable = $("#project-responds-table").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"dom": 'tr<"row"<"col"p>><"row"<"col"i>>',
 		"bProcessing": true,
@@ -548,13 +615,12 @@ $(function(){
 			{"data": "respond.cost","name":"project_responds.cost","class":"project-table-cost"},
 			{"data": "respond.status_id","name":"project_responds.status_id","class":"project-table-status"},
 		],
-		"order": [[0, 'asc']],
 		"initComplete": function(table,data) {
 		},
 		"createdRow": function ( row, data, index ) {
 			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
 			var category = $.sprintf('<br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
-			var username = '<div class="row"><div class="col" style="padding: 0;flex: 0 0 35px; max-width: 35px; min-width: 35px;"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link"><img class="rounded-circle" src="'+data.project_user.avatar_path+'" /></a></div><div class="col"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link">'+data.project_user.realUserName+'</a></div></div>';
+			var username = '<div class="row"><div class="col" style="padding: 0;flex: 0 0 35px; max-width: 35px; min-width: 35px;"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link"><img class="rounded-circle shadow" src="'+data.project_user.avatar_path+'" /></a></div><div class="col"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link">'+data.project_user.realUserName+'</a></div></div>';
 			var cost = data.respond.cost + ' <i class="fa fa-rouble"></i>';
 			$('td', row).eq(0).html(title+category);
 			$('td', row).eq(1).html(username);

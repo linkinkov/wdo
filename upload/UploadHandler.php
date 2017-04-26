@@ -17,6 +17,7 @@ class UploadHandler
 
     // PHP File Upload error message codes:
     // http://php.net/manual/en/features.file-upload.errors.php
+/*
     protected $error_messages = array(
         1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
         2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
@@ -36,6 +37,27 @@ class UploadHandler
         'min_height' => 'Image requires a minimum height',
         'abort' => 'File upload aborted',
         'image_resize' => 'Failed to resize image'
+    );
+*/
+    protected $error_messages = array(
+        1 => 'Превышен upload_max_filesize',
+        2 => 'Превышен MAX_FILE_SIZE в HTML форме',
+        3 => 'Файл был загружен частично, повторите попытку',
+        4 => 'Не указан файл',
+        6 => 'Не найдена временная директория',
+        7 => 'Ошибка записи',
+        8 => 'Загрузка прервана',
+        'post_max_size' => 'Превышен post_max_size',
+        'max_file_size' => 'Файл слишком большой',
+        'min_file_size' => 'Файл слишком маленький',
+        'accept_file_types' => 'Данный тип файла не поддерживается',
+        'max_number_of_files' => 'Превышено максимальное количество файлов',
+        'max_width' => 'Размер изображения шире допустимого',
+        'min_width' => 'Размер изображения уже допустимого',
+        'max_height' => 'Размер изображения выше допустимого',
+        'min_height' => 'Размер изображения ниже допустимого',
+        'abort' => 'Загрузка отменена',
+        'image_resize' => 'Ошибка сжатия изображения'
     );
 
     protected $image_objects = array();
