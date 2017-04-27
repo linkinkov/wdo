@@ -683,6 +683,7 @@ else if ( $job == "messages" )
 				})
 				$(".dialog").click(function(){
 					var recipient_id = $(this).data('user_id');
+					$(".conversation-container").data('recipient_id',recipient_id);
 					app.user.getConversation(recipient_id,0,config.profile.messages_per_page,function(response){
 						var objDiv = $(".conversation-messages");
 						if ( response.result == "true" )
