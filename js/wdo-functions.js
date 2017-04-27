@@ -41,6 +41,7 @@ function showAlert(type,message)
 	$("#alert-modal-message").text(message);
 	$(modal).modal('show');
 }
+/*
 function scrollTo(elementID,o)
 {
 	o = o || false;
@@ -49,6 +50,7 @@ function scrollTo(elementID,o)
 			scrollTop: $("#"+elementID).offset().top
 	}, 1000);
 }
+*/
 function update_city_list(input,e)
 {
 	if ( e.keyCode < 20 && e.keyCode != 8 ) return;
@@ -187,19 +189,19 @@ $(function(){
 	$('#send-pm-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
 				recipient_id = $(related).data('recipient'),
-				realUserName = $(related).data('realusername'),
+				real_user_name = $(related).data('real_user_name'),
 				modal = e.delegateTarget,
 				submit_btn = $(modal).find(".wdo-btn[name='send-pm']");
 		$(submit_btn).data('recipient',recipient_id);
 		$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
 		$(modal).find("textarea[name='message-text']").data('recipient',recipient_id);
 		set_btn_state(submit_btn,"reset");
-		$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(realUserName);
+		$(modal).find("a[name='real_user_name']").attr("href","/profile/id"+recipient_id).text(real_user_name);
 	})
 	$('#save-note-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
 				recipient_id = $(related).data('recipient'),
-				realUserName = $(related).data('realusername'),
+				real_user_name = $(related).data('real_user_name'),
 				modal = e.delegateTarget,
 				submit_btn = $(modal).find(".wdo-btn[name='save-note']"),
 				textarea = $(modal).find("textarea[name='note-text']");
@@ -210,7 +212,7 @@ $(function(){
 			set_btn_state(submit_btn,"reset");
 		})
 		set_btn_state(submit_btn,"reset");
-		$(modal).find("a[name='userName']").attr("href","/profile/id"+recipient_id).text(realUserName);
+		$(modal).find("a[name='real_user_name']").attr("href","/profile/id"+recipient_id).text(real_user_name);
 		app.user.getNote(recipient_id,function(response){
 			if ( response.result == "true" )
 			{

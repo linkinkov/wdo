@@ -243,7 +243,7 @@ if ( isset($_GET["add_respond"]) )
 							%s</a>',
 								HOST.'/profile/id'.$project->user_id,
 								HOST.'/user.getAvatar?user_id='.$project->user_id.'&w=100&h=100',
-								$pu->realUserName
+								$pu->real_user_name
 							);
 							echo sprintf('<br />
 								<img src="%s" title="Положительных отзывов" /> %d | <img src="%s" title="Негативных отзывов" /> %d
@@ -415,7 +415,7 @@ $(function(){
 			+'				'+moment.unix(data.respond.created).format("YYYY-MM-DD HH:MM")
 			+'			</div>'
 			+'			<div class="col" style="padding-top: 10px;padding-left: 0;">'
-			+'				<a class="wdo-link underline" href="/profile/id'+data.user.user_id+'">'+data.user.realUserName+'</a>'
+			+'				<a class="wdo-link underline" href="/profile/id'+data.user.user_id+'">'+data.user.real_user_name+'</a>'
 			+'				<br /><br /><p style="white-space: pre-wrap;">'+data.respond.descr+'</p>'
 			+'			</div>'
 			+'		</div>'
@@ -465,7 +465,7 @@ $(function(){
 				header_html = ''
 				+'<div class="row">'
 				+'	<div class="col">'
-				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="'+data.respond.user_id+'" data-realUserName="'+data.user.realUserName+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="'+data.respond.user_id+'" data-realUserName="'+data.user.realUserName+'">Добавить заметку</a>'
+				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Добавить заметку</a>'
 				+'		<span class="pull-right">'+actions+'</span>'
 				+'	</div>'
 				+'</div>'

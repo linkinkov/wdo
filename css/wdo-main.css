@@ -12,6 +12,10 @@
 	src: url('/fonts/roboto-condensed_1.ttf') format('truetype');
 }
 @font-face {
+	font-family: 'myRobotoCondensedBold';
+	src: url('/fonts/roboto-boldcondensed_1.ttf') format('truetype');
+}
+@font-face {
 	font-family: 'CB3czAUF';
 	src: url('/fonts/CB3czAUF.ttf') format('truetype');
 }
@@ -22,6 +26,15 @@ body {
 	font-weight: 400;
 	line-height: 1.5;
 	min-width: 1000px;
+}
+.text-roboto {
+	font-family: 'myRoboto';
+}
+.text-roboto-cond {
+	font-family: 'myRobotoCondensed';
+}
+.text-roboto-cond-bold {
+	font-family: 'myRobotoCondensedBold';
 }
 @media (max-width: 1024px)
 {
@@ -136,7 +149,7 @@ body { padding-right: 0 !important }
 	color: #940a63 !important;
 }
 .text-purple-dark {
-	color: #500a37;
+	color: #500a37 !important;
 }
 .strong {
 	font-weight: 800;
@@ -210,6 +223,46 @@ i.fa.active {
 	padding-right: 10px;
 	padding-bottom: 0px;
 }
+.pointer {
+	cursor: pointer !important;
+}
+.text-truncate {
+	display: block;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;
+}
+
+/* ----- SCROLLBAR ----- */
+
+/*.wdo-scrollbar
+{
+	margin-left: 30px;
+	float: left;
+	height: 300px;
+	width: 65px;
+	background: #F5F5F5;
+	overflow-y: scroll;
+	margin-bottom: 25px;
+}*/
+.wdo-scrollbar::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	border-radius: 10px;
+	background-color: #F5F5F5;
+}
+
+.wdo-scrollbar::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: #F5F5F5;
+}
+
+.wdo-scrollbar::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #500a37;
+}
+
+/* ----- SCROLLBAR END ----- */
 
 /* ----- bootstrap override ----- */
 .form-control {
@@ -399,7 +452,6 @@ th.project-table-cost {
 /* ----- PROFILE ---- */
 .rounded-circle.shadow {
 	box-shadow: 2px 2px 8px -3px;
-	background-color: #333;
 }
 .account-management {
 	background: url('/images/account-management.png') no-repeat center center;
@@ -443,6 +495,39 @@ th.project-table-cost {
 	position: absolute;
 	top: 0px;
 	width: 0;
+}
+.dialogs-container {
+	max-height: 1000px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-right: 5px;
+}
+.dialog {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+	border: 1px solid #edebeb;
+	padding: 15px 5px;
+	background-color: #fff;
+}
+.conversation-container {
+	display: none;
+}
+.conversation-container .conversation-header, .conversation-container .conversation-footer {
+	display: flex;
+	width: 100%;
+	padding: 15px;
+}
+.conversation-container .conversation-messages {
+	max-height: 300px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-right: 5px;
+}
+.conversation-container .conversation-messages .message {
+	display: flex;
+	width: 100%;
+	padding: 15px;
 }
 /* ----- END PROFILE ---- */
 

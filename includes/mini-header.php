@@ -7,7 +7,7 @@
 				<div class="col wdo-main-left bg-purple-dark text-center" style="z-index: 1; padding: 5px;">
 					<a href="/"><img src="/images/logo-mic.png" /></a>
 				</div>
-				<div class="col wdo-main-right bg-purple-dark" style="display: flex; align-items: center;">
+				<div class="col wdo-main-right bg-purple-dark text-roboto" style="display: flex; align-items: center;">
 						<a class="mini-header-nav" href="<?php echo HOST;?>/projects/">Проекты</a>
 						<a class="mini-header-nav" href="<?php echo HOST;?>/performers/">Исполнители</a>
 						<a class="mini-header-nav" href="<?php echo HOST;?>/about/">О сервисе</a>

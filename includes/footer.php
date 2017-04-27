@@ -25,7 +25,7 @@
 		<div class="col main">
 			<div class="row">
 				<div class="col wdo-main-left" style="display: flex; align-items: center;">
-					<h3 class="text-purple strong">СЕРВИС ОРГАНИЗАЦИИ МЕРОПРИЯТИЙ</h3>
+					<h3 class="text-purple text-roboto-cond-bold">СЕРВИС ОРГАНИЗАЦИИ МЕРОПРИЯТИЙ</h3>
 				</div><!-- /.wdo-main-left -->
 
 				<div class="col wdo-main-right">

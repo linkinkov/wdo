@@ -14,7 +14,8 @@ var config = {
 	},
 	"profile":
 	{
-		"user_id": 0
+		"user_id": 0,
+		"messages_per_page": 10
 	},
 	"datePickerOptions": {
 		"ranges": {
@@ -124,13 +125,28 @@ var app = {
 				}
 			})
 		},
-		"getName": function(user_id,callback) {
+		"getDialogs": function(callback) {
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
-				url: "/user.getName",
+				url: "/user.getDialogs",
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"getConversation": function(user_id,start,limit,callback) {
+			callback = callback || function(){};
+			start = start || 0;
+			limit = limit || 50;
+			$.ajax({
+				type: "POST",
+				url: "/user.getConversation",
 				data: {
-					"user_id": user_id
+					"user_id": user_id,
+					"start": start,
+					"limit": limit
 				},
 				dataType: "JSON",
 				success: function (response) {

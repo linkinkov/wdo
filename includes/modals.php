@@ -4,7 +4,7 @@
 	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="register-modal-label">Регистрация</h5>
+				<h5 class="modal-title text-roboto-cond" id="register-modal-label">Регистрация</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -30,7 +30,7 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="city-select-modal-label">Выбор города</h5>
+				<h5 class="modal-title text-roboto-cond" id="city-select-modal-label">Выбор города</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -58,7 +58,7 @@
 	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="login-modal-label">Авторизация</h5>
+				<h5 class="modal-title text-roboto-cond" id="login-modal-label">Авторизация</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -91,7 +91,7 @@
 	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="restore-password-modal-label">Восстановление пароля</h5>
+				<h5 class="modal-title text-roboto-cond" id="restore-password-modal-label">Восстановление пароля</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -119,7 +119,7 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="send-pm-modal-label">Отправить сообщение</h5>
+				<h5 class="modal-title text-roboto-cond" id="send-pm-modal-label">Отправить сообщение</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -127,7 +127,7 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col">
-						<text class="text-muted strong">Кому:</text> <img name="userAvatar" src="" class="rounded-circle shadow" /> <a name="userName" href="" class="wdo-link"></a>
+						<text class="text-muted strong">Кому:</text> <img name="userAvatar" src="" class="rounded-circle shadow" /> <a name="real_user_name" href="" class="wdo-link"></a>
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
@@ -147,7 +147,7 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="save-note-modal-label">Добавить / изменить заметку</h5>
+				<h5 class="modal-title text-roboto-cond" id="save-note-modal-label">Добавить / изменить заметку</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -155,7 +155,7 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col">
-						<img name="userAvatar" src="" class="rounded-circle shadow" /> <a name="userName" href="" class="wdo-link"></a>
+						<img name="userAvatar" src="" class="rounded-circle shadow" /> <a name="real_user_name" href="" class="wdo-link"></a>
 					</div>
 				</div>
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
@@ -175,7 +175,7 @@
 	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="user-calendar-modal-label">Отметить даты как занятые</h5>
+				<h5 class="modal-title text-roboto-cond" id="user-calendar-modal-label">Отметить даты как занятые</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -208,7 +208,7 @@
 	<div class="modal-dialog" role="document" style="width: 600px;">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="alert-modal-label">Внимание!</h5>
+				<h5 class="modal-title text-roboto-cond" id="alert-modal-label">Внимание!</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>

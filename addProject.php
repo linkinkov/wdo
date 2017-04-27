@@ -190,7 +190,7 @@ $for_performer = get_var("for_performer","int",0);
 													</div>
 												</div>
 											</div>
-										',$fu->user_id,$fu->avatar_path,$fu->realUserName);
+										',$fu->user_id,$fu->avatar_path,$fu->real_user_name);
 										echo '<script>document.getElementById("performers").style.display = "block";</script>';
 									}
 								}
@@ -568,7 +568,7 @@ $(function(){
 						+'		<img class="rounded-circle shadow" src="'+this.avatar_path+'&w=35&h=35" />'
 						+'	</div>'
 						+'	<div class="col">'
-						+'		'+this.userName+''
+						+'		'+this.real_user_name+''
 						+'	</div>'
 						+'</div>');
 						$(obj).appendTo("#performers");

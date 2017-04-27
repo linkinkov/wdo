@@ -28,7 +28,7 @@ class User
 			return;
 		}
 		$where = (intval($user_id) > 0) ? sprintf("`user_id` = '%d'",$user_id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","last_name","first_name","company_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps","signature");
+		$public_fields = Array("user_id","username","real_user_name","last_name","first_name","company_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps","signature");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE %s",implode(",",$public_fields),$where);
 		try {
@@ -40,7 +40,7 @@ class User
 				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
 			$this->city_name = City::get_name($this->city_id);
-			$this->realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
+			// $this->realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
 			if ( $this->user_id == $_SESSION["user_id"] )
@@ -228,7 +228,6 @@ class User
 		}
 		return $response;
 	}
-
 	public static function get_real_user_name($user_id)
 	{
 		global $db;
@@ -237,26 +236,16 @@ class User
 			"result" => "false",
 			"message" => "Ошибка"
 		);
-		$realUserName = "";
+		$real_user_name = "";
 		if ( intval($user_id) <= 0 ) return $response;
 		try {
-			$sql = sprintf("SELECT `last_name`, `first_name`,`company_name`,`type_id` FROM `users` WHERE `user_id` = '%d'",intval($user_id));
-			$info = $db->queryRow($sql);
-			if ( isset($info->type_id) )
-			{
-				$info->last_name = $info->last_name;
-				$info->first_name = $info->first_name;
-				$info->company_name = $info->company_name;
-				$realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
-				$realUserName = filter_string($realUserName,'out');
-			}
-			return $realUserName;
+			$real_user_name = $db->getValue("users","real_user_name","real_user_name",Array("user_id"=>$user_id));
 		}
 		catch (Exception $e)
 		{
 			// $response["error"] = $e->getMessage();
 		}
-		return $realUserName;
+		return (string)$real_user_name;
 	}
 
 	public static function get_user_note($user_id)
@@ -351,32 +340,31 @@ class User
 		return $this->balance;
 	}
 
-	public static function get_list($search="",$city_id=false)
+	public static function get_list($search="",$city_id=false,$limit = 5)
 	{
 		global $db;
 		global $current_user;
 		$search = filter_string($search,'in');
 		$list = Array();
 		if ( !$city_id ) $city_id = $_COOKIE["city_id"];
-		$sql = sprintf("SELECT `user_id` FROM `users` WHERE `city_id` = '%d' AND `user_id` != '%d' AND (`last_name` LIKE '%%%s%%' OR `first_name` LIKE '%%%s%%' OR `company_name` LIKE '%%%s%%') LIMIT 5",$city_id,$current_user->user_id,$search,$search,$search);
+		$sql = sprintf("SELECT `user_id`,`real_user_name`,`rating` FROM `users` WHERE `city_id` = '%d' AND `user_id` > 0 AND `user_id` != '%d' AND `real_user_name` LIKE '%%%s%%' LIMIT %d",$city_id,$current_user->user_id,$search,$limit);
 		try {
-			// echo $sql;
 			$rows = $db->queryRows($sql);
 			if ( $rows )
 				foreach ( $rows as $row )
 				{
-					$userName = User::get_real_user_name($row->user_id);
-					if ( !mb_ereg_match($search,$userName,"i") ) continue;
 					$list[] = Array(
 						"user_id"=>$row->user_id,
-						"userName"=>$userName,
+						"user_link"=>HOST.'/profile/id'.$row->user_id,
+						"real_user_name"=>$row->real_user_name,
+						"rating"=>$row->rating,
 						"avatar_path"=>HOST.'/user.getAvatar?user_id='.$row->user_id
 					);
 				}
 		}
 		catch ( Exception $e )
 		{
-
+			// $list = $e->getMessage();
 		}
 		return $list;
 	}
@@ -431,6 +419,7 @@ class User
 	public function avatar_update()
 	{
 		global $current_user;
+		require_once(PD.'/upload/UploadHandler.php');
 		$response = Array(
 			"result" => "false",
 			"message" => "Ошибка доступа"
@@ -457,20 +446,20 @@ class User
 			// $user_id = $_SESSION["user_id"];
 			$user_id = $current_user->user_id;
 			$filename = $upload_handler->response["avatar"][0]->name;
-			$file_path = PD.'/files/'.$session.'/'.$filename;
+			$file_path = PD.'/upload/files/'.$session.'/'.$filename;
 			$exten = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
-			$target_path = PD.'/../users/avatars/'.$user_id.'.'.$exten;
+			$target_path = PD.'/users/avatars/'.$user_id.'.'.$exten;
 			if ( @rename($file_path,$target_path) )
 			{
-				array_map('unlink', array_values( preg_grep( '/^((?!'.$exten.').)*$/', glob(PD."/../users/avatars/$user_id.*",GLOB_BRACE) ) ));
-				array_map('unlink', glob(PD."/../users/avatars/cache/$user_id-*.{jpg,jpeg,png,gif}",GLOB_BRACE));
+				array_map('unlink', array_values( preg_grep( '/^((?!'.$exten.').)*$/', glob(PD."/users/avatars/$user_id.*",GLOB_BRACE) ) ));
+				array_map('unlink', glob(PD."/users/avatars/cache/$user_id-*.{jpg,jpeg,png,gif}",GLOB_BRACE));
 				$response = Array("result" => "true","avatar_path"=>HOST.'/user.getAvatar?user_id='.$user_id.'&w=150&h=150&'.time());
 			}
 			else
 			{
 				$response["message"] = "Невозможно записать файл";
 			}
-			delTree(PD."/../upload/files/$session");
+			delTree(PD."/upload/files/$session");
 		}
 		else
 		{
@@ -490,7 +479,115 @@ class User
 			"message" => "Ошибка доступа"
 		);
 		if ( $current_user->user_id == 0 ) return $response;
+	}
 
+	public function get_dialogs()
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа"
+		);
+		if ( $current_user->user_id == 0 ) return $response;
+		$dialogs = Array();
+		// $sql = sprintf("SELECT DISTINCT `user_id_from` as conv_user_id FROM `messages` WHERE `user_id_to` = '%d' UNION SELECT DISTINCT `user_id_to` FROM `messages` WHERE `user_id_from` = '%d'",$current_user->user_id,$current_user->user_id);
+		// echo $sql;
+		$sql = sprintf("SELECT `dialog_id`,`dialog_users` FROM `dialogs` WHERE find_in_set('%d',`dialog_users`) <> 0",$current_user->user_id);
+		// echo $sql;
+		try {
+			$rows = $db->queryRows($sql);
+			if ( sizeof($rows) )
+			{
+				foreach ( $rows as $r )
+				{
+
+					// $user_id = $r->conv_user_id;
+					// $last_message = $db->queryRow(sprintf("SELECT `message_text`,`timestamp` FROM `messages` WHERE (`user_id_from` = '%d' AND `user_id_to` = '%d') OR (`user_id_from` = '%d' AND `user_id_to` = '%d') ORDER BY `timestamp` DESC LIMIT 1",$user_id,$current_user->user_id,$current_user->user_id,$user_id));
+					// $unreaded = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE (`user_id_from` = '%d' AND `user_id_to` = '%d') OR (`user_id_from` = '%d' AND `user_id_to` = '%d') AND `readed` = 0",$user_id,$current_user->user_id,$current_user->user_id,$user_id));
+					// $total = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE (`user_id_from` = '%d' AND `user_id_to` = '%d') OR (`user_id_from` = '%d' AND `user_id_to` = '%d')",$user_id,$current_user->user_id,$current_user->user_id,$user_id));
+
+					$users_in_dialog = explode(",",$r->dialog_users);
+					unset($users_in_dialog[array_search($current_user->user_id,$users_in_dialog)]);
+					$users_in_dialog = array_values($users_in_dialog);
+					if ( sizeof($users_in_dialog) == 1 )
+					{
+						$recipient_id = $users_in_dialog[0];
+						$last_message = $db->queryRow(sprintf("SELECT `message_text`,`timestamp` FROM `messages` WHERE `dialog_id` = '%s' ORDER BY `timestamp` LIMIT 1",$r->dialog_id));
+						$unreaded = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE `dialog_id` = '%s' AND `user_id_to` = '%d'",$r->dialog_id,$current_user->user_id));
+						$total = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE `dialog_id` = '%s'",$r->dialog_id));
+						$dialog = Array(
+							"user_id"=>$recipient_id,
+							"real_user_name"=>User::get_real_user_name($recipient_id),
+							"last_message_text"=>$last_message->message_text,
+							"timestamp"=>$last_message->timestamp,
+							"unreaded"=>$unreaded->counter,
+							"total_messages"=>$total->counter
+						);
+						$dialogs[] = $dialog;
+					}
+				}
+			}
+			$response["result"] = "true";
+			unset($response["message"]);
+			$response["dialogs"] = $dialogs;
+		}
+		catch ( Exception $e )
+		{
+
+		}
+		return $response;
+	}
+
+	public function get_conversation($user_id,$start=50,$limit=50)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа"
+		);
+		if ( $current_user->user_id == 0 || $user_id == 0 ) return $response;
+		$users = Array(
+			$current_user->user_id => $current_user->real_user_name,
+			$user_id => User::get_real_user_name($user_id)
+		);
+		$sql = sprintf("SELECT `message_text`,`timestamp`,`user_id_from`,`user_id_to`,`readed`
+			FROM `messages`
+			WHERE (`user_id_from` = '%d' AND `user_id_to` = '%d') OR (`user_id_from` = '%d' AND `user_id_to` = '%d')
+			ORDER BY `timestamp` DESC 
+			LIMIT $start,$limit",
+		$current_user->user_id,$user_id,$user_id,$current_user->user_id);
+		try {
+			$rows = $db->queryRows($sql);
+			if ( sizeof($rows) )
+			{
+				foreach ( $rows as $r )
+				{
+					$message = Array(
+						"user" => Array(
+							"id"=>$r->user_id_from,
+							"real_user_name"=>$users[$r->user_id_from],
+							"avatar_path"=>HOST.'/user.getAvatar?user_id='.$r->user_id_from
+						),
+						"message" => Array(
+							"text"=>$r->message_text,
+							"timestamp"=>$r->timestamp,
+							"readed"=>$r->readed
+						)
+					);
+					$messages[] = $message;
+				}
+			}
+			$response["result"] = "true";
+			unset($response["message"]);
+			$response["messages"] = $messages;
+		}
+		catch ( Exception $e )
+		{
+
+		}
+		return $response;
 	}
 }
 

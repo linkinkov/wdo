@@ -77,7 +77,7 @@ else
 						foreach ( $pages as $page=>$name)
 						{
 							$class = ('/'.$page.'/' == $current_page) ? "main-nav active" : "main-nav";
-							echo sprintf('<div class="col %s" title="%s" data-page="/%s/">
+							echo sprintf('<div class="col %s text-roboto-cond" title="%s" data-page="/%s/">
 															<a title="%s" href="/%s/" class="wdo-link">%s</a>
 														</div>',$class,$name,$page,$name,$page,$name);
 						}

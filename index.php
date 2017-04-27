@@ -38,7 +38,7 @@ $preselect = get_var("preselect","array",Array());
 			<div class="row">
 				<div class="col wdo-main-left bg-purple-dark" style="z-index: 1; padding-top: 10px;">
 					<div class="row">
-						<div class="col"><h3>О СЕРВИСЕ</h3></div>
+						<div class="col text-roboto-cond-bold strong"><h3>О СЕРВИСЕ</h3></div>
 					</div>
 					<div class="row">
 						<div class="col" style="max-height: 180px; overflow: hidden;"><p style="-webkit-column-width: 243px;column-width: 243px;height: 100%;overflow: hidden;">Первая биржа праздников, всяких дней рождений и прочей Первая биржа праздников, всяких дней рождений и прочей Первая биржа праздников, всяких дней рождений и прочей Первая биржа праздников, всяких дней рождений и прочейПервая биржа праздников, всяких дней рождений и прочей</p></div>
@@ -74,21 +74,21 @@ $preselect = get_var("preselect","array",Array());
 				<div class="col wdo-main-left right-shadow">
 					<div class="row">
 						<div class="col">
-							<h44 class="text-yellow strong">ФИЛЬТР СПЕЦИАЛИЗАЦИЙ</h44>
+							<h44 class="text-yellow text-roboto-cond-bold">ФИЛЬТР СПЕЦИАЛИЗАЦИЙ</h44>
 							<?php include(PD.'/includes/left-list-categories.php');?>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col">
 							<hr />
-							<h44 class="text-yellow strong">ПРЕДЛОЖЕНИЯ КОМПАНИЙ</h44>
+							<h44 class="text-yellow text-roboto-cond-bold">ПРЕДЛОЖЕНИЯ КОМПАНИЙ</h44>
 							<?php include(PD.'/includes/left-list-adv.php');?>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col">
 							<hr />
-							<h44 class="text-yellow strong">ТОП 10 ИСПОЛНИТЕЛЕЙ</h44>
+							<h44 class="text-yellow text-roboto-cond-bold">ТОП 10 ИСПОЛНИТЕЛЕЙ</h44>
 							<?php include(PD.'/includes/left-list-top-10.php');?>
 						</div>
 					</div>
@@ -97,7 +97,7 @@ $preselect = get_var("preselect","array",Array());
 					<div class="row">
 						<div class="col">
 							<div class="input-group">
-								<input type="search" class="form-control" style="" placeholder="<?php echo $lang["monitoring"]["search"];?>" aria-controls="deviceListTable" id="dt_filter">
+								<input type="search" class="form-control" style="" placeholder="Поиск" aria-controls="deviceListTable" id="dt_filter">
 								<div class="input-group-btn">
 									<div class="btn-group">
 										<button type="button" class="btn btn-secondary calendar"><i class="fa fa-calendar"></i></button>
@@ -159,11 +159,11 @@ $(function(){
 	}
 	if ( isset($preselect["subcat_id"]) && intval($preselect["subcat_id"]) > 0 )
 	{
-		echo sprintf('toggleSubCategory(%d,true);scrollTo("projects");',$preselect["subcat_id"],$preselect["cat_id"]);
+		echo sprintf('toggleSubCategory(%d,true);',$preselect["subcat_id"],$preselect["cat_id"]);
 	}
 	elseif ( isset($preselect["cat_id"]) && intval($preselect["cat_id"]) > 0 )
 	{
-		echo sprintf('toggleCategory(%d,true,false);scrollTo("projects");',$preselect["cat_id"],$preselect["cat_id"]);
+		echo sprintf('toggleCategory(%d,true,false);',$preselect["cat_id"],$preselect["cat_id"]);
 	}
 	else
 	{

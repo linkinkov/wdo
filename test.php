@@ -6,14 +6,33 @@ $db->query("set names utf8");
 
 require_once('lib/mysqli.class.php');
 $db = db::getInstance();
+$db->autocommit(false);
 
-$user_id = 1;
-$session = "j610kltmug32mursiag47fdqs3";
-$arr = glob(PD."/users/avatars/cache/$user_id-*.{jpg,jpeg,png,gif}",GLOB_BRACE);
-print_r($arr);
-
+// SELECT `username` FROM `users` WHERE find_in_set(`user_id`,(SELECT `dialog_members` FROM `dialogs` WHERE `dialog_id` = 'c87954eaea3ed578ea5606c103e21aeb')) <> 0
+$uid = md5(time()."1");
+echo $uid."\n";
+exit;
+$users = Array(1,2,3);
+for ( $i=0; $i<=200; $i++ )
+{
+	shuffle($users);
+	$user_id_from = reset($users);
+	shuffle($users);
+	$user_id_to = reset($users);
+	$uid = md5(time().$user_id_from.$i);
+	$text = "$i: from $user_id_from to $user_id_to $uid";
+	$sql = sprintf("INSERT INTO `messages` (`message_id`,`message_text`,`user_id_from`,`user_id_to`,`timestamp`,`readed`)
+	VALUES ('%s','%s','%d','%d',UNIX_TIMESTAMP(),0)",$uid,$text,$user_id_from,$user_id_to);
+	$db->query($sql);
+}
+$db->commit();
 
 /*
+
+SELECT DISTINCT `user_id_from` FROM `messages` WHERE `user_id_to` = 1
+UNION 
+SELECT DISTINCT `user_id_to` FROM `messages` WHERE `user_id_from` = 1
+
 $username = "manager";
 $new_pass = "manager";
 

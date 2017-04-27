@@ -31,7 +31,7 @@ $user->get_counters();
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<title>WeeDo | <?php echo $user->realUserName;?></title>
+<title>WeeDo | <?php echo $user->real_user_name;?></title>
 <?php include(PD.'/includes/html-head.php');?>
 <link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/css/jquery-ui.multidatespicker.css" />
 <link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/jquery-ui/jquery-bootstrap-datepicker.css" />
@@ -48,7 +48,7 @@ $user->get_counters();
 				<div class="col wdo-main-left right-shadow">
 					<div class="row">
 						<div class="col text-center" style="padding-top: 20px;">
-							<img class="rounded-circle shadow" data-name="avatar" src="<?php echo $user->avatar_path;?>&w=150&h=150" />
+							<a href=""><img class="rounded-circle shadow" data-name="avatar" src="<?php echo $user->avatar_path;?>&w=150&h=150" /></a>
 							<i class="fa fa-circle text-success" id="online_tracker" style="display: none; position: absolute; right: 25px;" title="Сейчас на сайте"></i>
 						</div>
 					</div>
@@ -150,8 +150,9 @@ $user->get_counters();
 						<div class="col">
 							<ol class="breadcrumb" style="background-color: #f3f1f1;">
 								<li class="breadcrumb-item"><a class="wdo-link text-purple" href="<?php echo HOST;?>/performers/">Исполнители</a></li>
-								<li class="breadcrumb-item active"><?php echo $user->realUserName;?></li>
+								<li class="breadcrumb-item active"><?php echo $user->real_user_name;?></li>
 							</ol>
+							<h4><a class="wdo-link text-purple-dark text-roboto" href="/profile/id<?php echo $user->user_id;?>" style="padding-left: 1rem;"><?php echo $user->real_user_name;?></a></h4><br />
 							<?php
 							if ( $user->signature != "" )
 							{
@@ -183,8 +184,8 @@ $user->get_counters();
 						{
 							if ( sizeof($top_cats) ) echo '<hr />';
 						?>
-							<p><i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="<?php echo $user->user_id;?>" data-realUserName="<?php echo $user->realUserName;?>">Написать сообщение</a></p>
-							<p><i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="<?php echo $user->user_id;?>" data-realUserName="<?php echo $user->realUserName;?>">Добавить заметку</a></p>
+							<p><i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="<?php echo $user->user_id;?>" data-real_user_name="<?php echo $user->real_user_name;?>">Написать сообщение</a></p>
+							<p><i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="<?php echo $user->user_id;?>" data-real_user_name="<?php echo $user->real_user_name;?>">Добавить заметку</a></p>
 							<?php
 							if ( $user->as_performer == 1 && !$self_profile )
 							{
@@ -204,7 +205,6 @@ $user->get_counters();
 							<?php
 							if ( $self_profile )
 							{
-								// $active = "project-responds";
 								$active = "profile";
 								$tabs = Array(
 									"profile" => "Профиль",
@@ -229,8 +229,8 @@ $user->get_counters();
 								$class = ($id == $active) ? "" : "";
 								echo sprintf('
 								<li class="nav-item">
-									<a class="nav-link text-muted %s" data-toggle="tab" href="#%s" role="tab" data-pageid="%s">%s</a>
-								</li>',$class,$id,$id,$tab_name);
+									<a class="nav-link text-muted %s pointer" data-toggle="tab" data-target="#%s" role="tab">%s</a>
+								</li>',$class,$id,$tab_name);
 							}
 							?>
 							</ul>
@@ -246,8 +246,6 @@ $user->get_counters();
 							}
 							?>
 							</div>
-
-
 
 						</div>
 					</div>
@@ -279,17 +277,36 @@ $(function(){
 			$("#online_tracker").show();
 		}
 	});
+	$('a[data-toggle="tab"]').click(function(e){
+		var target = $(e.target);
+		if ( $(target).data('target') == '#messages' )
+		{
+			$(target).removeClass("active").tab('show');
+		}
+	})
+	$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+		scrollposition = $(document).scrollTop();
+		var id = $(e.target).data("target").substr(1);
+		window.location.hash = id;
+		$(document).scrollTop(scrollposition);
+	});
 	$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 		var current_tab = e.target,
-				prev_tab = e.relatedTarget,
-				target_page = $(current_tab).data('pageid'),
-				tab_content = $("#"+$(current_tab).data('pageid'));
-		$("#"+$(prev_tab).data('pageid')).html('');
-		window.location.hash = '#'+target_page;
-		$(tab_content).html('<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+				prev = e.relatedTarget,
+				prev_tab = $(prev).data('target'),
+				target = $(current_tab).data('target'),
+				target_tab = $(target);
+		scrollposition = $(document).scrollTop();
+		var id = $(e.target).data("target").substr(1);
+		window.location.hash = id;
+		$(document).scrollTop(scrollposition);
+
+		$(prev_tab).html('');
+		window.location.hash = target;
+		$(target_tab).html('<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
 		$.ajax({
 			type: "POST",
-			url: "/pp/"+target_page,
+			url: "/pp/"+target.substr(1),
 			dataType: "html",
 			data: {
 				"user_id": config.profile.user_id
@@ -299,18 +316,18 @@ $(function(){
 				window.location = '/';
 			},
 			success: function (response) {
-				$(tab_content).append(response);
+				$(target_tab).append(response);
 			}
 		});
 	})
-
-	if ( window.location.hash != "" )
+	var hash = window.location.hash;
+	if ( hash != "" )
 	{
-		$("a[data-pageid='"+window.location.hash.replace("#","")+"']").click();
+		$('a[data-target="' + hash + '"]').tab('show');
 	}
 	else
 	{
-		<?php echo sprintf('$("a[data-pageid=\'%s\']").click();',$active);?>
+		$('a[data-target="#profile"]').tab('show');
 	}
 	$(".calendar-view").multiDatesPicker({
 		disabled: true
@@ -325,7 +342,6 @@ $(function(){
 					var date = moment.unix(this.timestamp).toDate();
 					dates.push(date);
 				})
-				console.log("got dates:",dates,response);
 				$(".calendar-view").multiDatesPicker('addDates',dates);
 				$(".calendar-view").find(".ui-state-highlight").attr("title","На этот день у исполнителя уже запланировано мероприятие, уточните, сможет ли он принять дополнительные заказы.");
 			}

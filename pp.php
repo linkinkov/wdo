@@ -5,7 +5,7 @@ require_once(PD.'/lib/Resize.class.php');
 require_once(PD.'/lib/Avatar.class.php');
 require_once(PD.'/lib/Attach.class.php');
 $db = db::getInstance();
-check_access($db);
+check_access($db,false);
 $current_user = new User($_SESSION["user_id"]);
 $job = get_var("job","string",false);
 $user_id = get_var("user_id","int",$current_user->user_id);
@@ -94,14 +94,14 @@ if ( $job == "profile" )
 	</div>
 
 	<div class="row"><div class="col"><hr /></div></div>
-	<div class="row avatar-container">
-		<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+	<div class="row" style="align-items: center;">
+		<div class="col" style="flex: 0 0 180px; max-width: 180px;">
 			Фото
 		</div>
 		<div class="col text-center">
 			<img class="rounded-circle shadow" data-name="avatar" src="" />
 		</div>
-		<div class="col text-justify" style="align-self: center;">
+		<div class="col text-justify">
 			<p>
 				<label for="avatar_upload" class="wdo-link underline" data-lt="Загрузка..." data-ot="Сменить фото">Сменить фото</label>
 				<input id="avatar_upload" type="file" name="avatar[]" style="display: none;" accept=".jpg,.jpeg,.png,.gif">
@@ -477,7 +477,6 @@ if ( $job == "profile" )
 			$("#map-container").hide();
 			map.invalidateSize();
 		}
-		$(".loader").remove();
 	})
 	</script>
 
@@ -496,7 +495,7 @@ else if ( $job == "projects" )
 		}
 	}
 	$_SESSION["LAST_PAGE"] = "profile/projects";
-?>
+	?>
 
 	<table class="table" id="projects-table">
 		<thead>
@@ -580,63 +579,170 @@ else if ( $job == "projects" )
 else if ( $job == "project-responds" )
 {
 	$_SESSION["LAST_PAGE"] = "profile/project-responds";
+	?>
+
+	<table class="table" id="project-responds-table">
+		<thead>
+			<th>Наименование</th>
+			<th>Заказчик</th>
+			<th>Бюджет</th>
+			<th>Статус</th>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+	<script>
+	$(function(){
+		var respondsTable = $("#project-responds-table").DataTable({
+			"language": {"url": "/js/dataTables/dataTables.russian.lang"},
+			"dom": 'tr<"row"<"col"p>><"row"<"col"i>>',
+			"bProcessing": true,
+			"bServerSide": true,
+			"pagingType": "full_numbers",
+			"ajax": {
+				"url": "/dt/project-responds",
+				"type": "POST",
+				"data": function( d ) {
+					d.for_profile = true;
+					d.status_id = "-1";
+				}
+			},
+			"columns": [
+				{"data": "project.title","class":"project-table-title","width":"300px"},
+				{"data": "project_user.user_id","name":"project.user_id","class":"project-table-user"},
+				{"data": "respond.cost","name":"project_responds.cost","class":"project-table-cost"},
+				{"data": "respond.status_id","name":"project_responds.status_id","class":"project-table-status"},
+			],
+			"initComplete": function(table,data) {
+			},
+			"createdRow": function ( row, data, index ) {
+				var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
+				var category = $.sprintf('<br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
+				var username = '<div class="row"><div class="col" style="padding: 0;flex: 0 0 35px; max-width: 35px; min-width: 35px;"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link"><img class="rounded-circle shadow" src="'+data.project_user.avatar_path+'" /></a></div><div class="col"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link">'+data.project_user.real_user_name+'</a></div></div>';
+				var cost = data.respond.cost + ' <i class="fa fa-rouble"></i>';
+				$('td', row).eq(0).html(title+category);
+				$('td', row).eq(1).html(username);
+				$('td', row).eq(2).html(cost);
+				$('td', row).eq(3).html('<img src="'+data.respond.image_path+'" title="'+data.respond.status_name+'" />');
+			},
+			"drawCallback": function( settings ) {
+				$(".paginate_button > a").on("focus", function() {
+					$(this).blur();
+				});
+			}
+		})
+
+		$(".loader").remove();
+	})
+	</script>
+<?php
+} // end showing project-responds
+else if ( $job == "messages" )
+{
 ?>
+	<div class="wdo-scrollbar dialogs-container"></div>
 
-<table class="table" id="project-responds-table">
-	<thead>
-		<th>Наименование</th>
-		<th>Заказчик</th>
-		<th>Бюджет</th>
-		<th>Статус</th>
-	</thead>
-	<tbody>
-	</tbody>
-</table>
+	<div class="conversation-container">
+		<div class="conversation-header text-center">
+			<a href="wdo-link text-muted">Загрузить предыдущие сообщения</a>
+		</div>
+		<div class="wdo-scrollbar conversation-messages"></div>
+		<div class="conversation-footer">
+			<textarea class="form-control" placeholder="Текст сообщения" rows="5"></textarea>
+		</div>
+	</div>
+	
+	<script>
+	$(function(){
+		app.user.getDialogs(function(response){
+			if ( response.result == "true" )
+			{
+				$.each(response.dialogs,function(){
+					var message_time = ( (moment().format("X") - this.timestamp) > 86400 ) ? moment.unix(this.timestamp).calendar() : moment.unix(this.timestamp).calendar();
+					var dialog = ''
+						+'<div class="row">'
+						+'	<div class="col">'
+						+'		<div class="dialog" data-user_id="'+this.user_id+'" data-total_messages="'+this.total_messages+'">'
+						+'			<div class="col" style="max-width: 80px;"><img class="rounded-circle shadow" src="/user.getAvatar?user_id='+this.user_id+'&w=50&h=50" /></div>'
+						+'			<div class="col">'
+						+'				<h6 class="text-purple">'+this.real_user_name+'</h6>'
+						+'				<text class="text-truncate" style="max-width: 350px;">'+this.last_message_text+'</text>'
+						+'			</div>'
+						+'			<div class="col text-right text-muted" style="max-width: 150px;">'+message_time+'</div>';
+					if ( this.unreaded > 0 )
+					{
+						dialog += ''
+						+'			<div class="col text-right text-purple strong text-roboto-cond" style="max-width: 80px;">+'+this.unreaded+'</div>'
+					}
+					dialog += ''
+						+'		</div>'
+						+'	</div>'
+						+'</div>';
+					$(".dialogs-container").append(dialog);
+				})
+				$(".dialog").click(function(){
+					var recipient_id = $(this).data('user_id');
+					app.user.getConversation(recipient_id,0,config.profile.messages_per_page,function(response){
+						var objDiv = $(".conversation-messages");
+						if ( response.result == "true" )
+						{
+							$(".conversation-container").data('loaded',config.profile.messages_per_page).show();
+							$.each(response.messages,function(){
+								var message = ''
+								+'<div class="row">'
+								+'	<div class="message">'
+								+'	<div class="col" style="max-width: 80px;">'
+								+'		<a href="/profile/id'+this.user.id+'" class="wdo-link"><img class="rounded-circle shadow" src="'+this.user.avatar_path+'&w=50&h=50" /></a>'
+								+'	</div>'
+								+'	<div class="col">'
+								+'		<span class="pull-right">'+moment.unix(this.message.timestamp).calendar()+'</span>'
+								+'		<h6><a href="/profile/id'+this.user.id+'" class="wdo-link text-purple">'+this.user.real_user_name+'</a></h6>'
+								+'		<text>'+this.message.text+'</text>'
+								+'	</div>'
+								+'	</div>'
+								+'</div>';
+								$(".conversation-messages").append(message);
+								objDiv[0].scrollTop = objDiv[0].scrollHeight;
+							})
+							$(".dialogs-container").hide();
+						}
+						else
+						{
+							showAlert("error",response.message);
+						}
+					})
+				})
+			}
+		})
+		$(".conversation-messages").on('scroll', function() {
+			var scrollTop = $(this).scrollTop(),
+					topDistance = $(this).offset().top,
+					recipient_id = $(".message-container").data('user_id');
+			// console.log("scrolled on conversation-container:",scrollTop,topDistance);
+			if ( scrollTop < 50 )
+			{
+				var start = $(".conversation-container").data('loaded');
+				app.user.getConversation(recipient_id,start,config.profile.messages_per_page,function(response){
+					if ( response.result == "true" )
+					{
+						$(".conversation-container").data('loaded',config.profile.messages_per_page+config.profile.messages_per_page);
+						console.log("now loaded:",$(".conversation-container").data('loaded'));
+					}
+				})
 
+			}
+			// if ( (topDistance+100) < scrollTop ) {
+			// 	alert( $(this).text() + ' was scrolled to the top' );
+			// }
+		});
+	})
+	</script>
+<?php
+} // end showing messages
+?>
 <script>
 $(function(){
-	var respondsTable = $("#project-responds-table").DataTable({
-		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
-		"dom": 'tr<"row"<"col"p>><"row"<"col"i>>',
-		"bProcessing": true,
-		"bServerSide": true,
-		"pagingType": "full_numbers",
-		"ajax": {
-			"url": "/dt/project-responds",
-			"type": "POST",
-			"data": function( d ) {
-				d.for_profile = true;
-				d.status_id = "-1";
-			}
-		},
-		"columns": [
-			{"data": "project.title","class":"project-table-title","width":"300px"},
-			{"data": "project_user.user_id","name":"project.user_id","class":"project-table-user"},
-			{"data": "respond.cost","name":"project_responds.cost","class":"project-table-cost"},
-			{"data": "respond.status_id","name":"project_responds.status_id","class":"project-table-status"},
-		],
-		"initComplete": function(table,data) {
-		},
-		"createdRow": function ( row, data, index ) {
-			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
-			var category = $.sprintf('<br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
-			var username = '<div class="row"><div class="col" style="padding: 0;flex: 0 0 35px; max-width: 35px; min-width: 35px;"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link"><img class="rounded-circle shadow" src="'+data.project_user.avatar_path+'" /></a></div><div class="col"><a href="/profile/id'+data.project_user.user_id+'" class="wdo-link">'+data.project_user.realUserName+'</a></div></div>';
-			var cost = data.respond.cost + ' <i class="fa fa-rouble"></i>';
-			$('td', row).eq(0).html(title+category);
-			$('td', row).eq(1).html(username);
-			$('td', row).eq(2).html(cost);
-			$('td', row).eq(3).html('<img src="'+data.respond.image_path+'" title="'+data.respond.status_name+'" />');
-		},
-		"drawCallback": function( settings ) {
-			$(".paginate_button > a").on("focus", function() {
-				$(this).blur();
-			});
-		}
-	})
-
 	$(".loader").remove();
 })
 </script>
-<?php
-} // end showing self responds
-?>

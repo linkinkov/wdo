@@ -19,11 +19,17 @@ switch ( $job )
 		$h = get_var("h","int",35);
 		Avatar::getByUserID($user_id,$w,$h);
 		break;
-	case "getName":
-		$user_id = get_var("user_id","int",0);
-		$username = User::get_real_user_name($user_id);
+	case "getDialogs":
+		$response = $current_user->get_dialogs();
 		header('Content-Type: application/json');
-		$response = is_array($username) ? $username : Array("result"=>"true","userName"=>$username);
+		echo json_encode($response);
+		break;
+	case "getConversation":
+		$user_id = get_var("user_id","int",0);
+		$limit = get_var("limit","int",50);
+		$start = get_var("start","int",0);
+		$response = $current_user->get_conversation($user_id,$start,$limit);
+		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;
 	case "getNote":
