@@ -18,5 +18,6 @@ $distribute_classes = Array(
 	"ProjectRespond",
 	"Category",
 	"SubCategory",
+	"Dialog"
 
 );

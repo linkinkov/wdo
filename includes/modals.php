@@ -44,11 +44,11 @@
 				</div>
 				<div class="row" style="justify-content: center;">
 					<div class="col text-center" style="flex: 0 0 80%;">
-						<input type="text" class="form-control" placeholder="Введите для поиска и выберите из списка ниже" onKeyUp="update_city_list(this,event);" />
+						<input type="search" class="form-control" placeholder="Введите для поиска и выберите из списка ниже" />
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer"><div class="row" id="city_list"></div></div>
+			<div class="modal-footer" style="justify-content: space-around;"><div class="row" id="city_list"></div></div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->

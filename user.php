@@ -19,31 +19,11 @@ switch ( $job )
 		$h = get_var("h","int",35);
 		Avatar::getByUserID($user_id,$w,$h);
 		break;
-	case "getDialogs":
-		$response = $current_user->get_dialogs();
-		header('Content-Type: application/json');
-		echo json_encode($response);
-		break;
-	case "getConversation":
-		$user_id = get_var("user_id","int",0);
-		$limit = get_var("limit","int",50);
-		$start = get_var("start","int",0);
-		$response = $current_user->get_conversation($user_id,$start,$limit);
-		header('Content-Type: application/json');
-		echo json_encode($response);
-		break;
 	case "getNote":
 		$user_id = get_var("user_id","int",0);
 		$note = User::get_user_note($user_id);
 		header('Content-Type: application/json');
 		$response = is_array($note) ? $note : Array("result"=>"true","userNote"=>$note);
-		echo json_encode($response);
-		break;
-	case "sendMessage":
-		$user_id = get_var("user_id","int",0);
-		$message_text = get_var("message_text","string","");
-		$response = User::send_message($user_id,$message_text);
-		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;
 	case "saveNote":

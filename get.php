@@ -6,7 +6,7 @@ require_once('lib/Avatar.class.php');
 require_once('lib/Attach.class.php');
 $db = db::getInstance();
 
-check_access($db);
+check_access($db,false);
 $current_user = new User($_SESSION["user_id"]);
 $job = isset($_GET["job"]) ? trim($_GET["job"]) : false;
 if ( !$job ) die("no data");
@@ -27,8 +27,9 @@ switch ( $job )
 		break;
 	case "cityList":
 		$search = get_var("search","string");
+		$print_user_city = get_var("print_user_city","string","false");
 		$limit = get_var("limit","int",30);
-		$cities = City::get_list($search,$limit);
+		$cities = City::get_list($search,$limit,$print_user_city);
 		header('Content-Type: application/json');
 		echo json_encode($cities);
 		break;

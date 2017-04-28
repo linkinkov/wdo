@@ -28,19 +28,18 @@ class User
 			return;
 		}
 		$where = (intval($user_id) > 0) ? sprintf("`user_id` = '%d'",$user_id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","real_user_name","last_name","first_name","company_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps","signature");
+		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps","signature");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE %s",implode(",",$public_fields),$where);
 		try {
 			$info = $db->queryRow($sql);
 			if ( sizeof($info) ) foreach ( $info as $p => $v ) $this->$p = htmlentities($v); else $this->error = true;
-			$filter = Array("username","last_name","first_name","company_name","phone","skype","signature","rezume");
+			$filter = Array("username","phone","skype","signature","rezume");
 			foreach ( $filter as $field )
 			{
 				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
 			$this->city_name = City::get_name($this->city_id);
-			// $this->realUserName = ( $info->type_id == 2 ) ? trim(implode(" ",Array($info->last_name,$info->first_name))) : $info->company_name;
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
 			if ( $this->user_id == $_SESSION["user_id"] )
@@ -63,7 +62,7 @@ class User
 			"message" => "Ошибка"
 		);
 		if ( $this->user_id == 0 ) return $response;
-		$public_fields = Array("last_name","first_name","company_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds");
+		$public_fields = Array("real_user_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds");
 		$set = Array();
 		foreach ( $data as $key=>$value )
 		{
@@ -73,7 +72,6 @@ class User
 				$set[] = sprintf('`%s` = "%s"',$key,$value);
 			}
 		}
-		// array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("UPDATE `users` SET %s WHERE `user_id` = '%d'",implode(",",$set),$this->user_id);
 		try {
 			$db->query($sql);
@@ -97,7 +95,7 @@ class User
 		);
 		if ( !$user_id ) return $response;
 		if ( $current_user->user_id != $user_id ) return $response;
-		$public_fields = Array("user_id","last_name","first_name","company_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday");
+		$public_fields = Array("user_id","real_user_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE `user_id` = '%d'",implode(",",$public_fields),$user_id);
 		try {
@@ -270,35 +268,6 @@ class User
 		return $response;
 	}
 
-	public static function send_message($user_id,$message_text)
-	{
-		global $db;
-		global $current_user;
-		$response = Array(
-			"result" => "false",
-			"message" => "Ошибка"
-		);
-		if ( trim($message_text) == "" ) {$response["message"] = "Введите текст"; return $response;}
-		if ( $current_user->user_id == 0 ) return $response;
-		$message_text = filter_string($message_text,'in');
-		$uniq_id = md5(time().$message_text.$user_id);
-		$sql = sprintf("INSERT INTO `messages` (`message_id`,`message_text`,`user_id_from`,`user_id_to`,`timestamp`) 
-		VALUES ('%s','%s','%d','%d',UNIX_TIMESTAMP())",
-		$uniq_id,
-		$message_text,
-		$current_user->user_id,
-		$user_id);
-		try {
-			$db->query($sql);
-			$response["result"] = "true";
-			$response["message"] = "Сообщение отправлено";
-		}
-		catch ( Exception $e )
-		{
-		}
-		return $response;
-	}
-
 	public static function save_note($user_id,$note_text)
 	{
 		global $db;
@@ -308,7 +277,6 @@ class User
 			"message" => "Ошибка доступа"
 		);
 		if ( $current_user->user_id == 0 ) return $response;
-		// if ( trim($note_text) == "" ) {$response["message"] = "Введите текст"; return $response;}
 		$note_text = filter_string($note_text,'in');
 		$sql = sprintf("REPLACE INTO `user_notes` (`note_text`,`user_id`,`for_user_id`,`timestamp`) 
 		VALUES ('%s','%d','%d',UNIX_TIMESTAMP())",
@@ -443,7 +411,6 @@ class User
 		if ( is_array($upload_handler->response) && sizeof($upload_handler->response["avatar"]) && !isset($upload_handler->response["avatar"][0]->error) )
 		{
 			$session = session_id();
-			// $user_id = $_SESSION["user_id"];
 			$user_id = $current_user->user_id;
 			$filename = $upload_handler->response["avatar"][0]->name;
 			$file_path = PD.'/upload/files/'.$session.'/'.$filename;
@@ -481,114 +448,6 @@ class User
 		if ( $current_user->user_id == 0 ) return $response;
 	}
 
-	public function get_dialogs()
-	{
-		global $db;
-		global $current_user;
-		$response = Array(
-			"result" => "false",
-			"message" => "Ошибка доступа"
-		);
-		if ( $current_user->user_id == 0 ) return $response;
-		$dialogs = Array();
-		// $sql = sprintf("SELECT DISTINCT `user_id_from` as conv_user_id FROM `messages` WHERE `user_id_to` = '%d' UNION SELECT DISTINCT `user_id_to` FROM `messages` WHERE `user_id_from` = '%d'",$current_user->user_id,$current_user->user_id);
-		// echo $sql;
-		$sql = sprintf("SELECT `dialog_id`,`dialog_users` FROM `dialogs` WHERE find_in_set('%d',`dialog_users`) <> 0",$current_user->user_id);
-		// echo $sql;
-		try {
-			$rows = $db->queryRows($sql);
-			if ( sizeof($rows) )
-			{
-				foreach ( $rows as $r )
-				{
-
-					// $user_id = $r->conv_user_id;
-					// $last_message = $db->queryRow(sprintf("SELECT `message_text`,`timestamp` FROM `messages` WHERE (`user_id_from` = '%d' AND `user_id_to` = '%d') OR (`user_id_from` = '%d' AND `user_id_to` = '%d') ORDER BY `timestamp` DESC LIMIT 1",$user_id,$current_user->user_id,$current_user->user_id,$user_id));
-					// $unreaded = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE (`user_id_from` = '%d' AND `user_id_to` = '%d') OR (`user_id_from` = '%d' AND `user_id_to` = '%d') AND `readed` = 0",$user_id,$current_user->user_id,$current_user->user_id,$user_id));
-					// $total = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE (`user_id_from` = '%d' AND `user_id_to` = '%d') OR (`user_id_from` = '%d' AND `user_id_to` = '%d')",$user_id,$current_user->user_id,$current_user->user_id,$user_id));
-
-					$users_in_dialog = explode(",",$r->dialog_users);
-					unset($users_in_dialog[array_search($current_user->user_id,$users_in_dialog)]);
-					$users_in_dialog = array_values($users_in_dialog);
-					if ( sizeof($users_in_dialog) == 1 )
-					{
-						$recipient_id = $users_in_dialog[0];
-						$last_message = $db->queryRow(sprintf("SELECT `message_text`,`timestamp` FROM `messages` WHERE `dialog_id` = '%s' ORDER BY `timestamp` LIMIT 1",$r->dialog_id));
-						$unreaded = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE `dialog_id` = '%s' AND `user_id_to` = '%d'",$r->dialog_id,$current_user->user_id));
-						$total = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE `dialog_id` = '%s'",$r->dialog_id));
-						$dialog = Array(
-							"user_id"=>$recipient_id,
-							"real_user_name"=>User::get_real_user_name($recipient_id),
-							"last_message_text"=>$last_message->message_text,
-							"timestamp"=>$last_message->timestamp,
-							"unreaded"=>$unreaded->counter,
-							"total_messages"=>$total->counter
-						);
-						$dialogs[] = $dialog;
-					}
-				}
-			}
-			$response["result"] = "true";
-			unset($response["message"]);
-			$response["dialogs"] = $dialogs;
-		}
-		catch ( Exception $e )
-		{
-
-		}
-		return $response;
-	}
-
-	public function get_conversation($user_id,$start=50,$limit=50)
-	{
-		global $db;
-		global $current_user;
-		$response = Array(
-			"result" => "false",
-			"message" => "Ошибка доступа"
-		);
-		if ( $current_user->user_id == 0 || $user_id == 0 ) return $response;
-		$users = Array(
-			$current_user->user_id => $current_user->real_user_name,
-			$user_id => User::get_real_user_name($user_id)
-		);
-		$sql = sprintf("SELECT `message_text`,`timestamp`,`user_id_from`,`user_id_to`,`readed`
-			FROM `messages`
-			WHERE (`user_id_from` = '%d' AND `user_id_to` = '%d') OR (`user_id_from` = '%d' AND `user_id_to` = '%d')
-			ORDER BY `timestamp` DESC 
-			LIMIT $start,$limit",
-		$current_user->user_id,$user_id,$user_id,$current_user->user_id);
-		try {
-			$rows = $db->queryRows($sql);
-			if ( sizeof($rows) )
-			{
-				foreach ( $rows as $r )
-				{
-					$message = Array(
-						"user" => Array(
-							"id"=>$r->user_id_from,
-							"real_user_name"=>$users[$r->user_id_from],
-							"avatar_path"=>HOST.'/user.getAvatar?user_id='.$r->user_id_from
-						),
-						"message" => Array(
-							"text"=>$r->message_text,
-							"timestamp"=>$r->timestamp,
-							"readed"=>$r->readed
-						)
-					);
-					$messages[] = $message;
-				}
-			}
-			$response["result"] = "true";
-			unset($response["message"]);
-			$response["messages"] = $messages;
-		}
-		catch ( Exception $e )
-		{
-
-		}
-		return $response;
-	}
 }
 
 ?>

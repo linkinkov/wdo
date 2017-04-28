@@ -84,7 +84,7 @@ else
 						if ( $current_user->user_id > 0 ) // user authorized
 						{
 						?>
-						<div class="col main-nav" style="padding-left: 20px;">
+						<div class="col main-nav text-roboto-cond" style="padding-left: 20px;">
 							<div style="display: flex; align-items: center;">
 								<img class="rounded-circle" src="<?php echo HOST;?>/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=25&h=25" />
 								<div class="btn-group">

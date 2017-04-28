@@ -150,9 +150,9 @@ $user->get_counters();
 						<div class="col">
 							<ol class="breadcrumb" style="background-color: #f3f1f1;">
 								<li class="breadcrumb-item"><a class="wdo-link text-purple" href="<?php echo HOST;?>/performers/">Исполнители</a></li>
-								<li class="breadcrumb-item active"><?php echo $user->real_user_name;?></li>
+								<li class="breadcrumb-item active"><?php echo htmlspecialchars_decode($user->real_user_name);?></li>
 							</ol>
-							<h4><a class="wdo-link text-purple-dark text-roboto" href="/profile/id<?php echo $user->user_id;?>" style="padding-left: 1rem;"><?php echo $user->real_user_name;?></a></h4><br />
+							<h4><a class="wdo-link text-purple-dark text-roboto" href="/profile/id<?php echo $user->user_id;?>" style="padding-left: 1rem;"><?php echo htmlspecialchars_decode($user->real_user_name);?></a></h4><br />
 							<?php
 							if ( $user->signature != "" )
 							{

@@ -1,5 +1,5 @@
 <?php
-$title = ( isset($current_user) && $current_user->user_id ) ? 'WeeDo | '.$current_user->real_user_name : 'WeeDo';
+$title = ( isset($current_user) && $current_user->user_id ) ? 'WeeDo | '.htmlspecialchars_decode($current_user->real_user_name) : 'WeeDo';
 ?>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">

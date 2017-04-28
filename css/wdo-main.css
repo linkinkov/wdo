@@ -232,33 +232,34 @@ i.fa.active {
 
 /* ----- SCROLLBAR ----- */
 
-/*.wdo-scrollbar
-{
-	margin-left: 30px;
-	float: left;
-	height: 300px;
-	width: 65px;
-	background: #F5F5F5;
-	overflow-y: scroll;
-	margin-bottom: 25px;
-}*/
 .wdo-scrollbar::-webkit-scrollbar-track
 {
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	cursor: pointer;
+	-webkit-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	-moz-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	-ms-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	-o-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	border-radius: 10px;
 	background-color: #F5F5F5;
 }
 
 .wdo-scrollbar::-webkit-scrollbar
 {
-	width: 12px;
+	cursor: pointer;
+	width: 10px;
 	background-color: #F5F5F5;
 }
 
 .wdo-scrollbar::-webkit-scrollbar-thumb
 {
+	cursor: pointer;
 	border-radius: 10px;
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	-webkit-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	-moz-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	-ms-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	-o-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	box-shadow: inset 0 0 6px rgba(0,0,0,.3);
 	background-color: #500a37;
 }
 
@@ -510,16 +511,26 @@ th.project-table-cost {
 	padding: 15px 5px;
 	background-color: #fff;
 }
+.dialog.unreaded {
+	background-color: #ebedc8;
+}
+.dialog:hover {
+	border-color: #cecd48;
+	cursor: pointer;
+}
 .conversation-container {
 	display: none;
 }
-.conversation-container .conversation-header, .conversation-container .conversation-footer {
+.conversation-container .conversation-header {
 	display: flex;
 	width: 100%;
 	padding: 15px;
 }
+.conversation-container .conversation-footer {
+	padding-top: 10px;
+}
 .conversation-container .conversation-messages {
-	max-height: 300px;
+	max-height: 800px;
 	overflow-y: auto;
 	overflow-x: hidden;
 	padding-right: 5px;

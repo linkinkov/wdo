@@ -38,19 +38,28 @@ class City
 		}
 	}
 
-	public static function get_list($search = false,$limit = 30)
+	public static function get_list($search = false, $limit = 30, $print_user_city = "false")
 	{
 		global $db;
+		$list = Array();
 		$where = ( $search ) ? " WHERE `city_name` LIKE '%".$search."%'" : "";
 		$sql = sprintf("SELECT `id`,`city_name` FROM `cities` %s LIMIT %d",$where,$limit);
+		// echo $sql;
 		try {
 			$list = $db->queryRows($sql);
-			return $list;
+			if ( $print_user_city == "true" )
+			{
+				$user_city = new stdClass();
+				$user_city->id = $_COOKIE["city_id"];
+				$user_city->city_name = $_COOKIE["city_name"];
+				$list[] = $user_city;
+			}
 		}
 		catch (Exception $e)
 		{
-			return Array();
+			// echo $e->getMessage();
 		}
+		return $list;
 	}
 
 }

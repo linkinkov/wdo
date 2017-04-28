@@ -15,6 +15,7 @@ RewriteRule ^project_respond/publish/?$ addProjectRespond.php?job=publish
 RewriteRule ^update.([a-zA-Z0-9_-]+)$ update.php?type=$1 [L,QSA]
 RewriteRule ^get.([a-zA-Z0-9_-]+)$ get.php?job=$1 [L,QSA]
 RewriteRule ^user.([a-zA-Z0-9_-]+)$ user.php?job=$1 [L,QSA]
+RewriteRule ^dialog.([a-zA-Z0-9_-]+)$ dialog.php?job=$1 [L,QSA]
 
 RewriteRule ^profile/?$ profile.php
 RewriteRule ^pp/([a-zA-Z0-9_-]+)$ pp.php?job=$1

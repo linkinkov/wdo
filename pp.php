@@ -71,25 +71,12 @@ if ( $job == "profile" )
 	</div>
 
 	<div class="row"><div class="col"><hr /></div></div>
-	<div class="row last_name-container">
+	<div class="row real_user_name-container">
 		<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
-			ФИО
+			Имя
 		</div>
 		<div class="col">
-			<input type="text" class="form-control profile-data" data-name="last_name" placeholder="Фамилия" />
-		</div>
-		<div class="col">
-			<input type="text" class="form-control profile-data" data-name="first_name" placeholder="Имя" />
-		</div>
-	</div>
-
-	<div class="row"><div class="col"><hr /></div></div>
-	<div class="row company_name-container">
-		<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
-			Название компании
-		</div>
-		<div class="col">
-			<input type="text" class="form-control profile-data" data-name="company_name" placeholder="Название компании" />
+			<input type="text" class="form-control profile-data" data-name="real_user_name" placeholder="Ваше имя" />
 		</div>
 	</div>
 
@@ -160,7 +147,7 @@ if ( $job == "profile" )
 				<button type="button" class="btn btn-secondary" style="text-align: left;width: 100%;" data-toggle="dropdown" data-name="city_id"></button>
 				<button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="flex: 0 1 30px;"></button>
 				<div class="dropdown-menu city-list" style="width: 100%;">
-					<a class="dropdown-item disabled"><input type="text" class="form-control city-filter" placeholder="Поиск"></a>
+					<a class="dropdown-item disabled"><input type="text" class="form-control profile-city-filter" placeholder="Поиск"></a>
 					<?php echo sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d">%s</a>',$user->city_id,$user->city_name);?>
 				</div>
 			</div>
@@ -351,18 +338,7 @@ if ( $job == "profile" )
 			$(this).find(".custom-control-input").blur();
 		})
 		$(".custom-radio-type_id").click(function(e){
-			if ( $(this).data('value') == 1 )
-			{
-				$(".last_name-container").hide(); $(".last_name-container").prev().hide();
-				$(".company_name-container").show(); $(".company_name-container").prev().show();
-				$(".rekvizity-container").show();
-			}
-			else
-			{
-				$(".company_name-container").hide(); $(".company_name-container").prev().hide();
-				$(".last_name-container").show(); $(".last_name-container").prev().show();
-				$(".rekvizity-container").hide();
-			}
+			( $(this).data('value') == 1 ) ? $(".rekvizity-container").show() : $(".rekvizity-container").hide();
 		})
 		$("#as_performer_checkbox").on("change",function(){
 			var checked = $(this).prop("checked");
@@ -379,11 +355,10 @@ if ( $job == "profile" )
 			map.invalidateSize();
 		})
 
-		$(".city-filter").keyup(function(e){
-			// var search = new RegExp(this.value,'ig');
+		$(".profile-city-filter").keyup(function(e){
 			var search = this.value;
 			if ( search == "" ) {$(".wdo-option[data-name='city_id']").remove();return;}
-			app.getCityList(search,function(response){
+			app.getCityList(search,6,function(response){
 				if ( response )
 				{
 					$(".city-list").find("[data-name='city_id']").remove();
@@ -392,9 +367,6 @@ if ( $job == "profile" )
 					})
 				}
 			})
-			// $(".wdo-option[data-name='city_id']").each(function(){
-			// 	(search.test($(this).text())) ? $(this).show() : $(this).hide();
-			// })
 		})
 
 		$("#save_profile_info").click(function(){
@@ -449,8 +421,6 @@ if ( $job == "profile" )
 			return;
 		}
 		initmap(myPlaceCoords);
-		//map.on('moveend', onMapMove);
-
 		map.on("click", function(e){
 			removeMarkers();
 			var myIcon = L.icon({
@@ -641,102 +611,84 @@ else if ( $job == "project-responds" )
 else if ( $job == "messages" )
 {
 ?>
-	<div class="wdo-scrollbar dialogs-container"></div>
+	<div class="wdo-scrollbar dialogs-container scrollable"></div>
 
 	<div class="conversation-container">
-		<div class="conversation-header text-center">
-			<a href="wdo-link text-muted">Загрузить предыдущие сообщения</a>
-		</div>
-		<div class="wdo-scrollbar conversation-messages"></div>
+		<div class="wdo-scrollbar conversation-messages scrollable" id="conversation-messages"></div>
 		<div class="conversation-footer">
-			<textarea class="form-control" placeholder="Текст сообщения" rows="5"></textarea>
+			<div class="row"><div class="col">
+				<textarea class="form-control" id="conversation-message-text" placeholder="Текст сообщения" rows="1"></textarea>
+			</div></div>
+			<br />
+			<div class="row"><div class="col">
+				<div class="wdo-btn btn-sm bg-purple pull-right send-message">Отправить</div>
+			</div></div>
 		</div>
 	</div>
 	
 	<script>
 	$(function(){
-		app.user.getDialogs(function(response){
+		$( '.scrollable' ).on( 'mousewheel DOMMouseScroll', function ( e ) {
+			if ( $(this).hasClass("loading") )
+			{
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			}
+			var e0 = e.originalEvent,
+					delta = e0.wheelDelta || -e0.detail;
+			this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+			e.preventDefault();
+		});
+
+		app.im.getDialogs(function(response){
 			if ( response.result == "true" )
 			{
 				$.each(response.dialogs,function(){
-					var message_time = ( (moment().format("X") - this.timestamp) > 86400 ) ? moment.unix(this.timestamp).calendar() : moment.unix(this.timestamp).calendar();
-					var dialog = ''
-						+'<div class="row">'
-						+'	<div class="col">'
-						+'		<div class="dialog" data-user_id="'+this.user_id+'" data-total_messages="'+this.total_messages+'">'
-						+'			<div class="col" style="max-width: 80px;"><img class="rounded-circle shadow" src="/user.getAvatar?user_id='+this.user_id+'&w=50&h=50" /></div>'
-						+'			<div class="col">'
-						+'				<h6 class="text-purple">'+this.real_user_name+'</h6>'
-						+'				<text class="text-truncate" style="max-width: 350px;">'+this.last_message_text+'</text>'
-						+'			</div>'
-						+'			<div class="col text-right text-muted" style="max-width: 150px;">'+message_time+'</div>';
-					if ( this.unreaded > 0 )
-					{
-						dialog += ''
-						+'			<div class="col text-right text-purple strong text-roboto-cond" style="max-width: 80px;">+'+this.unreaded+'</div>'
-					}
-					dialog += ''
-						+'		</div>'
-						+'	</div>'
-						+'</div>';
-					$(".dialogs-container").append(dialog);
-				})
-				$(".dialog").click(function(){
-					var recipient_id = $(this).data('user_id');
-					$(".conversation-container").data('recipient_id',recipient_id);
-					app.user.getConversation(recipient_id,0,config.profile.messages_per_page,function(response){
-						var objDiv = $(".conversation-messages");
-						if ( response.result == "true" )
-						{
-							$(".conversation-container").data('loaded',config.profile.messages_per_page).show();
-							$.each(response.messages,function(){
-								var message = ''
-								+'<div class="row">'
-								+'	<div class="message">'
-								+'	<div class="col" style="max-width: 80px;">'
-								+'		<a href="/profile/id'+this.user.id+'" class="wdo-link"><img class="rounded-circle shadow" src="'+this.user.avatar_path+'&w=50&h=50" /></a>'
-								+'	</div>'
-								+'	<div class="col">'
-								+'		<span class="pull-right">'+moment.unix(this.message.timestamp).calendar()+'</span>'
-								+'		<h6><a href="/profile/id'+this.user.id+'" class="wdo-link text-purple">'+this.user.real_user_name+'</a></h6>'
-								+'		<text>'+this.message.text+'</text>'
-								+'	</div>'
-								+'	</div>'
-								+'</div>';
-								$(".conversation-messages").append(message);
-								objDiv[0].scrollTop = objDiv[0].scrollHeight;
-							})
-							$(".dialogs-container").hide();
-						}
-						else
-						{
-							showAlert("error",response.message);
-						}
-					})
+					$(".dialogs-container").append(app.im.format_dialog(this));
 				})
 			}
 		})
-		$(".conversation-messages").on('scroll', function() {
+		var last_scroll = 0;
+		$(".conversation-messages").scroll(_.debounce(function(){}, 150, { 'leading': true, 'trailing': false }));
+		$(".conversation-messages").scroll(_.debounce(function(){
 			var scrollTop = $(this).scrollTop(),
 					topDistance = $(this).offset().top,
-					recipient_id = $(".message-container").data('user_id');
-			// console.log("scrolled on conversation-container:",scrollTop,topDistance);
-			if ( scrollTop < 50 )
+					dialog_id = $(".conversation-container").data('dialog_id'),
+					container = this;
+			if ( $(container).hasClass("loading") ) return;
+
+			if ( scrollTop < 160 )
 			{
+				if ( $(".conversation-container").data('all_loaded') == true ) return;
+				$(container).addClass("loading");
 				var start = $(".conversation-container").data('loaded');
-				app.user.getConversation(recipient_id,start,config.profile.messages_per_page,function(response){
+				last_scroll = scrollTop;
+				app.im.getMessages(dialog_id,start,config.profile.messages_per_page,function(response){
 					if ( response.result == "true" )
 					{
-						$(".conversation-container").data('loaded',config.profile.messages_per_page+config.profile.messages_per_page);
-						console.log("now loaded:",$(".conversation-container").data('loaded'));
+						var now_loaded = $(".conversation-container").data('loaded')+config.profile.messages_per_page;
+						$.each(response.messages,function(){
+							$(".conversation-messages").prepend(app.im.format_message(this));
+						})
+						$(".conversation-container").data('loaded',now_loaded);
+						$(".conversation-messages").scrollTop(last_scroll+response.messages.length*70);
 					}
+					else
+					{
+						$(".conversation-container").data('all_loaded',true);
+					}
+					setTimeout(function(){
+						$(container).removeClass("loading");
+					},250)
 				})
-
 			}
-			// if ( (topDistance+100) < scrollTop ) {
-			// 	alert( $(this).text() + ' was scrolled to the top' );
-			// }
-		});
+		}, 150));
+		autosize($("#conversation-message-text"));
+		$(".send-message").on("click",function(e){
+			var message_text = $("#conversation-message-text").val(),
+					user_id = $("#conversation-message-text").data('user_id')
+		})
 	})
 	</script>
 <?php

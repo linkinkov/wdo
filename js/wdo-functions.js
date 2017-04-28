@@ -51,36 +51,6 @@ function scrollTo(elementID,o)
 	}, 1000);
 }
 */
-function update_city_list(input,e)
-{
-	if ( e.keyCode < 20 && e.keyCode != 8 ) return;
-	var search = $(input).val();
-	$.ajax({
-		type: "POST",
-		url: "/get.cityList",
-		data: {
-			"search": search
-		},
-		dataType: "JSON",
-		success: function (response) {
-			$("#city_list").html('');
-			if ( response.length ) {
-				$.each(response,function(){
-					var col_class = ( config.city_id == this.id ) ? "col city-entry active" : "col city-entry";
-					var col = $.sprintf('<div class="%s" data-city_id="%d" data-city_name="%s">%s</div>',col_class,this.id,this.city_name,this.city_name);
-					$("#city_list").append(col);
-				})
-				$(".city-entry").click(function(){
-					var data = $(this).data();
-					config.city_id = data.city_id;
-					setCookie("city_id",data.city_id);
-					setCookie("city_name",data.city_name);
-					window.location.reload();
-				})
-			}
-		}
-	});
-}
 function saveSelectedSpecs(reload)
 {
 	reload = reload || true;
@@ -175,10 +145,36 @@ function ytVidId(url) {
 	var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
 	return (url.match(p)) ? RegExp.$1 : false;
 }
+
+var city_search = "";
 $(function(){
 	app.user.updateProfileCounters();
-	$('#city-select-modal').on('shown.bs.modal', function (e){
-		update_city_list(this,e);
+	var input = $("#city-select-modal").find("input[type='search']"),
+			city_list = $("#city_list");
+	$(input).on("keyup",function(e){
+		var search = $(this).val();
+		// if ( city_search == search ) return false;
+		city_search = search;
+		app.getCityList(search,3,function(response){
+			$(city_list).html('');
+			if ( response.length ) {
+				$.each(response,function(){
+					var col_class = ( config.city_id == this.id ) ? "col city-entry active" : "col city-entry";
+					var col = $.sprintf('<div class="%s" data-city_id="%d" data-city_name="%s">%s</div>',col_class,this.id,this.city_name,this.city_name);
+					$("#city_list").append(col);
+				})
+				$(".city-entry").click(function(){
+					var data = $(this).data();
+					config.city_id = data.city_id;
+					setCookie("city_id",data.city_id);
+					setCookie("city_name",data.city_name);
+					window.location.reload();
+				})
+			}
+		})
+	})
+	$('#city-select-modal').on('show.bs.modal', function (e){
+		$(this).find("input[type='search']").trigger("keyup");
 	})
 	$('#restore-password-modal').on('show.bs.modal', function(e){
 		if ( $("#login-modal").hasClass('show') ) $("#login-modal").modal("hide");
@@ -192,11 +188,20 @@ $(function(){
 				real_user_name = $(related).data('real_user_name'),
 				modal = e.delegateTarget,
 				submit_btn = $(modal).find(".wdo-btn[name='send-pm']");
-		$(submit_btn).data('recipient',recipient_id);
-		$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
-		$(modal).find("textarea[name='message-text']").data('recipient',recipient_id);
-		set_btn_state(submit_btn,"reset");
-		$(modal).find("a[name='real_user_name']").attr("href","/profile/id"+recipient_id).text(real_user_name);
+		app.im.getDialogId(recipient_id,function(response){
+			if ( response.result == "true" )
+			{
+				$(submit_btn).data('recipient',recipient_id);
+				$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
+				$(modal).find("textarea[name='message-text']").data('recipient',recipient_id);
+				set_btn_state(submit_btn,"reset");
+				$(modal).find("a[name='real_user_name']").attr("href","/profile/id"+recipient_id).text(real_user_name);
+			}
+			else
+			{
+				console.log("error","Произошла ошибка получения ID диалога!");
+			}
+		})
 	})
 	$('#save-note-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
@@ -275,11 +280,11 @@ $(function(){
 
 	$(".wdo-btn[name='send-pm']").click(function(){
 		var btn = this,
-				recipient_id = $(this).data('recipient'),
+				dialog_id = $(this).data('dialog_id'),
 				textarea = $("textarea[name='message-text']")
 				message_text = $(textarea).val();
 		set_btn_state(btn,"loading");
-		app.user.sendMessage(recipient_id,message_text,function(response){
+		app.im.sendMessage(false,recipient_id,message_text,function(response){
 			if ( response.result == "true" )
 			{
 				$(textarea).val("");

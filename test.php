@@ -7,7 +7,10 @@ $db->query("set names utf8");
 require_once('lib/mysqli.class.php');
 $db = db::getInstance();
 $db->autocommit(false);
+// get dialog_id
+// SELECT `dialog_id` FROM `dialogs` WHERE find_in_set('2',`dialog_members`) <> 0
 
+// get messages for dialog
 // SELECT `username` FROM `users` WHERE find_in_set(`user_id`,(SELECT `dialog_members` FROM `dialogs` WHERE `dialog_id` = 'c87954eaea3ed578ea5606c103e21aeb')) <> 0
 $uid = md5(time()."1");
 echo $uid."\n";
