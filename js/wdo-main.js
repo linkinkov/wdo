@@ -239,8 +239,31 @@ var app = {
 			})
 	},
 	"im": {
+		"lmts": 0,
+		"poller": {
+			"poller_id": null,
+			"start": function(dialog_id,wait) {
+				clearTimeout(app.im.poller.poller_id);
+				var ms = 250;
+				app.im.poller.poller_id = setTimeout(function(){
+					app.im.getMessages(dialog_id,0,0,app.im.lmts,wait,function(response){
+						if ( response.result == "true" )
+						{
+							if ( response.messages.length > 0 )
+							{
+								app.im.lmts = response.messages[0].message.timestamp;
+								app.im.append_messages(response.messages);
+							}
+							app.im.poller.start(dialog_id,response.wait);
+						}
+					})
+				},ms);
+
+			}
+		},
 		"getDialogId": function(recipient_id,callback) {
 			callback = callback || function(){};
+			if ( !recipient_id ) return false;
 			$.ajax({
 				type: "POST",
 				url: "/dialog.getDialogId",
@@ -264,44 +287,55 @@ var app = {
 				}
 			})
 		},
-		"getMessages": function(dialog_id,start,limit,callback) {
+		"getMessagesAjax": null,
+		"getMessages": function(dialog_id,start,limit,timestamp,wait,callback) {
+			if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();
 			callback = callback || function(){};
+			// if ( timestamp < 1483228800 ) return;
 			start = start || 0;
 			limit = limit || 50;
-			$.ajax({
-				type: "POST",
-				url: "/dialog.getMessages",
-				data: {
-					"dialog_id": dialog_id,
-					"start": start,
-					"limit": limit
-				},
-				dataType: "JSON",
-				success: function (response) {
-					callback(response);
-				}
-			})
+			setTimeout(function(){
+				app.im.getMessagesAjax = $.ajax({
+					type: "POST",
+					url: "/dialog.getMessages",
+					data: {
+						"dialog_id": dialog_id,
+						"start": start,
+						"limit": limit,
+						"timestamp": timestamp,
+						"wait": wait
+					},
+					dataType: "JSON",
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},250);
 		},
-		"sendMessage": function(dialog_id,user_id,message_text,callback) {
+		"sendMessage": function(dialog_id,message_text,callback) {
 			callback = callback || function(){};
-			$.ajax({
-				type: "POST",
-				url: "/dialog.sendMessage",
-				data: {
-					"user_id": user_id,
-					"message_text": message_text
-				},
-				dataType: "JSON",
-				success: function (response) {
-					callback(response);
-				}
-			})
+			if ( dialog_id.length < 32 ) return;
+			if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();
+			setTimeout(function(){
+				$.ajax({
+					type: "POST",
+					url: "/dialog.sendMessage",
+					data: {
+						"dialog_id": dialog_id,
+						"message_text": message_text
+					},
+					dataType: "JSON",
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},250)
 		},
 		"format_dialog": function(data)
 		{
 			var message_time = ( (moment().format("X") - data.timestamp) > 86400 ) ? moment.unix(data.timestamp).calendar() : moment.unix(data.timestamp).calendar(),
 					dialog_class = ( data.unreaded > 0 ) ? 'unreaded' : '',
-					unreaded_row = ( data.unreaded > 0 ) ? '<div class="col text-right text-purple strong text-roboto-cond" style="max-width: 80px;">+'+data.unreaded+'</div>' : '';
+					unreaded_row = ( data.unreaded > 0 ) ? '<div class="col text-right text-purple strong text-roboto-cond" style="max-width: 45px;">+'+data.unreaded+'</div>' : '';
 			var dialog = ''
 				+'<div class="row">'
 				+'	<div class="col">'
@@ -312,7 +346,7 @@ var app = {
 				+'				<text class="text-truncate" style="max-width: 350px;">'+data.last_message_text+'</text>'
 				+'			</div>'
 				+'			'+unreaded_row
-				+'			<div class="col text-right text-muted" style="max-width: 150px;">'+message_time+'</div>'
+				+'			<div class="col text-right text-muted" style="max-width: 180px;">'+message_time+'</div>'
 				+'		</div>'
 				+'	</div>'
 				+'</div>';
@@ -335,6 +369,17 @@ var app = {
 			+'</div>';
 			return message;
 		},
+		"append_messages": function(messages)
+		{
+			if ( messages.length == 0 ) return;
+			$.each(messages,function(){
+				$(".conversation-messages").append(app.im.format_message(this));
+			});
+			var d = $('#conversation-messages');
+			setTimeout(function(){
+				d.scrollTop(d.prop("scrollHeight"));
+			},250);
+		}
 	}
 }
 

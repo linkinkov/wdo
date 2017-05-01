@@ -504,6 +504,7 @@ th.project-table-cost {
 	padding-right: 5px;
 }
 .dialog {
+	box-shadow: 1px 2px 20px -12px;
 	display: flex;
 	align-items: center;
 	margin-bottom: 10px;

@@ -95,13 +95,16 @@ class db extends mysqli
 	{
 		$where_entries = Array();
 		$as = ($as) ? $as : $field;
+		// print_r($where);
 		foreach ( $where as $colName=>$colValue )
 		{
-			if ( in_array($colValue[0],Array(">","<","=",">=","<=")) )
+			// preg_match('/(>)(<)(=)(>=)(<=)(!=)/',$colValue,$operand)
+			// if ( in_array($colValue[0],Array(">","<","=")) )
+			if ( preg_match('/(!=)|(>=)|(<=)|(>)|(<)|(=)/',$colValue,$operand) )
 			{
-				$operand = $colValue[0];
-				$colValue = ltrim($colValue,$operand);
-				$where_entries[] = sprintf("`%s` %s '%s'",$colName,$operand,$colValue);
+				// $operand = $operand[0];
+				$colValue = ltrim($colValue,$operand[0]);
+				$where_entries[] = sprintf("`%s` %s '%s'",$colName,$operand[0],$colValue);
 			}
 			else
 			{
@@ -111,7 +114,7 @@ class db extends mysqli
 		$sqlWhere = (sizeof($where)) ? "(".implode(" ".$logic_glue,$where_entries).")" : "1";
 		$groupBy = ($group_by) ? sprintf('GROUP BY `%s`',$group_by) : "";
 		$sql = sprintf("SELECT %s as %s FROM `%s` WHERE %s %s",$field,$as,$table,$sqlWhere,$groupBy);
-		// echo $sql."\n";
+		// echo $sql."\n<br />";
 		try {
 			$res = $this->queryRow($sql);
 			return (isset($res->$as)) ? $res->$as : false;

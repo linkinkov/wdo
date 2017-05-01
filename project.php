@@ -465,7 +465,7 @@ $(function(){
 				header_html = ''
 				+'<div class="row">'
 				+'	<div class="col">'
-				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Добавить заметку</a>'
+				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#conversation-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Добавить заметку</a>'
 				+'		<span class="pull-right">'+actions+'</span>'
 				+'	</div>'
 				+'</div>'

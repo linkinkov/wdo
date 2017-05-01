@@ -114,12 +114,12 @@
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<!-- send-pm-modal -->
-<div class="modal fade" id="send-pm-modal" tabindex="-1" role="dialog" aria-labelledby="send-pm-modal-label" aria-hidden="true">
+<!-- conversation-modal -->
+<div class="modal fade" id="conversation-modal" tabindex="-1" role="dialog" aria-labelledby="conversation-modal-label" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title text-roboto-cond" id="send-pm-modal-label">Отправить сообщение</h5>
+				<h5 class="modal-title text-roboto-cond" id="conversation-modal-label">Отправить сообщение</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -133,7 +133,7 @@
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
 					<div class="col text-center">
 						<br /><textarea class="form-control" placeholder="Введите сообщение" name="message-text"></textarea>
-						<br /><div class="wdo-btn btn-sm bg-yellow strong" name="send-pm" data-ot="Отправить" data-lt="Отправка" data-recipient-id=""><i class="fa"></i>Отправить</div>
+						<br /><div class="wdo-btn btn-sm bg-yellow strong" modal="true" data-trigger="send-message" data-ot="Отправить" data-lt="Отправка"><i class="fa"></i>Отправить</div>
 						<br /><br /><br />
 					</div>
 				</div><!-- /.row -->

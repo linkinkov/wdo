@@ -49,10 +49,21 @@ class City
 			$list = $db->queryRows($sql);
 			if ( $print_user_city == "true" )
 			{
-				$user_city = new stdClass();
-				$user_city->id = $_COOKIE["city_id"];
-				$user_city->city_name = $_COOKIE["city_name"];
-				$list[] = $user_city;
+				$found = false;
+				foreach ( $list as $c ) {
+					if ( $c->id == $_COOKIE["city_id"] )
+					{
+						$found = true;
+						break;
+					}
+				};
+				if ( $found == false )
+				{
+					$user_city = new stdClass();
+					$user_city->id = $_COOKIE["city_id"];
+					$user_city->city_name = $_COOKIE["city_name"];
+					$list[] = $user_city;
+				}
 			}
 		}
 		catch (Exception $e)

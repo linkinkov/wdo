@@ -153,9 +153,9 @@ $(function(){
 			city_list = $("#city_list");
 	$(input).on("keyup",function(e){
 		var search = $(this).val();
-		// if ( city_search == search ) return false;
+		if ( city_search == search ) return false;
 		city_search = search;
-		app.getCityList(search,3,function(response){
+		app.getCityList(search,9,function(response){
 			$(city_list).html('');
 			if ( response.length ) {
 				$.each(response,function(){
@@ -182,26 +182,33 @@ $(function(){
 	$('#register-modal').on('show.bs.modal', function(e){
 		if ( $("#login-modal").hasClass('show') ) $("#login-modal").modal("hide");
 	})
-	$('#send-pm-modal').on('show.bs.modal', function(e){
+	$('#conversation-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
-				recipient_id = $(related).data('recipient'),
+				recipient_id = $(related).data('recipient_id'),
 				real_user_name = $(related).data('real_user_name'),
 				modal = e.delegateTarget,
-				submit_btn = $(modal).find(".wdo-btn[name='send-pm']");
+				submit_btn = $(modal).find("[data-trigger='send-message']");
 		app.im.getDialogId(recipient_id,function(response){
 			if ( response.result == "true" )
 			{
-				$(submit_btn).data('recipient',recipient_id);
+				$(submit_btn).data('dialog_id',response.dialog_id);
 				$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
-				$(modal).find("textarea[name='message-text']").data('recipient',recipient_id);
+				$(modal).find("textarea").data('dialog_id',response.dialog_id).attr('data-dialog_id',response.dialog_id);
+				// console.log($(modal).find("textarea").data());
 				set_btn_state(submit_btn,"reset");
 				$(modal).find("a[name='real_user_name']").attr("href","/profile/id"+recipient_id).text(real_user_name);
+				// console.log($(submit_btn).data('dialog_id'));
 			}
 			else
 			{
 				console.log("error","Произошла ошибка получения ID диалога!");
 			}
 		})
+	})
+
+	$('#conversation-modal').on('hidden.bs.modal', function(e){
+		var modal = modal = e.delegateTarget;
+		$(modal).find("textarea").data('dialog_id',0).attr('data-dialog_id',0);
 	})
 	$('#save-note-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
@@ -276,21 +283,6 @@ $(function(){
 				}
 			}
 		})
-	})
-
-	$(".wdo-btn[name='send-pm']").click(function(){
-		var btn = this,
-				dialog_id = $(this).data('dialog_id'),
-				textarea = $("textarea[name='message-text']")
-				message_text = $(textarea).val();
-		set_btn_state(btn,"loading");
-		app.im.sendMessage(false,recipient_id,message_text,function(response){
-			if ( response.result == "true" )
-			{
-				$(textarea).val("");
-			}
-			set_btn_state(btn,"reset",response.message);
-		});
 	})
 
 	$(".wdo-btn[name='save-note']").click(function(){

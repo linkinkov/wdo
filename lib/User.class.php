@@ -30,7 +30,8 @@ class User
 		$where = (intval($user_id) > 0) ? sprintf("`user_id` = '%d'",$user_id) : sprintf("`username` = '%s'",$username);
 		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps","signature");
 		array_walk($public_fields,'sqlize_array');
-		$sql = sprintf("SELECT %s FROM `users` WHERE %s",implode(",",$public_fields),$where);
+		$sql = sprintf("SELECT %s FROM `users` LEFT JOIN `cities` ON `cities`.`id` = `users`.`city_id` WHERE %s",implode(",",$public_fields),$where);
+		// echo $sql;
 		try {
 			$info = $db->queryRow($sql);
 			if ( sizeof($info) ) foreach ( $info as $p => $v ) $this->$p = htmlentities($v); else $this->error = true;
@@ -39,7 +40,7 @@ class User
 			{
 				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
-			$this->city_name = City::get_name($this->city_id);
+			// $this->city_name = City::get_name($this->city_id);
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
 			if ( $this->user_id == $_SESSION["user_id"] )
@@ -50,6 +51,8 @@ class User
 		catch (Exception $e)
 		{
 			$this->user_id = 0;
+			// echo $e->getMessage();
+			// die();
 			return false;
 		}
 	}
@@ -208,7 +211,8 @@ class User
 			$this->counters->project_responds->created = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$this->user_id)));
 			if ( $current_user->user_id == $this->user_id )
 			{
-				$this->counters->messages = intval($db->getValue("messages","COUNT(`message_id`)","counter",Array("user_id_to"=>$this->user_id,"readed"=>0)));
+				// $this->counters->messages = intval($db->getValue("messages","COUNT(`message_id`)","counter",Array("user_id_from"=>"!=".$this->user_id,"readed"=>0)));
+				$this->counters->messages = Dialog::get_unreaded_counter();
 				$this->counters->project_responds->unreaded = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$this->user_id,"modify_timestamp"=>">".$this->ts_project_responds)));
 				$this->counters->project_responds->won = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$this->user_id,"status_id"=>3)));
 				$this->counters->project_responds->won_sum = intval($db->getValue("project_responds","SUM(`cost`)","counter",Array("user_id"=>$this->user_id,"status_id"=>3),"AND","user_id"));

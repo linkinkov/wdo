@@ -184,7 +184,7 @@ $user->get_counters();
 						{
 							if ( sizeof($top_cats) ) echo '<hr />';
 						?>
-							<p><i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#send-pm-modal" data-recipient="<?php echo $user->user_id;?>" data-real_user_name="<?php echo $user->real_user_name;?>">Написать сообщение</a></p>
+							<p><i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#conversation-modal" data-recipient_id="<?php echo $user->user_id;?>" data-real_user_name="<?php echo $user->real_user_name;?>">Написать сообщение</a></p>
 							<p><i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="<?php echo $user->user_id;?>" data-real_user_name="<?php echo $user->real_user_name;?>">Добавить заметку</a></p>
 							<?php
 							if ( $user->as_performer == 1 && !$self_profile )

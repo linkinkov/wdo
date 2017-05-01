@@ -621,11 +621,11 @@ else if ( $job == "messages" )
 			</div></div>
 			<br />
 			<div class="row"><div class="col">
-				<div class="wdo-btn btn-sm bg-purple pull-right send-message">Отправить</div>
+				<div class="wdo-btn btn-sm bg-purple pull-right" data-trigger="send-message" id="conversation-message-send" data-ot="Отправить" data-lt="Отправка">Отправить</div>
 			</div></div>
 		</div>
 	</div>
-	
+
 	<script>
 	$(function(){
 		$( '.scrollable' ).on( 'mousewheel DOMMouseScroll', function ( e ) {
@@ -664,7 +664,7 @@ else if ( $job == "messages" )
 				$(container).addClass("loading");
 				var start = $(".conversation-container").data('loaded');
 				last_scroll = scrollTop;
-				app.im.getMessages(dialog_id,start,config.profile.messages_per_page,function(response){
+				app.im.getMessages(dialog_id,start,config.profile.messages_per_page,0,0,function(response){
 					if ( response.result == "true" )
 					{
 						var now_loaded = $(".conversation-container").data('loaded')+config.profile.messages_per_page;
@@ -685,10 +685,6 @@ else if ( $job == "messages" )
 			}
 		}, 150));
 		autosize($("#conversation-message-text"));
-		$(".send-message").on("click",function(e){
-			var message_text = $("#conversation-message-text").val(),
-					user_id = $("#conversation-message-text").data('user_id')
-		})
 	})
 	</script>
 <?php

@@ -34,9 +34,11 @@ switch ( $job )
 		break;
 	case "getMessages":
 		$dialog_id = get_var("dialog_id","string",false);
+		$timestamp = get_var("timestamp","int",false);
 		$limit = get_var("limit","int",50);
 		$start = get_var("start","int",0);
-		$response = Dialog::get_dialog_messages($dialog_id,$start,$limit);
+		$wait = get_var("wait","int",0);
+		$response = Dialog::get_messages($dialog_id,$start,$limit,$timestamp,$wait);
 		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;
