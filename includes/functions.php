@@ -121,7 +121,7 @@ function determine_user_city()
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
 	// $ip = "193.169.111.6";
-	// $ip = "188.242.136.98";
+	$ip = "188.242.136.98";
 	if ( $data = $gb->getRecord($ip) )
 	{
 		if (isset($data["city"]) && $data["city"] != "")
@@ -179,7 +179,7 @@ function is_timestamp($timestamp)
 
 function login($username, $password, $db) 
 {
-	$sql = "SELECT `username`, `password`, `salt`, `state_id`, `template_id`,`user_id`
+	$sql = "SELECT `username`, `password`, `salt`, `status_id`, `template_id`,`user_id`
 					FROM `users`
 					WHERE `username` = ?
 					LIMIT 1";
@@ -190,7 +190,7 @@ function login($username, $password, $db)
 		$stmt->store_result();
 
 		// $stmt->bind_result($username, $db_password, $salt, $last_name, $first_name, $phone, $last_ip, $template_id, $templateName,$user_id);
-		$stmt->bind_result($username, $db_password, $salt, $state_id, $template_id, $user_id);
+		$stmt->bind_result($username, $db_password, $salt, $status_id, $template_id, $user_id);
 		$stmt->fetch();
 
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) 

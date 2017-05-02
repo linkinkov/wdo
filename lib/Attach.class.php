@@ -3,6 +3,37 @@
 class Attach
 {
 
+	public static function load_not_found($w,$h)
+	{
+		$requested = PD.'/images/image-not-found.png';
+		$cached = PD.'/images/cache/image-not-found-'.$w.'-'.$h.'.png';
+		$content_type = "image/png";
+		if ( !file_exists(dirname($cached)) ) { @mkdir(dirname($cached)); };
+		if ( file_exists($cached) )
+		{
+			ob_clean();
+			header('Content-Type: '.$content_type);
+			header('Content-Length: ' . filesize($cached));
+			readfile($cached);
+			exit;
+		}
+		elseif ( file_exists($requested) )
+		{
+		// echo "getting:".$requested.", cached:".$cached." / ".dirname($cached);
+		// exit;
+			ob_clean();
+			$resizeObj = new resize($requested);
+			$resizeObj->resizeImage($w, $h, 'auto');
+			if ( !file_exists(dirname($cached)) ) @mkdir(dirname($cached));
+			$resizeObj->saveImage($cached, 50);
+			header('Content-Type: '.$content_type);
+			header('Content-Length: ' . filesize($cached));
+			readfile($cached);
+			exit;
+		}
+
+	}
+
 	public static function getByID($attach_id = false, $w=35, $h=35)
 	{
 		global $db;
@@ -12,9 +43,12 @@ class Attach
 		{
 			$info->file_name_no_ext = substr($info->file_name,0,strlen($info->file_name)-strrchr($info->file_name, '.'));
 			$extension = strtolower(strrchr($info->file_name, '.'));
-			$not_found = PD.'/images/image-not-found.png';
 			$requested = PD.'/attaches/'.$info->user_id.'/'.$info->file_name;
 			$cached = PD.'/attaches/'.$info->user_id.'/cache/'.$info->file_name_no_ext.'-'.$w.'-'.$h.$extension;
+			if ( !file_exists(dirname($cached)) )
+			{
+				@mkdir(dirname($cached));
+			}
 			if ( $info->attach_type == "document" )
 			{
 				if ( file_exists($requested) )
@@ -43,7 +77,9 @@ class Attach
 				{
 					if ( !file_exists($requested) )
 					{
-						$requested = $not_found;
+						// $requested = $not_found;
+						Attach::load_not_found($w,$h);
+						exit;
 					}
 					ob_clean();
 					header('Content-Type: '.$content_type);
@@ -76,10 +112,15 @@ class Attach
 				}
 				else
 				{
-					ob_clean();
-					header('Content-Type: image/png');
-					header('Content-Length: ' . filesize($not_found));
-					readfile($not_found);
+					Attach::load_not_found($w,$h);
+					// ob_clean();
+					// $resizeObj = new resize($not_found);
+					// $resizeObj->resizeImage($w, $h, 'auto');
+					// if ( !file_exists(dirname($not_found_cached)) ) @mkdir(dirname($not_found_cached));
+					// $resizeObj->saveImage($not_found_cached, 50);
+					// header('Content-Type: image/png');
+					// header('Content-Length: ' . filesize($not_found_cached));
+					// readfile($not_found);
 					exit;
 				}
 			}
@@ -143,7 +184,8 @@ class Attach
 			$type = 'video';
 			foreach ( $urls as $url )
 			{
-				$sql = sprintf("INSERT INTO `attaches` (`attach_type`,`%s`,`url`,`created`,`user_id`) VALUES ('%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$type,$id,$url,$current_user->user_id);
+				$attach_id = md5($url.microtime().$current_user->user_id);
+				$sql = sprintf("INSERT INTO `attaches` (`attach_id`,`attach_type`,`%s`,`url`,`created`,`user_id`) VALUES ('%s','%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$attach_id,$type,$id,$url,$current_user->user_id);
 				try {
 					$db->query($sql);
 				}

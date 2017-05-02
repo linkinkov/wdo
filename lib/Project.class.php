@@ -18,7 +18,7 @@ class Project
 		$sql = sprintf("SELECT %s
 		FROM `project`
 		LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
-		LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`,
+		LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
 		LEFT JOIN `project_statuses` ON `project_statuses`.`id` = `project`.`status_id`
 		WHERE `project_id` = '%d'",implode(",",$public_fields),$id);
 		try {
@@ -54,6 +54,7 @@ class Project
 		}
 		catch (Exception $e)
 		{
+			// $this->error = $e->getMessage();
 			return;
 		}
 	}

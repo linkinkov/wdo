@@ -433,21 +433,34 @@ $(function(){
 	accept_till_opts.minDate = moment().add(1,"days");
 	accept_till_opts.maxDate = moment().add(1,"years");
 	accept_till_opts.startDate = moment().add(7,"days");
-	$('input[data-name="accept_till"]').daterangepicker(accept_till_opts);
-	$('input[data-name="accept_till"]').on('apply.daterangepicker', function(ev, picker) {
-		$(this).data('timestamp',picker.startDate.format("X"));
-	});
-	$('input[data-name="accept_till"]').data('timestamp',accept_till_opts.startDate.format("X"));
 
 	var start_end_opts = config.datePickerOptions;
 	start_end_opts.locale.format = "DD.MM.YYYY";
 	start_end_opts.showDropdowns = false;
+	start_end_opts.ranges = false;
+	start_end_opts.showCustomRangeLabel = false;
+	start_end_opts.autoApply = true;
 	start_end_opts.minDate = moment().add(1,"days").format("DD.MM.YYYY");
 	start_end_opts.maxDate = moment().add(1,"years").format("DD.MM.YYYY");
 	start_end_opts.startDate = moment().add(7,"days");
 	start_end_opts.endDate = moment().add(7,"days");
 	start_end_opts.dateLimit = {months: 1},
 	start_end_opts.separator = " / ";
+
+	$('input[data-name="accept_till"]').daterangepicker(accept_till_opts);
+	$('input[data-name="accept_till"]').on('hide.daterangepicker',function(ev,picker){
+		$(this).data('timestamp',picker.startDate.format("X"));
+		var new_date = picker.startDate,
+				drp = $('input[data-name="start_end"]').data('daterangepicker');
+		start_end_opts.startDate = new_date;
+		start_end_opts.endDate = new_date;
+		start_end_opts.minDate = new_date;
+		$('input[data-name="start_end"]').daterangepicker(start_end_opts);
+		$('input[data-name="start_end"]').data('timestamp_start',new_date.format("X"));
+		$('input[data-name="start_end"]').data('timestamp_end',new_date.format("X"));
+	})
+	$('input[data-name="accept_till"]').data('timestamp',accept_till_opts.startDate.format("X"));
+
 	$('input[data-name="start_end"]').daterangepicker(start_end_opts);
 	$('input[data-name="start_end"]').on('apply.daterangepicker', function(ev, picker) {
 		$(this).data('timestamp_start',picker.startDate.format("X"));

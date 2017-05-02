@@ -59,7 +59,7 @@ function saveSelectedSpecs(reload)
 		config.projects.specs.push($(this).data("subcat_id"));
 	})
 	setCookie("config.projects.specs",JSON.stringify(config.projects.specs));
-	if ( reload == true ) reloadProjectsTable();
+	if ( reload == true ) reloadTable();
 }
 function restoreSelectedSpecs()
 {
@@ -112,9 +112,17 @@ function toggleSubCategory(subcat_id,value)
 	}
 	if ( selected_subcats == total_subcats ) toggleCategory(parent_cat_id,true,true);
 }
-function reloadProjectsTable()
+function reloadTable()
 {
-	config.projects.dt.ajax.reload();
+	console.log(window.location);
+	if ( /performers/.test(window.location.pathname) )
+	{
+		config.performers.dt.ajax.reload();
+	}
+	else
+	{
+		config.projects.dt.ajax.reload();
+	}
 }
 function set_btn_state(btn,state,message)
 {
@@ -151,6 +159,24 @@ $(function(){
 	app.user.updateProfileCounters();
 	var input = $("#city-select-modal").find("input[type='search']"),
 			city_list = $("#city_list");
+	app.getCityList("",9,function(response){
+		console.log("Loading citties!");
+		$(city_list).html('');
+		if ( response.length ) {
+			$.each(response,function(){
+				var col_class = ( config.city_id == this.id ) ? "col city-entry active" : "col city-entry";
+				var col = $.sprintf('<div class="%s" data-city_id="%d" data-city_name="%s">%s</div>',col_class,this.id,this.city_name,this.city_name);
+				$("#city_list").append(col);
+			})
+			$(".city-entry").click(function(){
+				var data = $(this).data();
+				config.city_id = data.city_id;
+				setCookie("city_id",data.city_id);
+				setCookie("city_name",data.city_name);
+				window.location.reload();
+			})
+		}
+	})
 	$(input).on("keyup",function(e){
 		var search = $(this).val();
 		if ( city_search == search ) return false;
@@ -326,67 +352,5 @@ $(function(){
 			$(login_btn).removeClass("bg-warning").removeClass("disabled").addClass("bg-yellow").text("Вход");
 		})
 	})
-	$(document).on("click",".wdo-btn",function(e){
-		if ( $(this).hasClass("disabled") ) return false;
-	})
-	$(document).on("click",".list-group-item,.custom-control-description-cat, .toggle-category",function(e){
-		e.stopPropagation();
-		e.preventDefault();
-		if ( $(this).hasClass("category") )
-		{
-			slideCategory($(this).data('cat_id'));
-			return;
-		}
-		var li = $(this).parent().parent();
-		var data = $(li).data();
-		if ( $(li).hasClass("subcategory") )
-		{
-			var value = $(li).find("input[type='radio']").prop("checked");
-			toggleSubCategory($(li).data("subcat_id"),!value);
-			saveSelectedSpecs();
-			return;
-		}
-		else
-		{
-			slideCategory(data.cat_id);
-			return;
-		}
-	})
-	$(document).on("click",".subcategory",function(e){
-		e.stopPropagation();
-		e.preventDefault();
-		var value = $(this).find("input[type='radio']").prop("checked");
-		toggleSubCategory($(this).data("subcat_id"),!value);
-		saveSelectedSpecs();
-	})
-	$(document).on("click",".custom-radio-cat",function(e){
-		e.stopPropagation();
-		e.preventDefault();
-		var li = $(this).parent();
-		if ( $(li).hasClass("category") )
-		{
-			var cat_id = $(li).data("cat_id");
-			var radio = $(this).find("input[type='radio']");
-			var value = $(radio).prop("checked");
-			toggleCategory(cat_id,!value);
-			saveSelectedSpecs();
-		}
-		else
-		{
-			var value = $(this).find("input[type='radio']").prop("checked");
-			toggleSubCategory($(li).data("subcat_id"),!value);
-			saveSelectedSpecs();
-		}
-	})
-	$(document).on("click",".project-extra-filter",function(e){
-		$(this).toggleClass("active");
-		reloadProjectsTable();
-	})
-	$(document).on("click",".wdo-option",function(e){
-		var menu = $(this).parent(),
-				data = $(this).data();
-		$(menu).find(".wdo-option").removeClass("active");
-		$(this).addClass("active");
-		$("button[data-name='"+data.name+"']").removeClass("warning").text($(this).text());
-	})
+
 })

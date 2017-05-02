@@ -148,7 +148,10 @@ if ( sizeof ($aaData) )
 		$row->DT_RowClass = "project-entry";
 		$project = new Project($row->project_id);
 		if ( $project->error ) {
+			// echo $project->error;
 			unset($aaData[$idx]);
+			$recordsFiltered--;
+			$recordsTotal--;
 			continue;
 		}
 		$project->cost = number_format($project->cost,0,","," ");

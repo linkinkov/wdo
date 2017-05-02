@@ -12,6 +12,10 @@ var config = {
 		"calendar": null,
 		"specs": []
 	},
+	"performers":
+	{
+		"dt": null,
+	},
 	"profile":
 	{
 		"user_id": 0,
@@ -207,8 +211,9 @@ var app = {
 			})
 		}
 	},
-	"getCityList": function(search,limit,callback){
+	"getCityList": function(search,limit,callback,print_user_city){
 			callback = callback || function(){};
+			print_user_city = print_user_city || "true";
 			limit = limit || 3;
 			$.ajax({
 				type: "POST",
@@ -216,7 +221,7 @@ var app = {
 				data: {
 					"search": search,
 					"limit": limit,
-					"print_user_city": "true"
+					"print_user_city": print_user_city
 				},
 				dataType: "JSON",
 				success: function (response) {
@@ -393,3 +398,13 @@ try {
 } catch (error) {}
 
 moment.locale("ru");
+moment.updateLocale('ru', {
+	calendar: {
+		lastDay : '[Вчера в] LT',
+		sameDay : '[Сегодня в] LT',
+		nextDay : '[Завтра в] LT',
+		lastWeek : 'dddd[,] LT',
+		nextWeek : 'dddd[,] LT',
+		sameElse : 'L'
+	}
+});

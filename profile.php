@@ -31,7 +31,7 @@ $user->get_counters();
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<title>WeeDo | <?php echo $user->real_user_name;?></title>
+<title>WeeDo | <?php echo htmlspecialchars_decode($user->real_user_name);?></title>
 <?php include(PD.'/includes/html-head.php');?>
 <link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/css/jquery-ui.multidatespicker.css" />
 <link rel="stylesheet" type="text/css" href="<?php echo HOST;?>/js/jquery-ui/jquery-bootstrap-datepicker.css" />
@@ -283,6 +283,8 @@ $(function(){
 		{
 			$(target).removeClass("active").tab('show');
 		}
+		if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();
+		clearTimeout(app.im.poller.poller_id);
 	})
 	$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 		scrollposition = $(document).scrollTop();

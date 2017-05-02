@@ -221,7 +221,7 @@ class Dialog
 					{
 						$response["wait"] = 5;
 					}
-					sleep($sleep);
+					sleep(1);
 					$pass++;
 				}
 			}

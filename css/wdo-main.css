@@ -64,7 +64,7 @@ body { padding-right: 0 !important }
 	z-index: 5;
 }
 .container.main-container .wdo-main-left, .container.main-container .wdo-main-right {
-	padding-top: 10px;
+	padding-top: 20px;
 }
 .container.main-container .wdo-main-right, .container.main-container .margins.right {
 	background-color: #f3f1f1;
@@ -167,14 +167,23 @@ body { padding-right: 0 !important }
 .bottom-shadow {
 	box-shadow: 0px 20px 30px -15px;
 }
+.bottom-shadow.sm {
+	box-shadow: 0px 10px 10px -10px;
+}
 .mini-header-nav,.mini-header-nav:hover,.mini-header-nav:active,.mini-header-nav:focus {
 	font-weight: 800;
 	color: #a7a522;
 	padding: 17px;
 }
 .main-nav {
-	padding:5px 5px;
-	font-weight: 800;
+	color: #000;
+	padding: 10px 5px;
+	font-size: 1rem;
+	text-decoration: none !important;
+}
+.main-nav:hover:not(.active) {
+	color: #940a63;
+	background-color: rgba(0,0,0,0.05);
 }
 .main-nav.active {
 	color: white;
@@ -269,6 +278,9 @@ i.fa.active {
 .form-control {
 	border-radius: 0;
 }
+.badge {
+	padding: .3em .4em;
+}
 /* ----- bootstrap override END ----- */
 
 
@@ -361,7 +373,7 @@ th.project-table-cost {
 /* ----- project-respond  ----- */
 .project-respond-container {
 	border: 1px solid #dfd9d9;
-	padding: 10px;
+	padding: 0px 15px;
 	background-color: #fff;
 }
 .project-respond-header {
@@ -449,7 +461,33 @@ th.project-table-cost {
   opacity: 1 !important;
 }
 /* ----- END project-respond ----- */
+/* ----- PERFORMERS ----- */
 
+.performer-container {
+	border: 1px solid #dfd9d9;
+	padding: 0px 15px;
+	background-color: #fff;
+}
+.vertical-dotted {
+	background-image: linear-gradient(#bbb 43%, rgba(0,0,0,.1) 10%);
+	background-position: right;
+	background-size: 1px 7px;
+	background-repeat: repeat-y;
+}
+.performers-sort {
+	cursor: pointer;
+	display: inline-block;
+	padding: 10px;
+	font-weight: 800;
+}
+.performers-sort:hover {
+	color: #924482;
+}
+.performers-sort.active {
+	color: #924482;
+	border-bottom: 3px solid #924482;
+}
+/* ----- END PERFORMERS ----- */
 /* ----- PROFILE ---- */
 .rounded-circle.shadow {
 	box-shadow: 2px 2px 8px -3px;

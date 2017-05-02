@@ -64,10 +64,10 @@ else
 ?>
 					</div>
 					<hr style="margin: 0; padding: 0;">
-					<div class="row text-center" style="align-items: flex-end;">
+					<div class="row text-center" style="align-items: center;">
 					<?php
 						$current_page = $_SERVER["REQUEST_URI"];
-						if ( $current_page = "/" ) $current_page = "/projects/";
+						if ( $current_page == "/" ) $current_page = "/projects/";
 						$pages = Array(
 							"projects" => "Проекты",
 							"performers" => "Исполнители",
@@ -77,26 +77,44 @@ else
 						foreach ( $pages as $page=>$name)
 						{
 							$class = ('/'.$page.'/' == $current_page) ? "main-nav active" : "main-nav";
-							echo sprintf('<div class="col %s text-roboto-cond" title="%s" data-page="/%s/">
-															<a title="%s" href="/%s/" class="wdo-link">%s</a>
-														</div>',$class,$name,$page,$name,$page,$name);
+							echo sprintf('<a class="col %s text-roboto-cond" title="%s" href="/%s/" data-page="/%s/">%s</a>',$class,$name,$page,$page,$name);
 						}
 						if ( $current_user->user_id > 0 ) // user authorized
 						{
 						?>
-						<div class="col main-nav text-roboto-cond" style="padding-left: 20px;">
+						<div class="col main-nav text-roboto-cond" style="padding-left: 20px;padding-top: 9px;">
 							<div style="display: flex; align-items: center;">
-								<img class="rounded-circle" src="<?php echo HOST;?>/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=25&h=25" />
+								<img class="rounded-circle" src="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=25&h=25" />
 								<div class="btn-group">
 									<div href="#" class="wdo-link dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="align-items: end-flex;">
 										&nbsp;Мой кабинет<span data-type="total" class="badge badge-pill badge-info profile-counter" style="position: absolute; top: 0; right: -20px;">3</span>
 									</div>
 									<div class="dropdown-menu dropdown-menu-right profile-menu" style="width: 230px;">
 										<a class="wdo-link dropdown-item" href="/profile/#profile"><strong>Профиль</strong></a>
-										<a class="wdo-link dropdown-item" href="/profile/#messages"><span class="pull-right"><span data-type="messages" class="badge badge-pill badge-info profile-counter"></span></span>Сообщения</a>
-										<a class="wdo-link dropdown-item" href="/profile/#responds"><span class="pull-right"><span data-type="responds" class="badge badge-pill badge-info profile-counter"></span></span>Отзывы</a>
-										<a class="wdo-link dropdown-item" href="/profile/#project-responds"><span class="pull-right"><span data-type="project-responds" class="badge badge-pill badge-info profile-counter"></span></span>Заявки</a>
-										<a class="wdo-link dropdown-item" href="/profile/#warnings"><span class="pull-right"><span data-type="warnings" class="badge badge-pill badge-info profile-counter"></span></span>Предупреждения</a>
+										<a class="wdo-link dropdown-item" href="/profile/#messages">
+											<span class="pull-right">
+												<span data-type="messages" class="badge badge-pill badge-info profile-counter"></span>
+											</span>
+											Сообщения
+										</a>
+										<a class="wdo-link dropdown-item" href="/profile/#responds">
+											<span class="pull-right">
+												<span data-type="responds" class="badge badge-pill badge-info profile-counter"></span>
+											</span>
+											Отзывы
+										</a>
+										<a class="wdo-link dropdown-item" href="/profile/#project-responds">
+											<span class="pull-right">
+												<span data-type="project-responds" class="badge badge-pill badge-info profile-counter"></span>
+											</span>
+											Заявки
+										</a>
+										<a class="wdo-link dropdown-item" href="/profile/#warnings">
+											<span class="pull-right">
+												<span data-type="warnings" class="badge badge-pill badge-info profile-counter"></span>
+											</span>
+											Предупреждения
+										</a>
 										<div class="dropdown-divider"></div>
 										<a class="wdo-link dropdown-item" href="/logout/">Выход</a>
 									</div>
@@ -108,8 +126,8 @@ else
 						else
 						{
 						?>
-						<div class="col main-nav" style="flex:0 0 200px;min-width: 200px;">
-							<a class="wdo-btn bg-yellow" data-toggle="modal" data-target="#login-modal">Вход / Регистрация</a>
+						<div class="col" style="flex:0 0 200px;min-width: 200px; padding: 0;">
+							<a class="wdo-btn btn-sm bg-yellow" data-toggle="modal" data-target="#login-modal">Вход / Регистрация</a>
 						</div>
 						<?php
 						}

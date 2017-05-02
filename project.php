@@ -278,7 +278,7 @@ if ( isset($_GET["add_respond"]) )
 						{
 							if ( $at->attach_type == 'image' )
 							{
-								$obj = sprintf('<a href="/get.Attach?attach_id=%d&w=500&h=500"><img class="img-thumbnail" src="/get.Attach?attach_id=%d&w=100&h=100" /></a>',$at->attach_id,$at->attach_id);
+								$obj = sprintf('<a href="/get.Attach?attach_id=%s&w=500&h=500"><img class="img-thumbnail" src="/get.Attach?attach_id=%s&w=100&h=100" /></a>',$at->attach_id,$at->attach_id);
 							}
 							else if ( $at->attach_type == 'video' )
 							{
@@ -288,7 +288,7 @@ if ( isset($_GET["add_respond"]) )
 							}
 							else if ( $at->attach_type == 'document' )
 							{
-								$obj = sprintf('<a class="download" href="/get.Attach?attach_id=%d"><img class="img-thumbnail" src="/images/document.png" /></a>',$at->attach_id);
+								$obj = sprintf('<a class="download" href="/get.Attach?attach_id=%s"><img class="img-thumbnail" src="/images/document.png" /></a>',$at->attach_id);
 							}
 							echo $obj;
 						}

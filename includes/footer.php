@@ -24,7 +24,7 @@
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row">
-				<div class="col wdo-main-left" style="display: flex; align-items: center;">
+				<div class="col wdo-main-left" style="align-items: center;background: url('/images/ornament-w-bg.png');">
 					<h3 class="text-purple text-roboto-cond-bold">СЕРВИС ОРГАНИЗАЦИИ МЕРОПРИЯТИЙ</h3>
 				</div><!-- /.wdo-main-left -->
 

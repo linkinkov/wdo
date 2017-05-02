@@ -8,24 +8,8 @@ require_once('lib/mysqli.class.php');
 $db = db::getInstance();
 $db->autocommit(false);
 
-function is_timestamp($timestamp)
-{
-	return ((string) (int) $timestamp === $timestamp) && ($timestamp <= PHP_INT_MAX) && ($timestamp >= ~PHP_INT_MAX) && (!strtotime($timestamp)) && (strlen($timestamp) == 10);
-}
-$ts = "1493545886";
-if ( !is_timestamp($ts) ) {
-	echo "not";
-}
-exit;
-
-$colValue = ">5";
-// if ( preg_match('/[(>)][(<)][(=)][(>=)][(<=)][(!=)]/',$colValue,$operand) )
-if ( preg_match('/(!=)|(>=)|(<=)|(>)|(<)|(=)/',$colValue,$operand) )
-{
-	echo "Operand:".$operand[0]."\n";
-	$colValue = ltrim($colValue,$operand[0]);
-	echo "Value:".$colValue;
-}
+$cached = "/var/www/html/wdo/attaches/1/cache/18fa0602qh3.png";
+echo dirname($cached);
 
 exit;
 // get dialog_id

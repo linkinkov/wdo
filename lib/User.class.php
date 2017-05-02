@@ -12,6 +12,7 @@ class User
 				$_SESSION["viewed_projects"] = Array();
 			}
 		}
+/*
 		if ( isset($_COOKIE["city_id"]) && isset($_COOKIE["city_name"]) )
 		{
 			$this->city_id = intval($_COOKIE["city_id"]);
@@ -22,13 +23,14 @@ class User
 			$this->city_id = 1;
 			$this->city_name = "Москва";
 		}
+*/
 		if ( intval($user_id) == 0 && $username == false )
 		{
 			$this->user_id = 0;
 			return;
 		}
 		$where = (intval($user_id) > 0) ? sprintf("`user_id` = '%d'",$user_id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","state_id","rating","phone","skype","site","gps","signature");
+		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","status_id","rating","rezume","phone","skype","site","gps","signature");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` LEFT JOIN `cities` ON `cities`.`id` = `users`.`city_id` WHERE %s",implode(",",$public_fields),$where);
 		// echo $sql;
@@ -40,7 +42,7 @@ class User
 			{
 				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
-			// $this->city_name = City::get_name($this->city_id);
+			$this->city_name = City::get_name($this->city_id);
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
 			if ( $this->user_id == $_SESSION["user_id"] )
@@ -450,6 +452,22 @@ class User
 			"message" => "Ошибка доступа"
 		);
 		if ( $current_user->user_id == 0 ) return $response;
+	}
+
+	public function get_portfolio_list()
+	{
+		global $db;
+		$list = Array();
+		if ( $this->user_id == 0 ) return Array();
+		$sql = sprintf("SELECT * FROM `portfolio` WHERE `user_id` = '%d'",$this->user_id);
+		try {
+			$list = $db->queryRows($sql);
+		}
+		catch ( Exception $e )
+		{
+			// echo $e->getMesage();
+		}
+		return $list;
 	}
 
 }

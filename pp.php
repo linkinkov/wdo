@@ -148,7 +148,7 @@ if ( $job == "profile" )
 				<button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="flex: 0 1 30px;"></button>
 				<div class="dropdown-menu city-list" style="width: 100%;">
 					<a class="dropdown-item disabled"><input type="text" class="form-control profile-city-filter" placeholder="Поиск"></a>
-					<?php echo sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d">%s</a>',$user->city_id,$user->city_name);?>
+					<?php echo sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d" generated>%s</a>',$user->city_id,$user->city_name);?>
 				</div>
 			</div>
 		</div>
@@ -272,6 +272,24 @@ if ( $job == "profile" )
 
 	<script>
 	$(function(){
+		var last_search = "-1";
+		$(".profile-city-filter").keyup(function(e){
+			var search = this.value;
+			if ( search == last_search ) return;
+			// if ( search == "" ) {$(".wdo-option[data-name='city_id']").remove();return;}
+			last_search = search;
+			app.getCityList(search,6,function(response){
+				if ( response )
+				{
+					$(".city-list").find("[data-name='city_id']").remove();
+					$.each(response,function(){
+						$(".city-list").append($.sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d">%s</a>',this.id,this.city_name));
+					})
+				}
+			},"false");
+		})
+		$(".profile-city-filter").trigger("keyup");
+
 		app.user.getProfileInfo(config.profile.user_id,function(response){
 			if ( response.result == "true" )
 			{
@@ -285,6 +303,9 @@ if ( $job == "profile" )
 					else if ( key == "as_performer" ) { if ( value == 1 ) $(".custom-checkbox-as_performer").click(); }
 					else $("[data-name='"+key+"']").val(_.unescape(value));
 				})
+				var cty = $(".wdo-option[data-name='city_id'][data-value='2']");
+
+				console.log(cty);
 				$('input[data-name="birthday"]').daterangepicker(config.datePickerOptionsSingle);
 				$('input[data-name="birthday"]').on('apply.daterangepicker', function(ev, picker) {
 					$(this).data('timestamp',picker.startDate.format("X"));
@@ -354,21 +375,6 @@ if ( $job == "profile" )
 			}
 			map.invalidateSize();
 		})
-
-		$(".profile-city-filter").keyup(function(e){
-			var search = this.value;
-			if ( search == "" ) {$(".wdo-option[data-name='city_id']").remove();return;}
-			app.getCityList(search,6,function(response){
-				if ( response )
-				{
-					$(".city-list").find("[data-name='city_id']").remove();
-					$.each(response,function(){
-						$(".city-list").append($.sprintf('<a class="dropdown-item wdo-option profile-data" data-name="city_id" data-value="%d">%s</a>',this.id,this.city_name));
-					})
-				}
-			})
-		})
-
 		$("#save_profile_info").click(function(){
 			var btn = this;
 			var profile = {};

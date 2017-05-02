@@ -72,26 +72,9 @@ $preselect = get_var("preselect","array",Array());
 		<div class="col main">
 			<div class="row">
 				<div class="col wdo-main-left right-shadow">
-					<div class="row">
-						<div class="col">
-							<h44 class="text-yellow text-roboto-cond-bold">ФИЛЬТР СПЕЦИАЛИЗАЦИЙ</h44>
-							<?php include(PD.'/includes/left-list-categories.php');?>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col">
-							<hr />
-							<h44 class="text-yellow text-roboto-cond-bold">ПРЕДЛОЖЕНИЯ КОМПАНИЙ</h44>
-							<?php include(PD.'/includes/left-list-adv.php');?>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col">
-							<hr />
-							<h44 class="text-yellow text-roboto-cond-bold">ТОП 10 ИСПОЛНИТЕЛЕЙ</h44>
-							<?php include(PD.'/includes/left-list-top-10.php');?>
-						</div>
-					</div>
+					<?php include(PD.'/includes/left-list-categories.php');?>
+					<?php include(PD.'/includes/left-list-adv.php');?>
+					<?php include(PD.'/includes/left-list-top-10.php');?>
 				</div><!-- /.wdo-main-left -->
 				<div class="col wdo-main-right">
 					<div class="row">

@@ -5,6 +5,10 @@ RewriteRule ^(performers|about|adv)/?$ $1.php
 RewriteRule ^(projects)/([,a-zA-Z0-9_-]+)/$ index.php?preselect[cat_name]=$2
 RewriteRule ^(projects)/([,a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ index.php?preselect[cat_name]=$2&preselect[subcat_name]=$3
 
+RewriteRule ^(performers)/([,a-zA-Z0-9_-]+)/$ performers.php?preselect[cat_name]=$2
+RewriteRule ^(performers)/([,a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ performers.php?preselect[cat_name]=$2&preselect[subcat_name]=$3
+
+
 RewriteRule ^(project)/([,a-zA-Z0-9_-]+)/([,a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_name=$2&subcat_name=$3&id=$4&title=$5 [L,QSA]
 RewriteRule ^(project)/([,a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_name=$2&subcat_name=&id=$3&title=$4 [L,QSA]
 RewriteRule ^project/add/?$ addProject.php
