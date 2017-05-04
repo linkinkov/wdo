@@ -22,17 +22,32 @@ $start = get_var("start","int",0);
 $length = get_var("length","int",10);
 $search = isset($_REQUEST["search"]["value"]) ? htmlspecialchars($_REQUEST["search"]["value"]) : "";
 $order = get_var("order","array",Array());
-$order_by = get_var("order_by","array",Array());
 $selected = get_var("selected","string","");
 
 $cityStr = ( isset($_COOKIE["city_id"]) && intval($_COOKIE["city_id"]) > 0 ) ? sprintf(" AND `city_id` = '%d'",intval($_COOKIE["city_id"])) : sprintf(" AND `city_id` = '%d'",1);
 $selectedStr = ( $selected != "" ) ? sprintf(' AND `subcat_id` IN (%s)',$selected) : '';
 
+if ( isset($order["col"]) && in_array(strtolower($order["col"]),Array("rating","registered","user_responds")) )
+{
+	if ( isset($order["dir"]) && in_array(strtolower($order["dir"]),Array("desc","asc")) )
+	{
+		$orderStr = sprintf(" %s %s",$order["col"],$order["dir"]);
+	}
+	else
+	{
+		$orderStr = sprintf(" %s %s",$order["col"],"desc");
+	}
+}
+else
+{
+	$orderStr = sprintf(" %s %s","rating","desc");
+}
+
 $sql_main = "SELECT `user_id`,`real_user_name`,
 	(SELECT COUNT(`id`) FROM `user_responds` WHERE `user_id` = `users`.`user_id`) as `user_responds`
 	FROM `users`
 	WHERE `status_id` = 1 AND `as_performer` = 1 $cityStr
-	ORDER BY `users`.`rating` DESC
+	ORDER BY $orderStr
 	LIMIT $start, $length";
 // echo $sql_main;
 try {

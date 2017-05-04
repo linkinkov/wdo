@@ -34,7 +34,7 @@ class Attach
 
 	}
 
-	public static function getByID($attach_id = false, $w=35, $h=35)
+	public static function getByID($attach_id = false, $w=35, $h=35, $force_resize = "false", $method = "auto")
 	{
 		global $db;
 		$sql = sprintf("SELECT `attach_id`,`attach_type`,`for_project_id`,`for_respond_id`,`file_name`,`user_id` FROM `attaches` WHERE `attach_id` = '%s'",$attach_id);
@@ -45,10 +45,7 @@ class Attach
 			$extension = strtolower(strrchr($info->file_name, '.'));
 			$requested = PD.'/attaches/'.$info->user_id.'/'.$info->file_name;
 			$cached = PD.'/attaches/'.$info->user_id.'/cache/'.$info->file_name_no_ext.'-'.$w.'-'.$h.$extension;
-			if ( !file_exists(dirname($cached)) )
-			{
-				@mkdir(dirname($cached));
-			}
+			if ( !file_exists(dirname($cached)) ) {@mkdir(dirname($cached));};
 			if ( $info->attach_type == "document" )
 			{
 				if ( file_exists($requested) )
@@ -73,7 +70,7 @@ class Attach
 			else if ( $info->attach_type == "image" )
 			{
 				$content_type = 'image/'.substr($extension,1);
-				if ( $extension == ".gif" )
+				if ( $extension == ".gif" && $force_resize != "true" )
 				{
 					if ( !file_exists($requested) )
 					{
@@ -98,13 +95,12 @@ class Attach
 				}
 				elseif ( file_exists($requested) )
 				{
-				// echo "getting:".$requested.", cached:".$cached." / ".dirname($cached);
-				// exit;
 					ob_clean();
 					$resizeObj = new resize($requested);
-					$resizeObj->resizeImage($w, $h, 'auto');
+					$resizeObj->resizeImage($w, $h, $method);
 					if ( !file_exists(dirname($cached)) ) @mkdir(dirname($cached));
-					$resizeObj->saveImage($cached, 50);
+					$quality = ($w < 250 ) ? 50 : 90;
+					$resizeObj->saveImage($cached, $quality);
 					header('Content-Type: '.$content_type);
 					header('Content-Length: ' . filesize($cached));
 					readfile($cached);
@@ -113,26 +109,20 @@ class Attach
 				else
 				{
 					Attach::load_not_found($w,$h);
-					// ob_clean();
-					// $resizeObj = new resize($not_found);
-					// $resizeObj->resizeImage($w, $h, 'auto');
-					// if ( !file_exists(dirname($not_found_cached)) ) @mkdir(dirname($not_found_cached));
-					// $resizeObj->saveImage($not_found_cached, 50);
-					// header('Content-Type: image/png');
-					// header('Content-Length: ' . filesize($not_found_cached));
-					// readfile($not_found);
 					exit;
 				}
 			}
 			else
 			{
-				echo "<h1>Content error</h1><p>Unknown content type!</p>";
+				Attach::load_not_found($w,$h);
+				// echo "<h1>Content error</h1><p>Unknown content type!</p>";
 				exit;
 			}
 		}
 		else
 		{
-			return false;
+			Attach::load_not_found($w,$h);
+			exit;
 		}
 	}
 

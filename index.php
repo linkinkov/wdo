@@ -9,7 +9,7 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 require_once('_global.php');
 include_once('_includes.php');
 $db = db::getInstance();
-check_access($db);
+check_access($db,false);
 
 $current_user = new User($_SESSION["user_id"]);
 $current_user->set_city_auto();
@@ -134,11 +134,11 @@ $(function(){
 	<?php
 	if ( isset($preselect["cat_name"]) )
 	{
-		$preselect["cat_id"] = $db->getValue("cats","id","id",Array("transliterated"=>strtolower($preselect["cat_name"])));
+		$preselect["cat_id"] = $db->getValue("cats","id","id",Array("translated"=>strtolower($preselect["cat_name"])));
 	}
 	if ( isset($preselect["subcat_name"]) )
 	{
-		$preselect["subcat_id"] = $db->getValue("subcats","id","id",Array("transliterated"=>strtolower($preselect["subcat_name"])));
+		$preselect["subcat_id"] = $db->getValue("subcats","id","id",Array("translated"=>strtolower($preselect["subcat_name"])));
 	}
 	if ( isset($preselect["subcat_id"]) && intval($preselect["subcat_id"]) > 0 )
 	{

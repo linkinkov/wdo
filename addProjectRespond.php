@@ -58,15 +58,13 @@ $_SESSION["LAST_PAGE"] = "/addProjectPespond";
 					<div class="row">
 						<div class="col">
 							<?php
-							$translated["cat_name"] = strtolower(r2t($project->cat_name));
-							$translated["subcat_name"] = strtolower(r2t($project->subcat_name));
 							echo sprintf('
 							<a class="wdo-link" href="%s"><h5 style="font-weight: 800;">%s</h5></a>
 							<a class="wdo-link text-purple" href="%s">%s</a> / <a class="wdo-link text-purple" href="%s">%s</a>',
 							parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH),
 							$project->title,
-							HOST.'/projects/'.$translated["cat_name"].'/',$project->cat_name, // category href link
-							HOST.'/projects/'.$translated["cat_name"].'/'.$translated["subcat_name"].'/',$project->subcat_name // subcategory href link
+							HOST.'/projects/'.$project->cat_name_translated.'/',$project->cat_name, // category href link
+							HOST.'/projects/'.$project->cat_name_translated.'/'.$project->subcat_name_translated.'/',$project->subcat_name // subcategory href link
 							);
 							?>
 						</div>

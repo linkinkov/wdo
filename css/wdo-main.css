@@ -238,7 +238,12 @@ i.fa.active {
 .text-truncate {
 	display: block;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;
 }
-
+.opacity {
+	opacity: 0.5;
+}
+.opacity:hover {
+	opacity: 1;
+}
 /* ----- SCROLLBAR ----- */
 
 .wdo-scrollbar::-webkit-scrollbar-track
@@ -280,6 +285,9 @@ i.fa.active {
 }
 .badge {
 	padding: .3em .4em;
+}
+.card-footer {
+	padding: .75rem .6rem;
 }
 /* ----- bootstrap override END ----- */
 
@@ -375,6 +383,7 @@ th.project-table-cost {
 	border: 1px solid #dfd9d9;
 	padding: 0px 15px;
 	background-color: #fff;
+	padding-bottom: 15px;
 }
 .project-respond-header {
 	background-color: #fff;
@@ -581,6 +590,16 @@ th.project-table-cost {
 }
 /* ----- END PROFILE ---- */
 
+/* ----- PORTFOLIO  ---- */
+.portfolio-image-action {
+	float: left;
+	bottom: 70px;
+	opacity: .5;
+}
+.portfolio-image-action:hover {
+	opacity: 1;
+}
+/* ----- END PORTFOLIO ---- */
 /* ----- CUSTOM SELECT ---- */
 .dropdown-item.wdo-option.active,.dropdown-item.wdo-option:active,.dropdown-item.wdo-option:hover {
 	cursor: pointer;

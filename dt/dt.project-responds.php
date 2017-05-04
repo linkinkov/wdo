@@ -144,10 +144,10 @@ if ( sizeof ($aaData) )
 			$row->project_user = new User($row->project->user_id);
 			if ( $row->respond->status_id == 1 ) $row->respond->status_name = 'Рассматривается';
 			$row->respond->image_path = HOST.'/images/respond-status-'.$row->respond->status_id.'.png';
-			$cat_tr = strtolower(r2t($row->project->cat_name));
-			$subcat_tr = strtolower(r2t($row->project->subcat_name));
+			// $cat_tr = strtolower(r2t($row->project->cat_name));
+			// $subcat_tr = strtolower(r2t($row->project->subcat_name));
 			$title_tr = strtolower(r2t($row->project->title));
-			$row->project_link = HOST.'/project/'.$cat_tr.'/'.$subcat_tr.'/p'.$row->project->project_id.'/'.$title_tr.'.html';
+			$row->project_link = HOST.'/project/'.$row->project->cat_name_translated.'/'.$row->project->subcat_name_translated.'/p'.$row->project->project_id.'/'.$title_tr.'.html';
 			if ( $row->respond->modify_timestamp >= $current_user->ts_project_responds )
 			{
 				$row->DT_RowClass .= " unreaded";

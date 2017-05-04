@@ -53,7 +53,7 @@ $(document).on("click",".dialog",function(){
 			{
 				app.im.lmts = response.messages[0].message.timestamp;
 				setTimeout(function(){
-					app.im.poller.start(dialog_id,response.wait);
+					app.im.poller.check_msgs(dialog_id,response.wait);
 				},3000);
 			}
 			$.each(response.messages,function(){
@@ -73,6 +73,12 @@ $(document).on("click",".dialog",function(){
 	})
 })
 
+$(document).on("keydown","#conversation-message-text", function(e){
+	if (e.ctrlKey && e.keyCode == 13) {
+		$("#conversation-message-send").click();
+	}
+})
+
 $(document).on("click","[data-trigger='send-message']", function(){
 	var btn = this,
 			dialog_id = $(this).data('dialog_id'),
@@ -82,7 +88,7 @@ $(document).on("click","[data-trigger='send-message']", function(){
 	app.im.sendMessage(dialog_id,message_text,function(response){
 		if ( response.result == "true" )
 		{
-			app.im.lmts = response.timestamp-1;
+			app.im.lmts = response.timestamp;
 			$(textarea).val("");
 		}
 		if ( $(this).attr("modal") == "true" )
@@ -92,23 +98,8 @@ $(document).on("click","[data-trigger='send-message']", function(){
 		else
 		{
 			set_btn_state(btn,"reset","Отправить");
-			app.im.poller.start(dialog_id,5);
-/*
-			app.im.getMessages(dialog_id,0,0,response.timestamp,0,function(response){
-				if ( response.result == "true" )
-				{
-					if ( response.messages.length > 0 )
-					{
-						app.im.append_messages(response.messages);
-					}
-				}
-				else
-				{
-					showAlert("error",response.message);
-				}
-				set_btn_state(btn,"reset","Отправить");
-			})
-*/
+			app.im.append_messages(response.messages);
+			app.im.poller.check_msgs(dialog_id,5);
 		}
 	});
 })
@@ -139,3 +130,244 @@ $(document).on("click",".list-group-item,.custom-control-description-cat, .toggl
 		return;
 	}
 })
+
+$(document).on("click","[data-toggle='show-portfolio']",function(e){
+	e.preventDefault();
+	var portfolio_id = $(this).data('portfolio-id');
+	app.portfolio.showPortfolio(portfolio_id,function(response){
+		$("#portfolio-title").text('');
+		$("#portfolio-descr").text('');
+		$("#portfolio-photos").html('');
+		if ( response.result == "true" )
+		{
+			var pf = response.portfolio;
+			$("#portfolio-title").text(pf.title);
+			$("#portfolio-descr").text(pf.descr);
+			if ( pf.attaches.length > 0 )
+			{
+				$.each(pf.attaches,function(){
+					var object = '',
+							is_cover = (this.attach_id == pf.cover_id) ? 'true' : 'false';
+					if ( this.attach_type == 'image' )
+					{
+						object = '<a href="/get.Attach?attach_id='+this.attach_id+'&w=800&h=800"><img style="height: 100px;" class="img-thumbnail" src="/get.Attach?attach_id='+this.attach_id+'&w=150&h=150&force_resize=true" data-is_cover="'+is_cover+'" data-attach-id="'+this.attach_id+'"/></a>';
+					}
+					else if ( this.attach_type == 'video' )
+					{
+						object = '<a '
+						+'	href="'+this.url+'"'
+						+'	title="" type="text/html"'
+						+'	data-youtube="'+this.youtube_id+'" poster="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg">'
+						+'<img class="img-thumbnail" src="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg" />';
+						+'</a>';
+					}
+					else if ( this.attach_type == 'document' )
+					{
+						object = '<a class="download" href="/get.Attach?attach_id='+this.attach_id+'"><img class="img-thumbnail" src="/images/document.png" /></a>';
+					}
+					$("#portfolio-photos").append(object);
+				})
+				$("#portfolio-photos").click(function (event) {
+					event = event || window.event;
+					var target = event.target || event.srcElement,
+							link = target.src ? target.parentNode : target,
+							options = {
+								index: link,
+								event: event,
+								onopen: function (e) {
+									
+								},
+								onslide: function (index, slide) {
+									var img = $(slide).find("img"),
+											attach_id = $.urlParam('attach_id',$(img).attr('src'));
+									if ( attach_id.length == 32 )
+									{
+										var real_image = $("img[data-attach-id='"+attach_id+"']"),
+												cover_btn = $(".portfolio-image-action[data-action='change-cover']"),
+												delete_btn = $(".portfolio-image-action[data-action='delete-photo']");
+										console.log("real_image:",real_image.data());
+										if ( real_image.data('is_cover') == true )
+										{
+											$(delete_btn).data('portfolio_id',portfolio_id).data('attach_id',attach_id);
+											$(cover_btn).data('portfolio_id',portfolio_id).data('attach_id',attach_id).data('subact','delete-cover');
+											$(cover_btn).find("i.fa").removeClass("fa-star-o").addClass("fa-star");
+											$(cover_btn).show();
+										}
+										else if ( real_image.data('is_cover') == false )
+										{
+											$(delete_btn).data('portfolio_id',portfolio_id).data('attach_id',attach_id)
+											$(cover_btn).data('portfolio_id',portfolio_id).data('attach_id',attach_id).data('subact','set-cover');
+											$(cover_btn).find("i.fa").removeClass("fa-star").addClass("fa-star-o");
+											$(cover_btn).show();
+										}
+										else
+										{
+											$(cover_btn).data('portfolio_id','').data('attach_id','').data('subact','');
+											$(cover_btn).find("i.fa").removeClass("fa-star").addClass("fa-star-o");
+											$(cover_btn).hide();
+										}
+									}
+									// Callback function executed on slide change.
+								},
+							},
+							links = $(this).find("a").not(".download");
+					app.gallery = blueimp.Gallery(links, options);
+				})
+			}
+			var $sp = $("#portfolio_single");
+			$sp.show().css({
+				left: -($sp.width())
+			}).animate({
+				left: 15
+			}, 500);
+		}
+
+	});
+})
+
+$(document).on('click','a[data-toggle="tab"]', function(e){
+	var target = $(e.target);
+	if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();
+	clearTimeout(app.im.poller.poller_id_msg);
+	console.log(window.location.hash);
+	if ( $(target).data('target') == '#messages' && $("#messages").find(".dialogs-container").length > 0 )
+	{
+		$(".tab-pane#messages").removeClass("active");
+		$(target).removeClass("active").tab('show');
+	}
+	if ( $(target).data('target') == '#portfolio' && window.location.hash == "#portfolio-add" )
+	{
+		$(".tab-pane#portfolio").removeClass("active");
+		$(target).removeClass("active").tab('show');
+	}
+})
+$(document).on('shown.bs.tab','a[data-toggle="tab"]', function (e) {
+	scrollposition = $(document).scrollTop();
+	var id = $(e.target).data("target").substr(1);
+	window.location.hash = id;
+	$(document).scrollTop(scrollposition);
+	$(".dialogs-container").html('');
+});
+$(document).on('show.bs.tab','a[data-toggle="tab"]', function (e) {
+	var current_tab = e.target,
+			prev = e.relatedTarget,
+			prev_tab = $(prev).data('target'),
+			target = $(current_tab).data('target'),
+			target_tab = $(target);
+	scrollposition = $(document).scrollTop();
+	var id = $(e.target).data("target").substr(1);
+	window.location.hash = id;
+	$(document).scrollTop(scrollposition);
+	$(".dialogs-container").html('');
+
+	$(prev_tab).html('');
+	$(target_tab).html('');
+	window.location.hash = target;
+	$(target_tab).html('<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+	$.ajax({
+		type: "POST",
+		url: "/pp/"+target.substr(1),
+		dataType: "html",
+		data: {
+			"user_id": config.profile.user_id
+		},
+		error: function(err)
+		{
+			window.location = '/';
+		},
+		success: function (response) {
+			$(target_tab).append(response);
+		}
+	});
+})
+
+$(document).on("click",".performer_found",function(e){
+	if ( $(this).hasClass("active") )
+	{
+		$(this).toggleClass("active");
+		return;
+	};
+	$(".performer_found").removeClass("active");
+	$(this).addClass("active");
+})
+
+$(document).on("click",".wdo-option[data-name='category']", function(){
+	var cat_id = $(this).data('value');
+	$("button[data-name='subcategory']").text('Подкатегория');
+	app.getSubCategories(cat_id,function(response){
+		if ( response )
+		{
+			$(".subcat-list").html('');
+			$.each(response,function(){
+				$(".subcat-list").append($.sprintf('<a class="dropdown-item wdo-option" data-name="subcategory" data-value="%d" data-parentid="%d">%s</a>',this.id,this.parent_cat_id,this.subcat_name));
+			})
+			$(".dropdown-toggle[data-name='subcategory']").removeClass("disabled");
+		}
+	})
+})
+
+var current_links = [];
+$(document).on("keyup","input[data-name='youtube-link']",function(){
+	if ( current_links.length >= 5 ) return;
+	if ( ytVidId($(this).val()) && $.inArray($(this).val(),current_links) == -1 )
+	{
+		current_links.push($(this).val());
+		$(this).removeClass("empty");
+	}
+	var empty = $("input.empty[data-name='youtube-link']");
+	if ( empty.length == 0 ) $('<input type="text" class="form-control empty" data-name="youtube-link" placeholder="Ссылка на ваше видео в YouTube" />').appendTo("#yt_links");
+})
+
+$(".portfolio-image-action").click(function(e){
+	var btn = $(this),
+			data = $(btn).data();
+	if ( data.action == "change-cover" )
+	{
+		app.portfolio.changeCover(data.portfolio_id,data.attach_id,data.subact,function(response){
+			if ( response.result == "true" )
+			{
+				var real_image = $("img[data-attach-id='"+data.attach_id+"']"),
+						cover_btn = $(".portfolio-image-action[data-action='change-cover']");
+				if ( real_image.data('is_cover') == true )
+				{
+					$(cover_btn).data('portfolio_id',data.portfolio_id).data('attach_id',data.attach_id).data('subact','set-cover');
+					$(cover_btn).find("i.fa").removeClass("fa-star").addClass("fa-star-o");
+					$(real_image).data('is_cover',false);
+					$(cover_btn).show();
+				}
+				else if ( real_image.data('is_cover') == false )
+				{
+					$('[data-toggle="show-portfolio"][data-portfolio-id="'+data.portfolio_id+'"]').find("img.card-img-top").attr('src','/get.Attach?attach_id='+data.attach_id+'&w=230&h=500');
+					$(cover_btn).data('portfolio_id',data.portfolio_id).data('attach_id',data.attach_id).data('subact','delete-cover');
+					$(cover_btn).find("i.fa").removeClass("fa-star-o").addClass("fa-star");
+					$(real_image).data('is_cover',true);
+					$(cover_btn).show();
+				}
+				else
+				{
+					$(cover_btn).data('portfolio_id','').data('attach_id','').data('subact','');
+					$(cover_btn).find("i.fa").removeClass("fa-star").addClass("fa-star-o");
+					$(cover_btn).hide();
+				}
+			}
+		})
+	}
+	else if ( data.action == "delete-image" )
+	{
+		app.gallery.next();
+		return;
+		app.portfolio.deletePhoto(data.portfolio_id,data.attach_id,function(response){
+			if ( response.result == "true" )
+			{
+				$("img[data-attach_id='"+data.attach_id+"']").remove();
+			}
+		})
+	}
+})
+
+/*
+$('#blueimp-gallery').on('slide', function (event, index, slide) {
+	// Gallery slide event handler
+	console.log("slide!",slide);
+})
+*/

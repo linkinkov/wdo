@@ -109,15 +109,13 @@ if ( isset($_GET["add_respond"]) )
 					<div class="row">
 						<div class="col" style="flex: 0 0 75%; max-width: 75%;">
 							<?php
-							$translated["cat_name"] = strtolower(r2t($project->cat_name));
-							$translated["subcat_name"] = strtolower(r2t($project->subcat_name));
 							echo sprintf('
 							<a class="wdo-link" href="%s"><h5 style="font-weight: 800;">%s</h5></a>
 							<a class="wdo-link text-purple" href="%s">%s</a> / <a class="wdo-link text-purple" href="%s">%s</a> | <text class="timestamp" data-timestamp="%s"></text>',
 							HOST.$_SERVER['REQUEST_URI'],
 							$project->title,
-							HOST.'/projects/'.$translated["cat_name"].'/',$project->cat_name, // category href link
-							HOST.'/projects/'.$translated["cat_name"].'/'.$translated["subcat_name"].'/',$project->subcat_name, // subcategory href link
+							HOST.'/projects/'.$project->cat_name_translated.'/',$project->cat_name, // category href link
+							HOST.'/projects/'.$project->cat_name_translated.'/'.$project->subcat_name_translated.'/',$project->subcat_name, // subcategory href link
 							$project->created
 							);?>
 							<span class="pull-right">
@@ -410,17 +408,17 @@ $(function(){
 			+'<div class="row">'
 			+'	<div class="col" style="border-right: 1px solid #eee;">'
 			+'		<div class="row">'
-			+'			<div class="col text-center" style="padding-top: 10px; max-width: 100px;">'
+			+'			<div class="col text-center" style="padding-top: 20px; max-width: 100px;">'
 			+'				<img class="rounded-circle shadow" src="'+data.user.avatar_path+'&w=50&h=50" /><br />'
 			+'				'+moment.unix(data.respond.created).format("YYYY-MM-DD HH:MM")
 			+'			</div>'
-			+'			<div class="col" style="padding-top: 10px;padding-left: 0;">'
+			+'			<div class="col" style="padding-top: 20px;padding-left: 0;">'
 			+'				<a class="wdo-link underline" href="/profile/id'+data.user.user_id+'">'+data.user.real_user_name+'</a>'
 			+'				<br /><br /><p style="white-space: pre-wrap;">'+data.respond.descr+'</p>'
 			+'			</div>'
 			+'		</div>'
 			+'	</div>'
-			+'	<div class="col" style="min-width: 220px; max-width: 220px; flex: 0 0 220px;">'
+			+'	<div class="col" style="max-width: 165px;">'
 			+'		<text style="line-height: 2rem;">Рейтинг <span class="pull-right">'+data.user.rating+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">Отзывов <span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">В сервисе <span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'

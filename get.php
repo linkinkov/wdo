@@ -16,7 +16,9 @@ switch ( $job )
 		$attach_id = get_var("attach_id","string","");
 		$w = get_var("w","int",35);
 		$h = get_var("h","int",35);
-		Attach::getByID($attach_id,$w,$h);
+		$force_resize = get_var("force_resize","string","");
+		$method = get_var("method","string","auto");
+		Attach::getByID($attach_id,$w,$h,$force_resize,$method);
 		break;
 	case "AttachList":
 		$for = get_var("for","string",'for_project_id');
@@ -42,6 +44,18 @@ switch ( $job )
 	case "UserList":
 		$search = get_var("search","string","");
 		$list = User::get_list($search);
+		header('Content-Type: application/json');
+		echo json_encode($list);
+		break;
+	case "PortfolioList":
+		$user_id = get_var("user_id","int",0);
+		$list = Portfolio::get_list($user_id);
+		header('Content-Type: application/json');
+		echo json_encode($list);
+		break;
+	case "Portfolio":
+		$portfolio_id = get_var("portfolio_id","int",0);
+		$list = Portfolio::get_portfolio($portfolio_id);
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;

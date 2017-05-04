@@ -28,6 +28,15 @@
 .wdo-btn.bg-purple:hover {
 	background-color: #681149;
 }
+.wdo-btn.yellow-outline {
+	border: 1px solid #a7a522;
+	color: #a7a522 !important;
+}
+.wdo-btn.yellow-outline:hover {
+	background-color: #ece7e7;
+	border: 1px solid #8a880f;
+	color: #8a880f;
+}
 
 .wdo-btn.disabled {
 	cursor: not-allowed !important;

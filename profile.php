@@ -9,7 +9,7 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 require_once('_global.php');
 include_once('_includes.php');
 $db = db::getInstance();
-check_access($db);
+check_access($db,false);
 
 $current_user = new User($_SESSION["user_id"]);
 $current_user->set_city_auto();
@@ -27,6 +27,8 @@ if ( $user_id <= 0 )
 $user = new User($user_id);
 $self_profile = ( $current_user->user_id == $user->user_id ) ? true : false;
 $user->get_counters();
+$user_link = HOST.'/profile/id'.$user->user_id.'#';
+$user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -48,7 +50,7 @@ $user->get_counters();
 				<div class="col wdo-main-left right-shadow">
 					<div class="row">
 						<div class="col text-center" style="padding-top: 20px;">
-							<a href=""><img class="rounded-circle shadow" data-name="avatar" src="<?php echo $user->avatar_path;?>&w=150&h=150" /></a>
+							<a href="<?php echo $user_link;?>" class="wdo-link"><img class="rounded-circle shadow" data-name="avatar" src="<?php echo $user->avatar_path;?>&w=150&h=150" /></a>
 							<i class="fa fa-circle text-success" id="online_tracker" style="display: none; position: absolute; right: 25px;" title="Сейчас на сайте"></i>
 						</div>
 					</div>
@@ -226,25 +228,33 @@ $user->get_counters();
 							}
 							foreach ( $tabs as $id=>$tab_name )
 							{
-								$class = ($id == $active) ? "" : "";
+								if ( $user->as_performer == 0 && $id == "portfolio" ) continue;
+								$class = ( $tab_name == $active ) ? "active" : "";
 								echo sprintf('
 								<li class="nav-item">
-									<a class="nav-link text-muted %s pointer" data-toggle="tab" data-target="#%s" role="tab">%s</a>
+									<a class="nav-link %s text-muted pointer" data-toggle="tab" data-target="#%s" role="tab">%s</a>
 								</li>',$class,$id,$tab_name);
 							}
 							?>
+
+							<li class="nav-item" style="display: none;">
+								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-add" role="tab">Add</a>
+							</li>
+
 							</ul>
 							<!-- Tab panes -->
 							<div class="tab-content">
 							<?php
 							foreach ( $tabs as $id=>$tab_name )
 							{
+								if ( $user->as_performer == 0 && $id == "portfolio" ) continue;
 								$class = ($id == $active) ? "active" : "";
 								$content = ($class == "active") ? '<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>' : '';
 								echo sprintf('
 								<div class="tab-pane %s" id="%s" role="tabpanel">%s</div>',$class,$id,$content);
 							}
 							?>
+							<div class="tab-pane portfolio-add" id="portfolio-add" role="tabpanel"></div>
 							</div>
 
 						</div>
@@ -277,59 +287,16 @@ $(function(){
 			$("#online_tracker").show();
 		}
 	});
-	$('a[data-toggle="tab"]').click(function(e){
-		var target = $(e.target);
-		if ( $(target).data('target') == '#messages' )
-		{
-			$(target).removeClass("active").tab('show');
-		}
-		if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();
-		clearTimeout(app.im.poller.poller_id);
-	})
-	$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-		scrollposition = $(document).scrollTop();
-		var id = $(e.target).data("target").substr(1);
-		window.location.hash = id;
-		$(document).scrollTop(scrollposition);
-	});
-	$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
-		var current_tab = e.target,
-				prev = e.relatedTarget,
-				prev_tab = $(prev).data('target'),
-				target = $(current_tab).data('target'),
-				target_tab = $(target);
-		scrollposition = $(document).scrollTop();
-		var id = $(e.target).data("target").substr(1);
-		window.location.hash = id;
-		$(document).scrollTop(scrollposition);
-
-		$(prev_tab).html('');
-		window.location.hash = target;
-		$(target_tab).html('<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
-		$.ajax({
-			type: "POST",
-			url: "/pp/"+target.substr(1),
-			dataType: "html",
-			data: {
-				"user_id": config.profile.user_id
-			},
-			error: function(err)
-			{
-				window.location = '/';
-			},
-			success: function (response) {
-				$(target_tab).append(response);
-			}
-		});
-	})
 	var hash = window.location.hash;
 	if ( hash != "" )
 	{
+		$(document).scrollTop(0);
 		$('a[data-target="' + hash + '"]').tab('show');
 	}
 	else
 	{
-		$('a[data-target="#profile"]').tab('show');
+		$(document).scrollTop(0);
+		$('a[data-target="#<?php echo $active;?>"]').tab('show');
 	}
 	$(".calendar-view").multiDatesPicker({
 		disabled: true

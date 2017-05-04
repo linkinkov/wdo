@@ -15,12 +15,13 @@ class Project
 		}
 		$public_fields = Array("title","descr","user_id","created","status_id","status_name","cost","accept_till","start_date","end_date","cat_name","subcat_name","safe_deal","vip","views","for_user_id");
 		array_walk($public_fields,'sqlize_array');
-		$sql = sprintf("SELECT %s
+		$sql = sprintf("SELECT %s, `cats`.`translated` as `cat_name_translated`, `subcats`.`translated` as `subcat_name_translated`
 		FROM `project`
 		LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
 		LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
 		LEFT JOIN `project_statuses` ON `project_statuses`.`id` = `project`.`status_id`
 		WHERE `project_id` = '%d'",implode(",",$public_fields),$id);
+		// echo $sql;
 		try {
 			$prj = $db->queryRow($sql);
 			if ( sizeof($prj) )

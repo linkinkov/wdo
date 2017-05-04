@@ -18,7 +18,7 @@ require_once(PD.'/lib/Attach.class.php');
 require_once(PD.'/upload/UploadHandler.php');
 
 $db = db::getInstance();
-check_access($db);
+check_access($db,false);
 $current_user = new User($_SESSION["user_id"]);
 
 if ( isset($_FILES["avatar"]) ) // uploading user avatar

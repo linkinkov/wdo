@@ -12,6 +12,7 @@ class Dialog
 			"message" => "Ошибка доступа"
 		);
 		if ( $current_user->user_id == 0 ) return $response;
+		$counter = 0;
 		try {
 			$sql = sprintf("SELECT COUNT(`message_id`) as `total_messages`
 				FROM `dialogs`
@@ -139,8 +140,9 @@ class Dialog
 					{
 						unset($users_in_dialog[$current_user->user_id]);
 						$recipient_id = array_keys($users_in_dialog);
-						$last_message = $db->queryRow(sprintf("SELECT `message_text`,`timestamp` FROM `messages` WHERE `dialog_id` = '%s' ORDER BY `timestamp` DESC LIMIT 1",$r->dialog_id));
+						$last_message = $db->queryRow(sprintf("SELECT `message_text`,`timestamp`,`user_id_from` FROM `messages` WHERE `dialog_id` = '%s' ORDER BY `timestamp` DESC LIMIT 1",$r->dialog_id));
 						$unreaded = $db->queryRow(sprintf("SELECT COUNT(`message_id`) as counter FROM `messages` WHERE `dialog_id` = '%s' AND `user_id_from` != '%d' AND `readed` = 0",$r->dialog_id,$current_user->user_id));
+						if ( $last_message->user_id_from == $current_user->user_id ) $last_message->message_text = '<text class="text-muted">Вы: </text>'.$last_message->message_text;
 						$dialog = Array(
 							"dialog_avatar_path" => HOST.'/user.getAvatar?user_id='.$recipient_id[0],
 							"dialog_id"=>$r->dialog_id,
@@ -203,9 +205,9 @@ class Dialog
 			$mark_as_readed = Array();
 			if ( $wait > 0 )
 			{
+				session_write_close();
 				$poll_end = false;
 				$pass = 0;
-				$sleep = (($wait / 5) >= 1) ? ($wait / 5) : 1;
 				while ( !$poll_end )
 				{
 					$rows = $db->queryRows($sql);
@@ -215,7 +217,7 @@ class Dialog
 					}
 					if ( sizeof($rows) == 0 )
 					{
-						$response["wait"] = $wait;
+						$response["wait"] = ($wait > 60) ? 60 : $wait+($wait*0.5);
 					}
 					else
 					{
@@ -274,21 +276,6 @@ class Dialog
 		return $response;
 	}
 
-/*
-	public static function get_messages_after_id($dialog_id,$message_id)
-	{
-		global $db;
-		global $current_user;
-		$response = Array(
-			"result" => "false",
-			"message" => "Ошибка доступа"
-		);
-		if ( $current_user->user_id == 0 || strlen($dialog_id) != 32 || strlen($message_id) != 32 ) return $response;
-		$users = Dialog::get_dialog_users($dialog_id);
-		if ( sizeof($users) == 0 ) return $response;
-	}
-*/
-
 	public static function send_message($dialog_id,$message_text)
 	{
 		global $db;
@@ -316,6 +303,18 @@ class Dialog
 			$db->query($sql);
 			$response["result"] = "true";
 			$response["message"] = "Сообщение отправлено";
+			$response["messages"][] = Array(
+				"user" => Array(
+					"id"=>$current_user->user_id,
+					"real_user_name"=>$users[$current_user->user_id],
+					"avatar_path"=>HOST.'/user.getAvatar?user_id='.$current_user->user_id
+				),
+				"message" => Array(
+					"text"=>$message_text,
+					"timestamp"=>$timestamp,
+					"readed"=>0
+				)
+			);
 			$response["timestamp"] = $timestamp;
 		}
 		catch ( Exception $e )

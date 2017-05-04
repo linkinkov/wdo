@@ -5,14 +5,18 @@ class User
 	public function __construct($user_id = false, $username = false, $login = false)
 	{
 		global $db;
-		if ( $login == true )
+		if ( !isset($_SESSION["viewed_projects"]) )
 		{
-			if ( !isset($_SESSION["viewed_projects"]) )
-			{
-				$_SESSION["viewed_projects"] = Array();
-			}
+			$_SESSION["viewed_projects"] = Array();
+		}
+		if ( !isset($_SESSION["viewed_portfolio"]) )
+		{
+			$_SESSION["viewed_portfolio"] = Array();
 		}
 /*
+		if ( $login == true )
+		{
+		}
 		if ( isset($_COOKIE["city_id"]) && isset($_COOKIE["city_name"]) )
 		{
 			$this->city_id = intval($_COOKIE["city_id"]);

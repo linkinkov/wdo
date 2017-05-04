@@ -63,7 +63,7 @@ else
 }
 ?>
 					</div>
-					<hr style="margin: 0; padding: 0;">
+					<hr style="margin: 0;padding: 0;margin-left: -15px;margin-right: -15px;">
 					<div class="row text-center" style="align-items: center;">
 					<?php
 						$current_page = $_SERVER["REQUEST_URI"];

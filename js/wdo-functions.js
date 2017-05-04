@@ -1,3 +1,12 @@
+$.urlParam = function(name, url) {
+	if (!url) url = window.location.href;
+	name = name.replace(/[\[\]]/g, "\\$&");
+	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+			results = regex.exec(url);
+	if (!results) return null;
+	if (!results[2]) return '';
+	return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 function formhash(form, password) {
 	var p = document.createElement("input");
 	var submit = $(form).find("button[type='submit']");
@@ -160,7 +169,6 @@ $(function(){
 	var input = $("#city-select-modal").find("input[type='search']"),
 			city_list = $("#city_list");
 	app.getCityList("",9,function(response){
-		console.log("Loading citties!");
 		$(city_list).html('');
 		if ( response.length ) {
 			$.each(response,function(){

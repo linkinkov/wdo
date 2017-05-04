@@ -121,7 +121,7 @@ function determine_user_city()
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
 	// $ip = "193.169.111.6";
-	$ip = "188.242.136.98";
+	// $ip = "188.242.136.98";
 	if ( $data = $gb->getRecord($ip) )
 	{
 		if (isset($data["city"]) && $data["city"] != "")
@@ -259,7 +259,11 @@ function sqlize_array(&$item)
 function check_access($db,$regen = true)
 {
 	if ( session_status() != PHP_SESSION_ACTIVE ) sec_session_start($regen);
-	else if ( $regen ) session_regenerate_id($regen);
+	else if ( $regen )
+	{
+		delTree(PD."/upload/files/".session_id());
+		session_regenerate_id($regen);
+	}
 	if(!login_check($db))
 	{
 		$_SESSION["user_id"] = 0;

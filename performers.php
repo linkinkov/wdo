@@ -9,7 +9,7 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 require_once('_global.php');
 include_once('_includes.php');
 $db = db::getInstance();
-check_access($db);
+check_access($db,false);
 
 $current_user = new User($_SESSION["user_id"]);
 $current_user->set_city_auto();
@@ -37,9 +37,8 @@ $preselect = get_var("preselect","array",Array());
 		<div class="col main">
 			<div class="row">
 				<div class="col wdo-main-left right-shadow" style="padding-top: 0px;">
-					
 					<div class="row">
-						<div class="col text-center" style="padding: 15px 5px; align-items: center;background: url('/images/ornament-w-bg.png');">
+						<div class="col text-center" style="padding: 15px 5px; align-items: center;background: url('/images/ornament-w-bg.png');height: 70px;">
 							<h44 style="font-size: 1.6rem;" class="text-purple-dark text-roboto-cond-bold">ВСЕ ИСПОЛНИТЕЛИ</h44>
 						</div>
 					</div>
@@ -50,12 +49,13 @@ $preselect = get_var("preselect","array",Array());
 				</div><!-- /.wdo-main-left -->
 				<div class="col wdo-main-right">
 					<div class="row">
-						<div class="col">
+						<div class="col" style="border-bottom: 1px solid #ece7e7;padding-bottom: 5px;">
 							Здесь представлены все исполнители, отсортированные по рейтингу. Вы можете добавить заказ для конкретного исполнителя.
 						</div>
 					</div>
-					<div class="row" style="border-bottom: 1px solid #eee;">
-						<div class="col">
+					<div class="row">
+						<div class="col" style="padding-top: 5px;">
+							<img src="/images/arrow-down.png" style="position: absolute; top: -3px; left: 50px;" >
 							Сортировать по: 
 							<span class="performers-sort active" data-dir="desc" data-col="rating">рейтингу</span>
 							<span class="performers-sort" data-dir="desc" data-col="registered">новизне</span>
@@ -64,8 +64,8 @@ $preselect = get_var("preselect","array",Array());
 					</div>
 
 					<table class="table" id="performers-table">
-						<thead style="display: none;">
-							<th>Наименование</th>
+						<thead>
+							<th>Исполнители</th>
 						</thead>
 						<tbody>
 						</tbody>
@@ -87,11 +87,11 @@ $(function(){
 	<?php
 	if ( isset($preselect["cat_name"]) )
 	{
-		$preselect["cat_id"] = $db->getValue("cats","id","id",Array("transliterated"=>strtolower($preselect["cat_name"])));
+		$preselect["cat_id"] = $db->getValue("cats","id","id",Array("translated"=>strtolower($preselect["cat_name"])));
 	}
 	if ( isset($preselect["subcat_name"]) )
 	{
-		$preselect["subcat_id"] = $db->getValue("subcats","id","id",Array("transliterated"=>strtolower($preselect["subcat_name"])));
+		$preselect["subcat_id"] = $db->getValue("subcats","id","id",Array("translated"=>strtolower($preselect["subcat_name"])));
 	}
 	if ( isset($preselect["subcat_id"]) && intval($preselect["subcat_id"]) > 0 )
 	{
@@ -117,7 +117,8 @@ $(function(){
 			"url": "/dt/performers",
 			"type": "POST",
 			"data": function( d ) {
-				d.order_by = function() {return $(".sort-performers.active").data('sort')};
+				var order = {"col": $(".performers-sort.active").data("col"),"dir": $(".performers-sort.active").data("dir")};
+				d.order = order;
 				d.selected = function() {return config.projects.specs;};
 			}
 		},
@@ -128,6 +129,7 @@ $(function(){
 		],
 		"order": [[0, 'asc']],
 		"initComplete": function(table,data) {
+			$("#performers-table").find("thead").hide();
 		},
 		"createdRow": function ( row, data, index ) {
 			$('td', row).html('');
@@ -138,32 +140,31 @@ $(function(){
 			if ( data.portfolios.length > 0 )
 			{
 				$.each(data.portfolios,function(){
-					console.log(this);
-					portfolio_thumbs += '<a href="/profile/id'+data.user.user_id+'"><img class="img-thumbnail" src="/get.Attach?attach_id='+this.cover_id+'&w=150&h=150" /></a>'
+					portfolio_thumbs += '<a href="/profile/id'+data.user.user_id+'#portfolio"><img width="100" class="img-thumbnail" src="/get.Attach?attach_id='+this.cover_id+'&w=250&h=250&force_resize=true&method=crop" /></a>'
 				})
 			}
 			html += ''
 			+'<div class="row">'
 			+'	<div class="col vertical-dotted">'
 			+'		<div class="row">'
-			+'			<div class="col text-center" style="padding-top: 10px; max-width: 100px;">'
+			+'			<div class="col text-center" style="padding-top: 20px; max-width: 100px;">'
 			+'				<img class="rounded-circle shadow" src="'+data.user.avatar_path+'&w=50&h=50" /><br />'
 			+'				'+moment.unix(data.user.registered).format("YYYY-MM-DD")
 			+'			</div>'
-			+'			<div class="col" style="padding-top: 10px;padding-left: 0;">'
+			+'			<div class="col" style="padding-top: 20px;padding-left: 0;">'
 			+'				<a class="wdo-link underline" href="/profile/id'+data.user.user_id+'">'+data.user.real_user_name+'</a>'
 			+'				<br /><br /><p class="text-truncated" style="text-overflow: ellipsis; line-height: 1.1rem; max-height: 2.2rem; overflow: hidden;">'+data.user.rezume+'</p>'
 			+'			</div>'
 			+'		</div>'
 			+'		<div class="row">'
-			+'			<div class="col" style="padding-top: 10px;">'
+			+'			<div class="col" style="padding: 15px;">'
 			+					portfolio_thumbs
 			+'			</div>'
 			+'		</div>'
 			+'	</div>'
-			+'	<div class="col text-center" style="max-width: 165px; background-color: #f6f5f6;">'
+			+'	<div class="col text-center" style="max-width: 165px; background-color: #f6f5f6; padding-top: 15px;">'
 			+'		<text style="line-height: 2rem;"><span class="pull-left">Рейтинг</span><span class="pull-right">'+data.user.rating+'</span></text><br />'
-			+'		<text style="line-height: 2rem;"><span class="pull-left">Отзывов</span><span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
+			+'		<text style="line-height: 2rem;"><span class="pull-left"><a class="wdo-link underline" href="/profile/id'+data.user.user_id+'#responds">Отзывов</a></span><span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
 			+'		<text style="line-height: 2rem;"><span class="pull-left">В сервисе</span><span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
 			+'		<br />'
 			+'		<text style="line-height: 3rem; font-size:.8rem;"><a class="wdo-link underline" href="/profile/id'+data.user.user_id+'#portfolio">Смотреть портфолио</a></text><br />'

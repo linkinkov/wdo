@@ -156,10 +156,10 @@ if ( sizeof ($aaData) )
 		}
 		$project->cost = number_format($project->cost,0,","," ");
 		$row->user = new User($project->user_id);
-		$cat_tr = strtolower(r2t($project->cat_name));
-		$subcat_tr = strtolower(r2t($project->subcat_name));
+		// $cat_tr = strtolower(r2t($project->cat_name));
+		// $subcat_tr = strtolower(r2t($project->subcat_name));
 		$title_tr = strtolower(r2t($project->title));
-		$row->project_link = HOST.'/project/'.$cat_tr.'/'.$subcat_tr.'/p'.$row->project_id.'/'.$title_tr.'.html';
+		$row->project_link = HOST.'/project/'.$project->cat_name_translated.'/'.$project->subcat_name_translated.'/p'.$row->project_id.'/'.$title_tr.'.html';
 		if ( $project->vip == 1 ) $row->DT_RowClass .= " vip";
 		if ( $for_profile == "true" )
 		{

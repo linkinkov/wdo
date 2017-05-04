@@ -246,11 +246,12 @@ var app = {
 	"im": {
 		"lmts": 0,
 		"poller": {
-			"poller_id": null,
-			"start": function(dialog_id,wait) {
-				clearTimeout(app.im.poller.poller_id);
+			"poller_id_msg": null,
+			"poller_id_dlg": null,
+			"check_msgs": function(dialog_id,wait) {
+				clearTimeout(app.im.poller.poller_id_msg);
 				var ms = 250;
-				app.im.poller.poller_id = setTimeout(function(){
+				app.im.poller.poller_id_msg = setTimeout(function(){
 					app.im.getMessages(dialog_id,0,0,app.im.lmts,wait,function(response){
 						if ( response.result == "true" )
 						{
@@ -259,11 +260,10 @@ var app = {
 								app.im.lmts = response.messages[0].message.timestamp;
 								app.im.append_messages(response.messages);
 							}
-							app.im.poller.start(dialog_id,response.wait);
+							app.im.poller.check_msgs(dialog_id,response.wait);
 						}
 					})
 				},ms);
-
 			}
 		},
 		"getDialogId": function(recipient_id,callback) {
@@ -321,6 +321,7 @@ var app = {
 			callback = callback || function(){};
 			if ( dialog_id.length < 32 ) return;
 			if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();
+			clearTimeout(app.im.poller.poller_id_msg);
 			setTimeout(function(){
 				$.ajax({
 					type: "POST",
@@ -384,6 +385,86 @@ var app = {
 			setTimeout(function(){
 				d.scrollTop(d.prop("scrollHeight"));
 			},250);
+		}
+	},
+	"gallery": null,
+	"portfolio": {
+		"getList": function(callback)
+		{
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/get.PortfolioList",
+				dataType: "JSON",
+				data: {
+					"user_id": config.profile.user_id
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"format_preview": function(data)
+		{
+			var card = ''
+			+'<div class="card">'
+			+'	<a class="wdo-link" href="#portfolio" data-toggle="show-portfolio" data-portfolio-id="'+data.portfolio_id+'">'
+			+'		<img class="card-img-top img-fluid" src="/get.Attach?attach_id='+data.cover_id+'&w=230&h=500" alt="'+data.title+'">'
+			+'	</a>'
+			+'	<div class="card-block">'
+			+'		<h5 class="card-title">'
+			+'			<a class="wdo-link text-purple" href="#portfolio" data-toggle="show-portfolio" data-portfolio-id="'+data.portfolio_id+'">'+data.title+'</a>'
+			+'		</h5>'
+			+'	</div>'
+			+'	<div class="card-footer">'
+			+'		<span class="pull-right text-yellow"><i class="fa fa-eye"></i> '+data.views+'</span>'
+			+'		<small><a class="wdo-link text-muted" href="/projects/'+data.cat_name_translated+'/">'+data.cat_name+'</a> / <a class="wdo-link text-muted" href="/projects/'+data.cat_name_translated+'/'+data.subcat_name_translated+'/">'+data.subcat_name+'</a></small>'
+			+'	</div>'
+			+'</div>';
+			return card;
+		},
+		"showPortfolio": function(portfolio_id,callback)
+		{
+			if ( parseInt(portfolio_id) <= 0 ) return;
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/get.Portfolio",
+				dataType: "JSON",
+				data: {
+					"portfolio_id": portfolio_id
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"changeCover": function(portfolio_id,attach_id,action,callback)
+		{
+			if ( parseInt(portfolio_id) <= 0 || parseInt(attach_id) <= 0 ) return;
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/portfolio/update",
+				dataType: "JSON",
+				data: {
+					"portfolio_id": portfolio_id,
+					"attach_id": attach_id,
+					"action": action,
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"hide": function()
+		{
+			var $sp = $("#portfolio_single");
+			$sp.show().css({
+				left: 15
+			}).animate({
+				left: -($sp.width())
+			}, 500);
 		}
 	}
 }

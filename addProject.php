@@ -136,10 +136,9 @@ $for_performer = get_var("for_performer","int",0);
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col" style="flex: 0 0 280px; max-width: 280px; align-self: center;">
-							<text class="text-muted">Файлы</text>
+							<text class="text-muted">Фото и документы</text>
 						</div>
 						<div class="col">
-							
 							<div id="uploaded" style="display: none;">
 								<div class="attaches-container gallery">
 									<!--<a href="/get.Attach?attach_id=1&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id=1&w=100&h=100" /></a>-->
@@ -282,19 +281,6 @@ $for_performer = get_var("for_performer","int",0);
 
 <script>
 $(function(){
-	$(".wdo-option[data-name='category']").click(function(){
-		var cat_id = $(this).data('value');
-		app.getSubCategories(cat_id,function(response){
-			if ( response )
-			{
-				$(".subcat-list").html('');
-				$.each(response,function(){
-					$(".subcat-list").append($.sprintf('<a class="dropdown-item wdo-option" data-name="subcategory" data-value="%d" data-parentid="%d">%s</a>',this.id,this.parent_cat_id,this.subcat_name));
-				})
-				$(".dropdown-toggle[data-name='subcategory']").removeClass("disabled");
-			}
-		})
-	})
 	var upload_btn = $("label[for='fileupload']");
 	var total_files = 0;
 	var max_files = 10;
@@ -394,6 +380,14 @@ $(function(){
 				'width',
 				progress + '%'
 			);
+		},
+		processfail: function(e,data) {
+			$.each(data.files, function (index, file) {
+				if ( file.error )
+				{
+					showAlert("error","("+file.name+"):"+file.error);
+				}
+			})
 		}
 	});
 	$(".gallery").click(function (event) {
@@ -405,17 +399,6 @@ $(function(){
 		blueimp.Gallery(links, options);
 	});
 	var current_links = [];
-	$(document).on("keyup","input[data-name='youtube-link']",function(){
-		if ( current_links.length >= 5 ) return;
-		if ( ytVidId($(this).val()) && $.inArray($(this).val(),current_links) == -1 )
-		{
-			current_links.push($(this).val());
-			$(this).removeClass("empty");
-		}
-		var empty = $("input.empty[data-name='youtube-link']");
-		if ( empty.length == 0 ) $('<input type="text" class="form-control empty" data-name="youtube-link" placeholder="Ссылка на ваше видео в YouTube" />').appendTo("#yt_links");
-	})
-
 	$("input[type='checkbox']").on("change",function(e){
 		var name = $(this).data('name'),
 				value = $(this).prop('checked');
@@ -423,9 +406,6 @@ $(function(){
 		{
 			(value === true) ? $("#preview").removeClass("disabled") : $("#preview").addClass("disabled");
 		}
-	})
-	$(".wdo-option[data-name='category']").click(function(){
-		$("button[data-name='subcategory']").text('Подкатегория');
 	})
 	var accept_till_opts = config.datePickerOptionsSingle;
 	accept_till_opts.locale.format = "DD.MM.YYYY";
@@ -591,15 +571,6 @@ $(function(){
 			}
 		});
 	})
-})
-$(document).on("click",".performer_found",function(e){
-	if ( $(this).hasClass("active") )
-	{
-		$(this).toggleClass("active");
-		return;
-	};
-	$(".performer_found").removeClass("active");
-	$(this).addClass("active");
 })
 
 </script>

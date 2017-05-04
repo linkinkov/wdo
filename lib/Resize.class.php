@@ -60,6 +60,13 @@
 
 			// *** Resample - create image canvas of x, y size
 			$this->imageResized = imagecreatetruecolor($optimalWidth, $optimalHeight);
+
+// keep
+			imagealphablending($this->imageResized, false);
+			imagesavealpha($this->imageResized,true);
+			$transparent = imagecolorallocatealpha($this->imageResized, 255, 255, 255, 127);
+			imagefilledrectangle($this->imageResized, 0, 0, $optimalWidth, $optimalHeight, $transparent);
+// keep off
 			imagecopyresampled($this->imageResized, $this->image, 0, 0, 0, 0, $optimalWidth, $optimalHeight, $this->width, $this->height);
 
 
