@@ -387,8 +387,8 @@ var app = {
 			},250);
 		}
 	},
-	"gallery": null,
 	"portfolio": {
+		"gallery": null,
 		"getList": function(callback)
 		{
 			callback = callback || function(){};
@@ -451,6 +451,25 @@ var app = {
 					"portfolio_id": portfolio_id,
 					"attach_id": attach_id,
 					"action": action,
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"deleteItem": function(portfolio_id,attach_id,type,callback)
+		{
+			if ( parseInt(portfolio_id) <= 0 || parseInt(attach_id) <= 0 ) return;
+			type = type || "image";
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/portfolio/delete_item",
+				dataType: "JSON",
+				data: {
+					"portfolio_id": portfolio_id,
+					"attach_id": attach_id,
+					"type": type
 				},
 				success: function (response) {
 					callback(response);

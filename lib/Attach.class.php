@@ -224,6 +224,39 @@ class Attach
 		@rmdir("$upload_dir");
 		return true;
 	}
+
+	public static function delete($portfolio_id,$attach_id,$type="image")
+	{
+		global $db;
+		global $current_user;
+		if ( $current_user->user_id == 0 || strlen($attach_id) != 32 ) return false;
+		$sql_info = sprintf("SELECT `file_name` FROM `attaches` WHERE `attach_id` = '%s' AND `user_id` = '%d'",$attach_id,$current_user->user_id);
+		$sql = sprintf("DELETE FROM `attaches` WHERE `attach_id` = '%s' AND `user_id` = '%d'",$attach_id,$current_user->user_id);
+		try {
+			$info = $db->queryRow($sql_info);
+			$is_cover = $db->getValue("portfolio","cover_id","cover_id",Array("portfolio_id"=>$portfolio_id,"cover_id"=>$attach_id));
+			$db->autocommit(false);
+			if ( in_array($type,Array("image","document")) && isset($info->file_name) && strlen($info->file_name) > 32 )
+			{
+				array_map('unlink', glob(PD."/attaches/".$current_user->user_id."/".$info->file_name, GLOB_BRACE));
+				array_map('unlink', glob(PD."/attaches/".$current_user->user_id."/cache/".$info->file_name."*", GLOB_BRACE));
+			}
+			if ( $db->query($sql) && $db->affected_rows == 1 )
+			{
+				if ( strlen($is_cover) == 32 )
+				{
+					$db->query(sprintf("UPDATE `portfolio` SET `cover_id` = '' WHERE `portfolio_id` = '%d'",$portfolio_id));
+				}
+				$db->commit();
+				return true;
+			}
+		}
+		catch ( Exception $e )
+		{
+			// echo $e->getMessage();
+		}
+		return false;
+	}
 }
 
 ?>

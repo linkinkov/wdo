@@ -507,7 +507,11 @@ $(function(){
 				event = event || window.event;
 				var target = event.target || event.srcElement,
 						link = target.src ? target.parentNode : target,
-						options = {index: link, event: event},
+						options = {index: link, event: event,
+						onopen: function(){
+							$(".portfolio-image-action").hide();
+						}
+						},
 						links = $(this).find("a").not(".download");
 				blueimp.Gallery(links, options);
 			});

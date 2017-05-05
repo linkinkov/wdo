@@ -599,6 +599,14 @@ th.project-table-cost {
 .portfolio-image-action:hover {
 	opacity: 1;
 }
+#portfolio_single {
+	display: none;
+	position: absolute;
+	width: 720px;
+	height: 100%;
+	background-color: rgb(243, 241, 241);
+	z-index: 5;
+}
 /* ----- END PORTFOLIO ---- */
 /* ----- CUSTOM SELECT ---- */
 .dropdown-item.wdo-option.active,.dropdown-item.wdo-option:active,.dropdown-item.wdo-option:hover {

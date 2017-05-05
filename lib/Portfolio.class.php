@@ -96,8 +96,9 @@ class Portfolio
 		global $current_user;
 		$response = Array(
 			"result" => "false",
-			"message" => "Ошибка доступа"
+			"message" => "Ошибка"
 		);
+		if ( $current_user->user_id == 0 ) {$response["message"] = "Ошибка доступа"; return $response;};
 		if ( $portfolio_id == 0 ) return $response;
 		if ( !in_array($field,Array("title","descr","views","cover_id")) ) return $response;
 		$value = filter_string($value,"in");
@@ -128,6 +129,7 @@ class Portfolio
 	{
 		global $db;
 		global $current_user;
+		if ( $current_user->user_id == 0 ) {$response["message"] = "Ошибка доступа"; return $response;};
 		$response = Array(
 			"result" => "false",
 			"message" => "Проверьте данные"
@@ -181,4 +183,23 @@ class Portfolio
 		}
 		return $response;
 	}
+
+/*
+	public static function delete_image($portfolio_id = 0 ,$attach_id = "" )
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( $current_user->user_id == 0 ) {$response["message"] = "Ошибка доступа"; return $response;};
+		if ( $portfolio_id == 0 || strlen($attach_id) != 32 ) return $response;
+		$response = Attach::delete($attach_id);
+		if ( $response == true )
+		{
+			$response["result"] = "true";
+		}
+	}
+*/
 }

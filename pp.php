@@ -715,7 +715,7 @@ if ( $current_user->user_id == $user->user_id )
 ?>
 <div class="row">
 	<div class="col" style="overflow-x: hidden;position: relative;">
-		<div id="portfolio_single" style="display: none;position: absolute;width: 720px;height: 100%;background-color: rgba(243, 241, 241, 0.96);z-index: 5;">
+		<div id="portfolio_single">
 			<div class="row">
 				<div class="col">
 					<span class="pull-left">
@@ -1076,6 +1076,16 @@ elseif ( $job == "portfolio-update" )
 	$attach_id = get_var("attach_id","string","");
 	$action = get_var("action","string","delete-cover");
 	$response = ( $action == "delete-cover" ) ? Portfolio::update($portfolio_id,"cover_id","") : Portfolio::update($portfolio_id,"cover_id",$attach_id);
+	header('Content-Type: application/json');
+	echo json_encode($response);
+	exit;
+}
+elseif ( $job == "portfolio-delete_item" )
+{
+	$portfolio_id = get_var("portfolio_id","int",0);
+	$attach_id = get_var("attach_id","string","");
+	$type = get_var("type","string","image");
+	$response = Attach::delete($portfolio_id,$attach_id,$type);
 	header('Content-Type: application/json');
 	echo json_encode($response);
 	exit;
