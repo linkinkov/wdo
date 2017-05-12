@@ -39,7 +39,7 @@ class Portfolio
 			"result" => "false",
 			"message" => "Ошибка"
 		);
-		$sql = sprintf("SELECT `portfolio_id`,`title`,`user_id`,`cover_id`,`views`,`descr`,
+		$sql = sprintf("SELECT `portfolio_id`,`title`,`user_id`,`cover_id`,`views`,`descr`,`portfolio`.`cat_id`,`portfolio`.`subcat_id`,
 		`cats`.`cat_name`,
 		`cats`.`translated` as `cat_name_translated`,
 		`subcats`.`subcat_name`,
@@ -55,7 +55,7 @@ class Portfolio
 			$portfolio = $db->queryRow($sql);
 			if ( isset($portfolio->portfolio_id) && $portfolio->portfolio_id > 0 )
 			{
-				$portfolio->attaches = Portfolio::get_portfolio_attaches($portfolio->portfolio_id);
+				$portfolio->attaches = Attach::get_by_for_type("for_portfolio_id",$portfolio->portfolio_id);
 			}
 			$response["result"] = "true";
 			unset($response["message"]);
@@ -72,22 +72,6 @@ class Portfolio
 		}
 
 		return $response;
-	}
-
-	public static function get_portfolio_attaches($portfolio_id = 0)
-	{
-		global $db;
-		$list = Array();
-		if ( $portfolio_id == 0 ) $list;
-		$sql = sprintf("SELECT `attach_id`,`attach_type`,`url` FROM `attaches` WHERE `attach_type` = 'image' AND `for_portfolio_id` = '%d'",$portfolio_id);
-		try {
-			$list = $db->queryRows($sql);
-		}
-		catch ( Exception $e )
-		{
-			// echo $e->getMessage();
-		}
-		return $list;
 	}
 
 	public static function update($portfolio_id = 0, $field = false, $value = false)
@@ -184,22 +168,4 @@ class Portfolio
 		return $response;
 	}
 
-/*
-	public static function delete_image($portfolio_id = 0 ,$attach_id = "" )
-	{
-		global $db;
-		global $current_user;
-		$response = Array(
-			"result" => "false",
-			"message" => "Ошибка"
-		);
-		if ( $current_user->user_id == 0 ) {$response["message"] = "Ошибка доступа"; return $response;};
-		if ( $portfolio_id == 0 || strlen($attach_id) != 32 ) return $response;
-		$response = Attach::delete($attach_id);
-		if ( $response == true )
-		{
-			$response["result"] = "true";
-		}
-	}
-*/
 }

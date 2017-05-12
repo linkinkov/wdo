@@ -8,8 +8,14 @@ $.urlParam = function(name, url) {
 	return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 function formhash(form, password) {
-	var p = document.createElement("input");
 	var submit = $(form).find("button[type='submit']");
+	console.log(form,$(form).serialize());
+	if ( $(form).find("input[name='username']").val() == "" || $(form).find("input[name='password']").val() == "" )
+	{
+		$(submit).removeClass("bg-yellow").addClass("bg-warning").text("Введите email / пароль").blur();
+		return false;
+	}
+	var p = document.createElement("input");
 	form.appendChild(p);
 	p.name = "p";
 	p.type = "hidden";

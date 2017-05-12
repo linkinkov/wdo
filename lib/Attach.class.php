@@ -126,11 +126,11 @@ class Attach
 		}
 	}
 
-	public static function get_by_for_type($for='for_project_id',$id=false)
+	public static function get_by_for_type($for='for_project_id',$id=false,$with_filesize=false)
 	{
 		global $db;
 		if ( !$id ) return false;
-		$sql = sprintf("SELECT `attach_id`,`attach_type`,`url` FROM `attaches` WHERE `%s` = '%d' ORDER BY `attach_type`, `attach_id` ASC",$for,$id);
+		$sql = sprintf("SELECT `attach_id`,`attach_type`,`url`,`file_name` FROM `attaches` WHERE `%s` = '%d' ORDER BY `attach_type`, `attach_id` ASC",$for,$id);
 		try {
 			$list = $db->queryRows($sql);
 			$idx = 0;
@@ -151,6 +151,7 @@ class Attach
 					unset($row->url);
 				}
 				$idx++;
+				unset($row->file_name);
 			}
 			return $list;
 		}
@@ -206,10 +207,10 @@ class Attach
 				}
 				else
 				{
-					echo "can't rename\n";
-					echo "from: $filepath\n";
-					echo "to: $target_dir\n";
-					echo "new filename: $filename_new\n";
+					// echo "can't rename\n";
+					// echo "from: $filepath\n";
+					// echo "to: $target_dir\n";
+					// echo "new filename: $filename_new\n";
 					return false;
 				}
 			}

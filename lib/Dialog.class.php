@@ -127,7 +127,7 @@ class Dialog
 		$sql = sprintf("SELECT `dialogs`.`dialog_id`, COUNT(`message_id`) as `total_messages`
 		FROM `dialogs`
 		LEFT JOIN `messages` ON `messages`.`dialog_id` = `dialogs`.`dialog_id`
-		WHERE find_in_set('%d',`dialog_users`) <> 0 GROUP BY `dialogs`.`dialog_id` HAVING `total_messages` > 0",$current_user->user_id);
+		WHERE find_in_set('%d',`dialog_users`) <> 0 GROUP BY `dialogs`.`dialog_id` HAVING `total_messages` > 0 ORDER BY `messages`.`timestamp` DESC",$current_user->user_id);
 		try {
 			$rows = $db->queryRows($sql);
 			if ( sizeof($rows) )

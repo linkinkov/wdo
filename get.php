@@ -59,4 +59,29 @@ switch ( $job )
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;
+	case "PortfolioAttaches":
+		$portfolio_id = get_var("portfolio_id","int",0);
+		$list = Attach::get_by_for_type("for_portfolio_id",$portfolio_id);
+		$attaches = Array("files"=>Array());
+		if ( sizeof($list) )
+		{
+			foreach ( $list as $e )
+			{
+				$a = Array(
+					"deleteType"=>"DELETE",
+					"deleteWithCredentials"=>true,
+					"name"=>$e->attach_id.".jpeg",
+					"size"=>2919092,
+					"type"=>"image/jpeg",
+					"deleteUrl"=>"https://localhost:91/portfolio/delete_item?portfolio_id=".$portfolio_id."&attach_id=".$e->attach_id."&type=".$e->attach_type,
+					"thumbnailUrl"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=150&h=150&force_resize=true",
+					"url"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=800&h=800",
+				);
+				$attaches["files"][] = $a;
+			}
+		}
+		// header('Content-Type: application/json');
+		echo json_encode($attaches);
+		break;
+
 }

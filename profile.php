@@ -228,7 +228,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							}
 							foreach ( $tabs as $id=>$tab_name )
 							{
-								if ( $user->as_performer == 0 && $id == "portfolio" ) continue;
+								if ( $user->as_performer == 0 && in_array($id,Array("project-responds","portfolio")) ) continue;
 								$class = ( $tab_name == $active ) ? "active" : "";
 								echo sprintf('
 								<li class="nav-item">
@@ -238,7 +238,10 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							?>
 
 							<li class="nav-item" style="display: none;">
-								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-add" role="tab">Add</a>
+								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-add" role="tab">Добавить портфолио</a>
+							</li>
+							<li class="nav-item" style="display: none;">
+								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-edit" role="tab">Редактировать портфолио</a>
 							</li>
 
 							</ul>
@@ -254,7 +257,8 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 								<div class="tab-pane %s" id="%s" role="tabpanel">%s</div>',$class,$id,$content);
 							}
 							?>
-							<div class="tab-pane portfolio-add" id="portfolio-add" role="tabpanel"></div>
+								<div class="tab-pane" id="portfolio-add" role="tabpanel"></div>
+								<div class="tab-pane" id="portfolio-edit" role="tabpanel"></div>
 							</div>
 
 						</div>
@@ -273,8 +277,8 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 <script src="<?php echo HOST;?>/js/jquery-ui/jquery-ui.js"></script>
 <script src="<?php echo HOST;?>/js/jquery-ui.multidatespicker.js"></script>
 <script>
+<?php echo sprintf('config.profile.user_id = "%d";',$user->user_id);?>
 $(function(){
-	<?php echo sprintf('config.profile.user_id = "%d";',$user->user_id);?>
 	$(".timestamp").each(function(e){
 		var title = moment.unix($(this).data('timestamp')).format("LLL");
 		( $(this).hasClass("fromNow") )

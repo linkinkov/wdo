@@ -131,6 +131,14 @@ $(document).on("click",".list-group-item,.custom-control-description-cat, .toggl
 	}
 })
 
+$(document).on("click",".download",function(e){
+	e.stopPropagation();
+	e.preventDefault();
+	var href = $(this).attr("href");
+	window.open(href,'_blank');
+})
+
+
 $(document).on("click","[data-toggle='show-portfolio']",function(e){
 	e.preventDefault();
 	var portfolio_id = $(this).data('portfolio-id');
@@ -138,19 +146,31 @@ $(document).on("click","[data-toggle='show-portfolio']",function(e){
 		$("#portfolio-title").text('');
 		$("#portfolio-descr").text('');
 		$("#portfolio-photos").html('');
+		$("#portfolio-videos").html('');
+		$("#portfolio-docs").html('');
+		$(".portfolio-photos-container").hide();
+		$(".portfolio-videos-container").hide();
+		$(".portfolio-docs-container").hide();
 		if ( response.result == "true" )
 		{
 			var pf = response.portfolio;
 			$("#portfolio-title").text(pf.title);
 			$("#portfolio-descr").text(pf.descr);
+			$("#portfolio-edit-link").attr("data-pfid",portfolio_id).data("portfolio_id",portfolio_id);
+			$("#portfolio-delete-link").attr("data-pfid",portfolio_id).data("portfolio_id",portfolio_id);
 			if ( pf.attaches.length > 0 )
 			{
+				var att_p = 0,
+						att_v = 0,
+						att_d = 0;
 				$.each(pf.attaches,function(){
 					var object = '',
 							is_cover = (this.attach_id == pf.cover_id) ? 'true' : 'false';
 					if ( this.attach_type == 'image' )
 					{
 						object = '<a href="/get.Attach?attach_id='+this.attach_id+'&w=800&h=800"><img style="height: 100px;" class="img-thumbnail" src="/get.Attach?attach_id='+this.attach_id+'&w=150&h=150&force_resize=true" data-is_cover="'+is_cover+'" data-attach-id="'+this.attach_id+'"/></a>';
+						$("#portfolio-photos").append(object);
+						att_p++;
 					}
 					else if ( this.attach_type == 'video' )
 					{
@@ -158,15 +178,21 @@ $(document).on("click","[data-toggle='show-portfolio']",function(e){
 						+'	href="'+this.url+'"'
 						+'	title="" type="text/html"'
 						+'	data-youtube="'+this.youtube_id+'" poster="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg">'
-						+'<img class="img-thumbnail" src="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg" />';
+						+'<img style="height: 100px;" class="img-thumbnail" src="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg" />';
 						+'</a>';
+						$("#portfolio-videos").append(object);
+						att_v++;
 					}
 					else if ( this.attach_type == 'document' )
 					{
 						object = '<a class="download" href="/get.Attach?attach_id='+this.attach_id+'"><img class="img-thumbnail" src="/images/document.png" /></a>';
+						$("#portfolio-docs").append(object);
+						att_d++;
 					}
-					$("#portfolio-photos").append(object);
-				})
+				});
+				if ( att_p > 0 ) $(".portfolio-photos-container").show();
+				if ( att_v > 0 ) $(".portfolio-videos-container").show();
+				if ( att_d > 0 ) $(".portfolio-docs-container").show();
 				$("#portfolio-photos").click(function (event) {
 					event = event || window.event;
 					var target = event.target || event.srcElement,
@@ -177,8 +203,6 @@ $(document).on("click","[data-toggle='show-portfolio']",function(e){
 								onopen: function () {
 									$(".portfolio-image-action").show();
 									$(".portfolio-image-action[data-action='delete_image']").data('portfolio_id',portfolio_id).data('attach_id',$(target).data('attach_id'));
-									// var slide_img = $("img.slide-content[src='*"+$(target).data('attach_id')+"*']");
-									// $(slide_img).data('')
 								},
 								onslide: function (index, slide) {
 									var img = $(slide).find("img"),
@@ -214,6 +238,17 @@ $(document).on("click","[data-toggle='show-portfolio']",function(e){
 							},
 							links = $(this).find("a").not(".download");
 					app.portfolio.gallery = blueimp.Gallery(links, options);
+				})
+				$("#portfolio-videos").click(function (event) {
+					video_links = $(this).find("a").not(".download");
+					event = event || window.event;
+					var target = event.target || event.srcElement,
+							link = target.src ? target.parentNode : target,
+							options = {
+								index: link,
+								event: event,
+							};
+					blueimp.Gallery(video_links, options);
 				})
 			}
 			var $sp = $("#portfolio_single");
@@ -263,7 +298,6 @@ $(".portfolio-image-action").click(function(e){
 	}
 	else if ( data.action == "delete_image" )
 	{
-		console.log(data);
 		$("img.slide-content[src='*"+data.attach_id+"*']").remove();
 		var slide_img = $("img.slide-content[src*='"+data.attach_id+"']"),
 				li = $("ol.indicator").find("li[style*='"+data.attach_id+"']");
@@ -293,42 +327,42 @@ $(document).on('click','a[data-toggle="tab"]', function(e){
 		$(".tab-pane#messages").removeClass("active");
 		$(target).removeClass("active").tab('show');
 	}
-	if ( $(target).data('target') == '#portfolio' && window.location.hash == "#portfolio-add" )
+	if ( $(target).data('target') == '#portfolio' )
 	{
 		$(".tab-pane#portfolio").removeClass("active");
 		$(target).removeClass("active").tab('show');
 	}
 })
 $(document).on('shown.bs.tab','a[data-toggle="tab"]', function (e) {
-	scrollposition = $(document).scrollTop();
-	var id = $(e.target).data("target").substr(1);
-	window.location.hash = id;
-	$(document).scrollTop(scrollposition);
 	$(".dialogs-container").html('');
 });
+
 $(document).on('show.bs.tab','a[data-toggle="tab"]', function (e) {
 	var current_tab = e.target,
 			prev = e.relatedTarget,
 			prev_tab = $(prev).data('target'),
 			target = $(current_tab).data('target'),
-			target_tab = $(target);
-	scrollposition = $(document).scrollTop();
-	var id = $(e.target).data("target").substr(1);
-	window.location.hash = id;
-	$(document).scrollTop(scrollposition);
+			target_tab = $("div.tab-pane"+target),
+			id = $(e.target).data("target").substr(1),
+			prev_id = window.location.hash;
+	if ( !/portfolio-/.test(id) )
+	{
+		window.location.hash = id;
+	}
 	$(".dialogs-container").html('');
 
 	$(prev_tab).html('');
 	$(target_tab).html('');
-	window.location.hash = target;
 	$(target_tab).html('<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+	var post_data = {
+		"user_id": config.profile.user_id
+	}
+	if ( id == "portfolio-edit" ) post_data["portfolio_id"] = $(this).data('portfolio_id');
 	$.ajax({
 		type: "POST",
-		url: "/pp/"+target.substr(1),
+		url: "/pp/"+id,
 		dataType: "html",
-		data: {
-			"user_id": config.profile.user_id
-		},
+		data: post_data,
 		error: function(err)
 		{
 			window.location = '/';
@@ -375,10 +409,3 @@ $(document).on("keyup","input[data-name='youtube-link']",function(){
 	var empty = $("input.empty[data-name='youtube-link']");
 	if ( empty.length == 0 ) $('<input type="text" class="form-control empty" data-name="youtube-link" placeholder="Ссылка на ваше видео в YouTube" />').appendTo("#yt_links");
 })
-
-/*
-$('#blueimp-gallery').on('slide', function (event, index, slide) {
-	// Gallery slide event handler
-	console.log("slide!",slide);
-})
-*/

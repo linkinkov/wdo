@@ -89,20 +89,8 @@ if ( isset($_GET["add_respond"]) )
 							</div>
 						</div>
 					</div>
-					<div class="row">
-						<div class="col">
-							<hr />
-							<h44 class="text-yellow strong">ПРЕДЛОЖЕНИЯ КОМПАНИЙ</h44>
-							<?php include(PD.'/includes/left-list-adv.php');?>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col">
-							<hr />
-							<h44 class="text-yellow strong">ТОП 10 ИСПОЛНИТЕЛЕЙ</h44>
-							<?php include(PD.'/includes/left-list-top-10.php');?>
-						</div>
-					</div>
+					<?php include(PD.'/includes/left-list-adv.php');?>
+					<?php include(PD.'/includes/left-list-top-10.php');?>
 				</div><!-- /.wdo-main-left -->
 				<div class="invisible" id="project_id" data-project-id="<?php echo $project->project_id;?>"></div>
 				<div class="col wdo-main-right" style="padding: 30px;">
@@ -418,7 +406,7 @@ $(function(){
 			+'			</div>'
 			+'		</div>'
 			+'	</div>'
-			+'	<div class="col" style="max-width: 165px;">'
+			+'	<div class="col" style="max-width: 165px;padding-top: 15px;">'
 			+'		<text style="line-height: 2rem;">Рейтинг <span class="pull-right">'+data.user.rating+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">Отзывов <span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">В сервисе <span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
@@ -463,7 +451,7 @@ $(function(){
 				header_html = ''
 				+'<div class="row">'
 				+'	<div class="col">'
-				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#conversation-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Добавить заметку</a>'
+				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#conversation-modal" data-recipient_id="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Добавить заметку</a>'
 				+'		<span class="pull-right">'+actions+'</span>'
 				+'	</div>'
 				+'</div>'
@@ -515,12 +503,6 @@ $(function(){
 						links = $(this).find("a").not(".download");
 				blueimp.Gallery(links, options);
 			});
-			$(".download").click(function(e){
-				e.stopPropagation();
-				e.preventDefault();
-				var href = $(this).attr("href");
-				window.open(href,'_blank');
-			})
 			$(".respond-action").click(function(e){
 				$.ajax({
 					type: "POST",
