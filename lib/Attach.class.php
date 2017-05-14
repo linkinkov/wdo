@@ -19,8 +19,6 @@ class Attach
 		}
 		elseif ( file_exists($requested) )
 		{
-		// echo "getting:".$requested.", cached:".$cached." / ".dirname($cached);
-		// exit;
 			ob_clean();
 			$resizeObj = new resize($requested);
 			$resizeObj->resizeImage($w, $h, 'auto');

@@ -67,16 +67,33 @@ switch ( $job )
 		{
 			foreach ( $list as $e )
 			{
-				$a = Array(
-					"deleteType"=>"DELETE",
-					"deleteWithCredentials"=>true,
-					"name"=>$e->attach_id.".jpeg",
-					"size"=>2919092,
-					"type"=>"image/jpeg",
-					"deleteUrl"=>"https://localhost:91/portfolio/delete_item?portfolio_id=".$portfolio_id."&attach_id=".$e->attach_id."&type=".$e->attach_type,
-					"thumbnailUrl"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=150&h=150&force_resize=true",
-					"url"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=800&h=800",
-				);
+				if ( $e->attach_type == "video" && isset($e->youtube_id) )
+				{
+					$a = Array(
+						"deleteUrl"=>"https://localhost:91/portfolio/delete_item?portfolio_id=".$portfolio_id."&attach_id=".$e->attach_id."&type=".$e->attach_type,
+						"youtube_id"=>$e->youtube_id
+					);
+				}
+				else if ( $e->attach_type == "image" )
+				{
+					$a = Array(
+						// "deleteType"=>"DELETE",
+						// "deleteWithCredentials"=>true,
+						// "name"=>$e->attach_id.".jpeg",
+						// "size"=>2919092,
+						"type"=>"image/jpeg",
+						"deleteUrl"=>"https://localhost:91/portfolio/delete_item?portfolio_id=".$portfolio_id."&attach_id=".$e->attach_id."&type=".$e->attach_type,
+						"thumbnailUrl"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=90&h=90&force_resize=true",
+						"url"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=800&h=800",
+					);
+				}
+				else if ( $e->attach_type == "document" )
+				{
+					$a = Array(
+						"deleteUrl"=>"https://localhost:91/portfolio/delete_item?portfolio_id=".$portfolio_id."&attach_id=".$e->attach_id."&type=".$e->attach_type,
+						"url"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=800&h=800",
+					);
+				}
 				$attaches["files"][] = $a;
 			}
 		}

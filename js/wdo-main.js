@@ -485,6 +485,25 @@ var app = {
 				left: -($sp.width())
 			}, 500);
 		}
+	},
+	"formatter": {
+		"format_uploaded": function(file,postfix)
+		{
+			if ( file.error )
+			{
+				showAlert("error",file.error);
+				return;
+			}
+			var is_image = /image/ig;
+			if ( is_image.test(file.type) )
+			{
+				$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a href="'+file.url+'"><img class="img-thumbnail" src="'+file.thumbnailUrl+'" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
+			}
+			else
+			{
+				$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a class="download" href="'+file.url+'"><img class="img-thumbnail" width="50px" src="/images/document.png" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
+			}
+		}
 	}
 }
 

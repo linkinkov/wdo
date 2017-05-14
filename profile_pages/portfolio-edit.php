@@ -16,7 +16,7 @@ else
 {
 	exit("error");
 }
-print_r($pf);
+// print_r($pf);
 ?>
 
 <div class="row">
@@ -129,7 +129,6 @@ $(function(){
 	var total_files = 0;
 	var max_files = 10;
 	$.get("/get.PortfolioAttaches?portfolio_id="+portfolio_id,function(response){
-			console.log("R:",response);
 		try {
 			var resp = $.parseJSON(response),
 					files = resp.files;
@@ -138,17 +137,15 @@ $(function(){
 				var $form = $('#fileupload_edit');
 				$form.fileupload();
 				$form.fileupload('option', 'done').call($form, $.Event('done'), {result: {files: files}});
-				total_files = files.length;
+				total_files += files.length;
 			}
 		}
 		catch (msg)
 		{
-			console.log(response);
 			console.log(msg);
 		}
 	})
 	$.get("/upload/",function(response){
-			console.log("R2:",response);
 		try {
 			var resp = $.parseJSON(response),
 					files = resp.files;
@@ -157,7 +154,7 @@ $(function(){
 				var $form = $('#fileupload_edit');
 				$form.fileupload();
 				$form.fileupload('option', 'done').call($form, $.Event('done'), {result: {files: files}});
-				total_files = files.length;
+				total_files += files.length;
 			}
 		}
 		catch (msg)
@@ -186,20 +183,7 @@ $(function(){
 		done: function (e, data) {
 			$("#uploaded").show();
 			$.each(data.result.files, function (index, file) {
-				if ( file.error )
-				{
-					showAlert("error",file.error);
-					return;
-				}
-				var is_image = /image/ig;
-				if ( is_image.test(file.type) )
-				{
-					$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a href="'+file.url+'"><img class="img-thumbnail" src="'+file.thumbnailUrl+'" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
-				}
-				else
-				{
-					$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a class="download" href="'+file.url+'"><img class="img-thumbnail" width="50px" src="/images/document.png" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
-				}
+				app.formatter.format_upload_files(file);
 				total_files++;
 			});
 			$(".download").click(function(e){
