@@ -8,7 +8,7 @@
 	<a class="close">×</a>
 	<a class="play-pause"></a>
 	<a class="custom-control portfolio-image-action" data-action="change_cover" data-subact="" style="color: gold;" title="Установить как обложку"><i class="fa fa-star-o fa-3x"></i></a>
-	<a class="custom-control portfolio-image-action" data-action="delete_image" style="color: grey;" title="Удалить фото"><i class="fa fa-trash fa-3x"></i></a>
+	<a class="custom-control portfolio-image-action" data-action="delete_attach" style="color: grey;" title="Удалить фото"><i class="fa fa-trash fa-3x"></i></a>
 	<ol class="indicator"></ol>
 </div>
 

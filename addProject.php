@@ -140,7 +140,7 @@ $for_performer = get_var("for_performer","int",0);
 						</div>
 						<div class="col">
 							<div id="uploaded" style="display: none;">
-								<div class="attaches-container gallery">
+								<div class="attaches-container gallery text-center">
 									<!--<a href="/get.Attach?attach_id=1&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id=1&w=100&h=100" /></a>-->
 								</div>
 								<hr />

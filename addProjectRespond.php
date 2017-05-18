@@ -1,7 +1,15 @@
 <?php
 require_once('_global.php');
 include_once('_includes.php');
+
 $job = get_var("job","string","");
+$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$project->project_id)));
+if ( $already_has_respond > 0 )
+{
+	$error = "700";
+	include(PD.'/errors/error.php');
+	exit;
+}
 if ( $job == "publish" )
 {
 	if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
@@ -92,11 +100,11 @@ $_SESSION["LAST_PAGE"] = "/addProjectPespond";
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col" style="flex: 0 0 280px; max-width: 280px; align-self: center;">
-							<text class="text-muted">Файлы</text>
+							<text class="text-muted">Фото и документы</text>
 						</div>
 						<div class="col">
 							<div id="uploaded" style="display: none;">
-								<div class="attaches-container gallery">
+								<div class="attaches-container gallery text-center">
 									<!--<a href="/get.Attach?attach_id=1&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id=1&w=100&h=100" /></a>-->
 								</div>
 								<hr />
@@ -197,21 +205,30 @@ $(function(){
 		done: function (e, data) {
 			$("#uploaded").show();
 			$.each(data.result.files, function (index, file) {
-				if ( file.error )
+				object = app.formatter.format_pf_edit_attach(this);
+				if ( this.attach_type == 'image' || this.attach_type == 'document' )
 				{
-					showAlert("error",file.error);
-					return;
+					$(".attaches-container").append(object);
+					total_files++;
 				}
-				var is_image = /image/ig;
-				if ( is_image.test(file.type) )
+				else if ( this.attach_type == 'video' )
 				{
-					$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a href="'+file.url+'"><img class="img-thumbnail" src="'+file.thumbnailUrl+'" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
+					$(".attaches-container").append(object);
+					$("#yt_links").find("input.empty[data-name='youtube-link']").addClass("disabled").removeClass("empty").attr("disabled","disabled").data("attach_id",this.attach_id).attr("data-attach_id",this.attach_id).val(this.url).trigger("keyup");
 				}
 				else
 				{
-					$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a class="download" href="'+file.url+'"><img class="img-thumbnail" width="50px" src="/images/document.png" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
+					total_files++;
+					var is_image = /image/ig;
+					if ( is_image.test(this.type) )
+					{
+						$(".attaches-container").append(object);
+					}
+					else
+					{
+						$(".attaches-container").append(object);
+					}
 				}
-				total_files++;
 			});
 			$(".download").click(function(e){
 				e.stopPropagation();
@@ -331,6 +348,7 @@ $(function(){
 				if ( response.message )
 				{
 					set_btn_state(btn,'reset',response.message);
+					$(btn).addClass("disabled");
 				}
 				else
 				{

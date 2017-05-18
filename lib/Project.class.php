@@ -144,7 +144,7 @@ class Project
 		if ( $data["vip"] == "true" )
 		{
 			$data["vip"] = 1;
-			$status_id = 5;
+			$status_id = 6;
 		}
 		$sql = sprintf("INSERT INTO `project` (`title`,`descr`,`cost`,`created`,`status_id`,`user_id`,`accept_till`,`start_date`,`end_date`,`cat_id`,`subcat_id`,`city_id`,`safe_deal`,`vip`,`views`,`for_user_id`)
 		VALUES ('%s','%s','%d',UNIX_TIMESTAMP(),'%d','%d','%d','%d','%d','%d','%d','%d','%d','%d',0,'%d')",

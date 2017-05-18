@@ -21,6 +21,11 @@ else
 
 <div class="row">
 	<div class="col" style="flex: 0 0 280px; max-width: 280px; align-self: center;">
+		<a class="wdo-link" onClick="showThisPf();">Вернуться к просмотру</a>
+	</div>
+</div>
+<div class="row">
+	<div class="col" style="flex: 0 0 280px; max-width: 280px; align-self: center;">
 		<text class="text-muted">Выберите раздел</text>
 	</div>
 	<div class="col">
@@ -52,7 +57,7 @@ else
 				foreach ( SubCategory::get_list($pf->cat_id) as $subcat )
 				{
 					$class = ( $subcat->id == $pf->subcat_id ) ? 'active' : '';
-					echo sprintf('<a class="dropdown-item wdo-option %s" data-name="category" data-value="%d">%s</a>',$class,$subcat->id,$subcat->subcat_name);
+					echo sprintf('<a class="dropdown-item wdo-option %s" data-name="subcategory" data-value="%d">%s</a>',$class,$subcat->id,$subcat->subcat_name);
 				}
 				?>
 			</div>
@@ -87,7 +92,7 @@ else
 	</div>
 	<div class="col">
 		<div id="uploaded" style="display: none;">
-			<div class="attaches-container gallery">
+			<div class="attaches-container gallery text-center">
 				<!--<a href="/get.Attach?attach_id=1&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id=1&w=100&h=100" /></a>-->
 			</div>
 			<hr />
@@ -115,7 +120,7 @@ else
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row">
 	<div class="col text-center">
-		<div class="wdo-btn btn-sm bg-purple" id="submit" data-lt="Загрузка" data-ot="Опубликовать портфолио">Опубликовать портфолио</div>
+		<div class="wdo-btn btn-sm bg-purple" id="submit" data-lt="Сохранение..." data-ot="Сохранить">Сохранить</div>
 	</div>
 </div>
 
@@ -123,6 +128,13 @@ else
 <?php
 	echo 'var portfolio_id="'.$portfolio_id.'";';
 ?>
+function showThisPf()
+{
+	$("a[data-toggle='tab'][data-target='#portfolio']").removeClass("active").tab("show");
+	app.portfolio.showPortfolio(portfolio_id,function(response){
+		process_show_portfolio(response);
+	});
+}
 var current_links = [];
 $(function(){
 	var upload_btn = $("label[for='fileupload_edit']");
@@ -135,9 +147,11 @@ $(function(){
 			if ( files.length > 0 )
 			{
 				var $form = $('#fileupload_edit');
+				// console.log("totaL_files:",total_files);
 				$form.fileupload();
 				$form.fileupload('option', 'done').call($form, $.Event('done'), {result: {files: files}});
-				total_files += files.length;
+				// total_files = files.length;
+				// console.log("add:",files.length,", now:",total_files);
 			}
 		}
 		catch (msg)
@@ -155,6 +169,7 @@ $(function(){
 				$form.fileupload();
 				$form.fileupload('option', 'done').call($form, $.Event('done'), {result: {files: files}});
 				total_files += files.length;
+				console.log("add from uploaded:",files.length,", now:",total_files);
 			}
 		}
 		catch (msg)
@@ -162,17 +177,20 @@ $(function(){
 			console.log(msg);
 		}
 	})
+	console.log("total_files:",total_files);
 	$('#fileupload_edit').fileupload({
 		dataType: 'json',
 		url: '/upload/',
 		change : function (e, data) {
 			if(total_files>=max_files){
+				console.log("total_files:",total_files,", max_files:",max_files);
 				showAlert("error","Максимум "+max_files+" файлов");
 				return false;
 			}
 		},
 		submit:  function (e, data) {
 			if(total_files>=max_files){
+				console.log("total_files2:",total_files,", max_files2:",max_files);
 				showAlert("error","Максимум "+max_files+" файлов");
 				return false;
 			}
@@ -182,37 +200,81 @@ $(function(){
 		},
 		done: function (e, data) {
 			$("#uploaded").show();
-			$.each(data.result.files, function (index, file) {
-				app.formatter.format_upload_files(file);
-				total_files++;
+			$.each(data.result.files, function () {
+				object = app.formatter.format_pf_edit_attach(this);
+				if ( this.attach_type == 'image' || this.attach_type == 'document' )
+				{
+					$(".attaches-container").append(object);
+					total_files++;
+				}
+				else if ( this.attach_type == 'video' )
+				{
+					$(".attaches-container").append(object);
+					$("#yt_links").find("input.empty[data-name='youtube-link']").addClass("disabled").removeClass("empty").attr("disabled","disabled").data("attach_id",this.attach_id).attr("data-attach_id",this.attach_id).val(this.url).trigger("keyup");
+				}
+				else
+				{
+					total_files++;
+					var is_image = /image/ig;
+					if ( is_image.test(this.type) )
+					{
+						$(".attaches-container").append(object);
+					}
+					else
+					{
+						$(".attaches-container").append(object);
+					}
+				}
+				// total_files++;
 			});
-			$(".download").click(function(e){
+			$(".download").off("click").on("click",function(e){
 				e.stopPropagation();
 				e.preventDefault();
 				var href = $(this).attr("href");
 				window.open(href,'_blank');
 			})
-			$(".delete").click(function(e){
+			$(".delete").off("click").on("click",function(e){
 				e.stopPropagation();
 				e.preventDefault();
 				var link = $(this),
 						href = $(link).attr("href"),
 						data = $(link).data(),
-						obj = $("div[data-filename='"+data.filename+"']");
-				$.ajax({
-					url: href,
-					type: 'DELETE',
-					dataType: "JSON",
-					success: function(result) {
-						if ( result[data.filename] == true )
+						obj = $("div[data-filename='"+data.filename+"']"),
+						deleteType = data.deletetype || 'DELETE',
+						deleteUrl = $(this).attr("href");
+				if ( deleteType == "DELETE" )
+				{
+					$.ajax({
+						"url": deleteUrl,
+						"type": "DELETE",
+						"dataType": "JSON",
+						"success": function(response)
+						{
+							if ( response[data.filename] == true )
+							{
+								$(obj).remove();
+								if ( $(".attaches-container").children().length == 0 ) $("#uploaded").hide();
+								total_files--;
+							}
+							return false;
+						}
+					})
+				}
+				else
+				{
+					app.portfolio.deleteAttach(data.attach_id,data.attach_type,function(response){
+						if ( response.result == true )
 						{
 							$(obj).remove();
+							if ( data.attach_type == "video" )
+							{
+								$("#yt_links").find("input[data-attach_id='"+data.attach_id+"']").remove();
+							}
 							if ( $(".attaches-container").children().length == 0 ) $("#uploaded").hide();
 							total_files--;
 						}
-						return false;
-					}
-				});
+					})
+				}
 				return false;
 			})
 		},
@@ -242,7 +304,10 @@ $(function(){
 		event = event || window.event;
 		var target = event.target || event.srcElement,
 				link = target.src ? target.parentNode : target,
-				options = {index: link, event: event},
+				options = {index: link, event: event,
+				"onopen": function(){
+					$(".portfolio-image-action").hide();
+				}},
 				links = $(this).find("a").not(".download").not(".delete");
 		blueimp.Gallery(links, options);
 	});
@@ -255,6 +320,7 @@ $(function(){
 				ar.push($(this).val())
 		})
 		var data = {
+				"portfolio_id": portfolio_id,
 				"cat_id": $(".wdo-option.active[data-name='category']").data('value'),
 				"subcat_id": $(".wdo-option.active[data-name='subcategory']").data('value'),
 				"title": $("input[data-name='title']").val(),
@@ -296,7 +362,7 @@ $(function(){
 		set_btn_state(btn,'loading');
 		$.ajax({
 			type: "POST",
-			url: "/portfolio/publish",
+			url: "/portfolio/update",
 			xhrFields: {withCredentials: true},
 			data: {"data": data},
 			dataType: "JSON",

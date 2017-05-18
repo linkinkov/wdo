@@ -9,7 +9,20 @@
  * Licensed under the MIT license:
  * https://opensource.org/licenses/MIT
  */
+function scan_dir($dir) {
+	$ignored = array('.', '..', '.svn', '.htaccess');
 
+	$files = array();    
+	foreach (scandir($dir) as $file) {
+			if (in_array($file, $ignored)) continue;
+			$files[$file] = filemtime($dir . '/' . $file);
+	}
+
+	asort($files);
+	$files = array_keys($files);
+
+	return ($files) ? $files : false;
+}
 class UploadHandler
 {
 
@@ -359,7 +372,7 @@ class UploadHandler
         }
         return array_values(array_filter(array_map(
             array($this, $iteration_method),
-            scandir($upload_dir)
+            scan_dir($upload_dir)
         )));
     }
 

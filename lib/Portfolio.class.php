@@ -63,7 +63,7 @@ class Portfolio
 			if ( !in_array($portfolio->portfolio_id,$_SESSION["viewed_portfolio"]) )
 			{
 				$_SESSION["viewed_portfolio"][] = $portfolio->portfolio_id;
-				Portfolio::update($portfolio->portfolio_id,"views",$portfolio->views+1);
+				Portfolio::incr_views($portfolio->portfolio_id,$portfolio->views+1);
 			}
 		}
 		catch ( Exception $e )
@@ -74,7 +74,20 @@ class Portfolio
 		return $response;
 	}
 
-	public static function update($portfolio_id = 0, $field = false, $value = false)
+	private static function incr_views($portfolio_id)
+	{
+		global $db;
+		$sql = sprintf("UPDATE `portfolio` SET `views` = `views` + 1 WHERE `portfolio_id` = '%d'",$portfolio_id);
+		try {
+			$db->query($sql);
+		}
+		catch ( Exception $e )
+		{
+			// echo $e->getMessage();
+		}
+	}
+
+	public static function update_cover($portfolio_id,$action,$attach_id)
 	{
 		global $db;
 		global $current_user;
@@ -83,19 +96,11 @@ class Portfolio
 			"message" => "Ошибка"
 		);
 		if ( $current_user->user_id == 0 ) {$response["message"] = "Ошибка доступа"; return $response;};
-		if ( $portfolio_id == 0 ) return $response;
-		if ( !in_array($field,Array("title","descr","views","cover_id")) ) return $response;
-		$value = filter_string($value,"in");
-		if ( $field == "views" )
-		{
-			if ( intval($value) == 0 ) return $response;
-			$sql = sprintf("UPDATE `portfolio` SET `%s` = '%d' WHERE `portfolio_id` = '%d'",$field,$value,$portfolio_id);
-		}
-		else
-		{
-			if ( $current_user->user_id == 0 ) return $response;
-			$sql = sprintf("UPDATE `portfolio` SET `%s` = '%s' WHERE `portfolio_id` = '%d' AND `user_id` = '%d'",$field,$value,$portfolio_id,$current_user->user_id);
-		}
+		if ( !isset($portfolio_id) || intval($portfolio_id) <= 0 ) return $response;
+		$portfolio_user_id = $db->getValue("portfolio","user_id","user_id",Array("portfolio_id" => $portfolio_id));
+		if ( $portfolio_user_id != $current_user->user_id ) {$response["message"] = "Ошибка доступа"; return $response;};
+		if ( $action == "delete-cover" ) $attach_id = '';
+		$sql = sprintf("UPDATE `portfolio` SET `cover_id` = '%s' WHERE `portfolio_id` = '%s' AND `user_id` = '%d'",$attach_id,$portfolio_id,$current_user->user_id);
 		try {
 			$db->query($sql);
 			$response["result"] = "true";
@@ -106,8 +111,49 @@ class Portfolio
 			$response["error"] = $e->getMessage();
 		}
 		return $response;
+
 	}
-	
+
+	public static function update($data = false)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( $current_user->user_id == 0 ) {$response["message"] = "Ошибка доступа"; return $response;};
+		if ( !isset($data["portfolio_id"]) || intval($data["portfolio_id"]) <= 0 ) return $response;
+
+		$portfolio_user_id = $db->getValue("portfolio","user_id","user_id",Array("portfolio_id" => $data["portfolio_id"]));
+		if ( $portfolio_user_id != $current_user->user_id ) {$response["message"] = "Ошибка доступа"; return $response;};
+		if ( !isset($data["youtube_links"]) || !is_array($data["youtube_links"]) ) $data["youtube_links"] = Array();
+		$sql = sprintf("UPDATE `portfolio` 
+		SET `cat_id` = '%d',
+		`subcat_id` = '%d',
+		`title` = '%s',
+		`descr` = '%s'
+		WHERE `portfolio_id` = '%d' AND `user_id` = '%d'",$data["cat_id"],$data["subcat_id"],$data["title"],$data["descr"],$data["portfolio_id"],$current_user->user_id);
+		$db->autocommit(false);
+		try {
+			if ( Attach::save_from_user_upload_dir('for_portfolio_id',$data["portfolio_id"],$data["youtube_links"]) )
+			{
+				$db->query($sql);
+				$response["result"] = "true";
+				$response["message"] = "Обновлено";
+				$db->commit();
+			}
+			else
+			{
+				$response["error"] = "Не удалось прикрепить файлы к портфолио";
+			}
+		}
+		catch ( Exception $e )
+		{
+			// $response["error"] = $e->getMessage();
+		}
+		return $response;
+	}
 
 	public static function publish($data)
 	{
@@ -164,6 +210,36 @@ class Portfolio
 		catch ( Exception $e )
 		{
 			// $response["error"] = $e->getMessage();
+		}
+		return $response;
+	}
+
+	public static function delete($portfolio_id)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( $current_user->user_id == 0 ) {$response["message"] = "Ошибка доступа"; return $response;};
+		if ( !isset($portfolio_id) || intval($portfolio_id) <= 0 ) return $response;
+		$sql = sprintf("DELETE FROM `portfolio` WHERE `portfolio_id` = '%d' AND `user_id` = '%d'",$portfolio_id,$current_user->user_id);
+		$attaches = $db->queryRows(sprintf("SELECT `attach_id`,`attach_type` FROM `attaches` WHERE `for_portfolio_id` = '%d' AND `user_id` = '%d'",$portfolio_id,$current_user->user_id));
+		try {
+			$files = Array();
+			foreach ( $attaches as $f )
+			{
+				Attach::delete($f->attach_id,$f->attach_type);
+			}
+			$db->query($sql);
+			$db->commit();
+			$response["result"] = "true";
+			$response["message"] = "Удалено";
+		}
+		catch ( Exception $e )
+		{
+			// $response["message"] = $e->getMessage();
 		}
 		return $response;
 	}

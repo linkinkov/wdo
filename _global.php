@@ -19,6 +19,9 @@ $distribute_classes = Array(
 	"Category",
 	"SubCategory",
 	"Dialog",
-	"Portfolio"
+	"Portfolio",
+	"Resize",
+	"Avatar",
+	"Attach"
 
 );

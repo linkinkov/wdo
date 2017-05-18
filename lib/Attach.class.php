@@ -19,11 +19,22 @@ class Attach
 		}
 		elseif ( file_exists($requested) )
 		{
+			switch ( $w )
+			{
+				case ($w <= 150):
+					$quality = 45;
+					break;
+				case ($w <= 300):
+					$quality = 65;
+					break;
+				default:
+					$quality = 90;
+					break;
+			}
 			ob_clean();
 			$resizeObj = new resize($requested);
 			$resizeObj->resizeImage($w, $h, 'auto');
-			if ( !file_exists(dirname($cached)) ) @mkdir(dirname($cached));
-			$resizeObj->saveImage($cached, 50);
+			$resizeObj->saveImage($cached, $quality);
 			header('Content-Type: '.$content_type);
 			header('Content-Length: ' . filesize($cached));
 			readfile($cached);
@@ -35,7 +46,7 @@ class Attach
 	public static function getByID($attach_id = false, $w=35, $h=35, $force_resize = "false", $method = "auto")
 	{
 		global $db;
-		$sql = sprintf("SELECT `attach_id`,`attach_type`,`for_project_id`,`for_respond_id`,`file_name`,`user_id` FROM `attaches` WHERE `attach_id` = '%s'",$attach_id);
+		$sql = sprintf("SELECT `attach_id`,`attach_type`,`for_project_id`,`for_respond_id`,`file_name`,`file_title`,`user_id` FROM `attaches` WHERE `attach_id` = '%s'",$attach_id);
 		$info = $db->queryRow($sql);
 		if ( sizeof($info) )
 		{
@@ -51,7 +62,7 @@ class Attach
 					ob_clean();
 					header('Content-Description: File Transfer');
 					header('Content-Type: application/octet-stream');
-					header('Content-Disposition: attachment; filename='.basename($requested));
+					header('Content-Disposition: attachment; filename='.trim($info->file_title));
 					header('Content-Transfer-Encoding: binary');
 					header('Expires: 0');
 					header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -97,7 +108,18 @@ class Attach
 					$resizeObj = new resize($requested);
 					$resizeObj->resizeImage($w, $h, $method);
 					if ( !file_exists(dirname($cached)) ) @mkdir(dirname($cached));
-					$quality = ($w < 250 ) ? 50 : 90;
+					switch ( $w )
+					{
+						case ($w <= 150):
+							$quality = 45;
+							break;
+						case ($w <= 300):
+							$quality = 65;
+							break;
+						default:
+							$quality = 90;
+							break;
+					}
 					$resizeObj->saveImage($cached, $quality);
 					header('Content-Type: '.$content_type);
 					header('Content-Length: ' . filesize($cached));
@@ -119,16 +141,43 @@ class Attach
 		}
 		else
 		{
+			// echo "Loading not found";
+			// exit;
 			Attach::load_not_found($w,$h);
 			exit;
 		}
+	}
+
+	private static function get_owner_id($type="for_project_id",$id=false)
+	{
+		global $db;
+		switch ( $type )
+		{
+			case "for_project_id":
+				$table = "project";
+				$col = "project_id";
+				break;
+			case "for_respond_id":
+				$table = "project_responds";
+				$col = "respond_id";
+				break;
+			case "for_portfolio_id":
+				$table = "portfolio";
+				$col = "portfolio_id";
+				break;
+			default:
+				$table = "project";
+				$col = "project_id";
+		}
+		return $db->getValue($table,"user_id","user_id",Array($col=>$id));
 	}
 
 	public static function get_by_for_type($for='for_project_id',$id=false,$with_filesize=false)
 	{
 		global $db;
 		if ( !$id ) return false;
-		$sql = sprintf("SELECT `attach_id`,`attach_type`,`url`,`file_name` FROM `attaches` WHERE `%s` = '%d' ORDER BY `attach_type`, `attach_id` ASC",$for,$id);
+		$attach_owner = Attach::get_owner_id($for,$id);
+		$sql = sprintf("SELECT `attach_id`,`attach_type`,`url`,`file_name`,`file_title` FROM `attaches` WHERE `%s` = '%d' AND `user_id` = '%d' ORDER BY `attach_type` DESC, `attach_id` ASC",$for,$id,$attach_owner);
 		try {
 			$list = $db->queryRows($sql);
 			$idx = 0;
@@ -170,16 +219,22 @@ class Attach
 		if ( !$id || $current_user->user_id == 0 ) return false;
 		if ( is_array($urls) && sizeof($urls) )
 		{
+			$urls = array_unique($urls);
 			$type = 'video';
+			$db->autocommit(false);
 			foreach ( $urls as $url )
 			{
 				$attach_id = md5($url.microtime().$current_user->user_id);
-				$sql = sprintf("INSERT INTO `attaches` (`attach_id`,`attach_type`,`%s`,`url`,`created`,`user_id`) VALUES ('%s','%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$attach_id,$type,$id,$url,$current_user->user_id);
+				$sql = sprintf("INSERT INTO `attaches` (`attach_id`,`attach_type`,`%s`,`url`,`created`,`user_id`) 
+				VALUES ('%s','%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$attach_id,$type,$id,$url,$current_user->user_id);
 				try {
+					$db->query(sprintf("DELETE FROM `attaches` WHERE `%s` = '%d' AND `user_id` = '%d' AND `attach_type` = 'video'",$for,$id,$current_user->user_id));
 					$db->query($sql);
+					$db->commit();
 				}
 				catch ( Exception $e )
 				{
+					// echo $e->getMessage();
 					return false;
 				}
 			}
@@ -193,7 +248,8 @@ class Attach
 			$filename_new = md5($filename.microtime().$current_user->user_id).'.'.$extension;
 			$attach_id = md5($filename_new.microtime().$current_user->user_id);
 			$type = ( preg_match('/(gif|jpe?g|png)$/i',$extension) ) ? 'image' : 'document';
-			$sql = sprintf("INSERT INTO `attaches` (`attach_id`,`attach_type`,`%s`,`file_name`,`created`,`user_id`) VALUES ('%s','%s','%d','%s',UNIX_TIMESTAMP(),'%d')",$for,$attach_id,$type,$id,$filename_new,$current_user->user_id);
+			$sql = sprintf("INSERT INTO `attaches` (`attach_id`,`attach_type`,`%s`,`file_name`,`file_title`,`created`,`user_id`) 
+			VALUES ('%s','%s','%d','%s','%s',UNIX_TIMESTAMP(),'%d')",$for,$attach_id,$type,$id,$filename_new,$filename,$current_user->user_id);
 			$db->autocommit(false);
 			try 
 			{
@@ -205,17 +261,14 @@ class Attach
 				}
 				else
 				{
-					// echo "can't rename\n";
-					// echo "from: $filepath\n";
-					// echo "to: $target_dir\n";
-					// echo "new filename: $filename_new\n";
+					// echo $e->getMessage();
 					return false;
 				}
 			}
 			catch ( Exception $e )
 			{
-				// return false;
-				return $e->getMessage();
+				// echo $e->getMessage();
+				return false;
 			}
 		}
 		array_map('unlink', glob("$upload_dir/thumbnail/*.*"));
@@ -224,16 +277,20 @@ class Attach
 		return true;
 	}
 
-	public static function delete($portfolio_id,$attach_id,$type="image")
+	public static function delete($attach_id,$type="image")
 	{
 		global $db;
 		global $current_user;
 		if ( $current_user->user_id == 0 || strlen($attach_id) != 32 ) return false;
-		$sql_info = sprintf("SELECT `file_name` FROM `attaches` WHERE `attach_id` = '%s' AND `user_id` = '%d'",$attach_id,$current_user->user_id);
+		$sql_info = sprintf("SELECT `for_portfolio_id`,`for_project_id`,`for_respond_id`,`file_name` FROM `attaches` WHERE `attach_id` = '%s' AND `user_id` = '%d'",$attach_id,$current_user->user_id);
 		$sql = sprintf("DELETE FROM `attaches` WHERE `attach_id` = '%s' AND `user_id` = '%d'",$attach_id,$current_user->user_id);
+		$is_cover = "";
 		try {
 			$info = $db->queryRow($sql_info);
-			$is_cover = $db->getValue("portfolio","cover_id","cover_id",Array("portfolio_id"=>$portfolio_id,"cover_id"=>$attach_id));
+			if ( is_object($info) && $info->for_portfolio_id > 0 )
+			{
+				$is_cover = $db->getValue("portfolio","cover_id","cover_id",Array("portfolio_id"=>$info->for_portfolio_id,"cover_id"=>$attach_id));
+			}
 			$db->autocommit(false);
 			if ( in_array($type,Array("image","document")) && isset($info->file_name) && strlen($info->file_name) > 32 )
 			{
@@ -244,7 +301,7 @@ class Attach
 			{
 				if ( strlen($is_cover) == 32 )
 				{
-					$db->query(sprintf("UPDATE `portfolio` SET `cover_id` = '' WHERE `portfolio_id` = '%d'",$portfolio_id));
+					$db->query(sprintf("UPDATE `portfolio` SET `cover_id` = '' WHERE `portfolio_id` = '%d'",$info->for_portfolio_id));
 				}
 				$db->commit();
 				return true;

@@ -211,37 +211,54 @@ var app = {
 			})
 		}
 	},
-	"getCityList": function(search,limit,callback,print_user_city){
+	"project": {
+		"getAttachList": function(project_id,callback){
+			if ( parseInt(project_id) <= 0 ) return false;
 			callback = callback || function(){};
-			print_user_city = print_user_city || "true";
-			limit = limit || 3;
 			$.ajax({
 				type: "POST",
-				url: "/get.cityList",
+				url: "/get.AttachList",
 				data: {
-					"search": search,
-					"limit": limit,
-					"print_user_city": print_user_city
+					"id": project_id
 				},
 				dataType: "JSON",
 				success: function (response) {
 					callback(response);
 				}
 			})
+		}
+	},
+	"getCityList": function(search,limit,callback,print_user_city){
+		callback = callback || function(){};
+		print_user_city = print_user_city || "true";
+		limit = limit || 3;
+		$.ajax({
+			type: "POST",
+			url: "/get.cityList",
+			data: {
+				"search": search,
+				"limit": limit,
+				"print_user_city": print_user_city
+			},
+			dataType: "JSON",
+			success: function (response) {
+				callback(response);
+			}
+		})
 	},
 	"getSubCategories": function(parent_id,callback){
-			callback = callback || function(){};
-			$.ajax({
-				type: "POST",
-				url: "/get.subCatList",
-				data: {
-					"parent_id": parent_id
-				},
-				dataType: "JSON",
-				success: function (response) {
-					callback(response);
-				}
-			})
+		callback = callback || function(){};
+		$.ajax({
+			type: "POST",
+			url: "/get.subCatList",
+			data: {
+				"parent_id": parent_id
+			},
+			dataType: "JSON",
+			success: function (response) {
+				callback(response);
+			}
+		})
 	},
 	"im": {
 		"lmts": 0,
@@ -404,25 +421,6 @@ var app = {
 				}
 			})
 		},
-		"format_preview": function(data)
-		{
-			var card = ''
-			+'<div class="card">'
-			+'	<a class="wdo-link" href="#portfolio" data-toggle="show-portfolio" data-portfolio-id="'+data.portfolio_id+'">'
-			+'		<img class="card-img-top img-fluid" src="/get.Attach?attach_id='+data.cover_id+'&w=230&h=500" alt="'+data.title+'">'
-			+'	</a>'
-			+'	<div class="card-block">'
-			+'		<h5 class="card-title">'
-			+'			<a class="wdo-link text-purple" href="#portfolio" data-toggle="show-portfolio" data-portfolio-id="'+data.portfolio_id+'">'+data.title+'</a>'
-			+'		</h5>'
-			+'	</div>'
-			+'	<div class="card-footer">'
-			+'		<span class="pull-right text-yellow"><i class="fa fa-eye"></i> '+data.views+'</span>'
-			+'		<small><a class="wdo-link text-muted" href="/projects/'+data.cat_name_translated+'/">'+data.cat_name+'</a> / <a class="wdo-link text-muted" href="/projects/'+data.cat_name_translated+'/'+data.subcat_name_translated+'/">'+data.subcat_name+'</a></small>'
-			+'	</div>'
-			+'</div>';
-			return card;
-		},
 		"showPortfolio": function(portfolio_id,callback)
 		{
 			if ( parseInt(portfolio_id) <= 0 ) return;
@@ -439,13 +437,33 @@ var app = {
 				}
 			})
 		},
+		"hide": function()
+		{
+			$("#portfolio_single").fadeOut();
+		},
+		"delete": function(portfolio_id,callback)
+		{
+			if ( parseInt(portfolio_id) <= 0 ) return;
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/portfolio/delete",
+				dataType: "JSON",
+				data: {
+					"portfolio_id": portfolio_id
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
 		"changeCover": function(portfolio_id,attach_id,action,callback)
 		{
 			if ( parseInt(portfolio_id) <= 0 || parseInt(attach_id) <= 0 ) return;
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
-				url: "/portfolio/update",
+				url: "/portfolio/update_cover",
 				dataType: "JSON",
 				data: {
 					"portfolio_id": portfolio_id,
@@ -457,17 +475,16 @@ var app = {
 				}
 			})
 		},
-		"deleteItem": function(portfolio_id,attach_id,type,callback)
+		"deleteAttach": function(attach_id,type,callback)
 		{
-			if ( parseInt(portfolio_id) <= 0 || parseInt(attach_id) <= 0 ) return;
+			if ( attach_id.length != 32 ) return;
 			type = type || "image";
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
-				url: "/portfolio/delete_item",
+				url: "/portfolio/delete_attach",
 				dataType: "JSON",
 				data: {
-					"portfolio_id": portfolio_id,
 					"attach_id": attach_id,
 					"type": type
 				},
@@ -476,33 +493,122 @@ var app = {
 				}
 			})
 		},
-		"hide": function()
-		{
-			var $sp = $("#portfolio_single");
-			$sp.show().css({
-				left: 15
-			}).animate({
-				left: -($sp.width())
-			}, 500);
-		}
 	},
 	"formatter": {
-		"format_uploaded": function(file,postfix)
+		"format_project_attach": function(data)
+		{
+
+		},
+		"format_portfolio_preview": function(data)
+		{
+			var card = ''
+			+'<div class="card">'
+			+'	<a class="wdo-link" href="#portfolio" data-toggle="show-portfolio" data-portfolio_id="'+data.portfolio_id+'">'
+			+'		<img class="card-img-top img-fluid" src="/get.Attach?attach_id='+data.cover_id+'&w=230&h=500" alt="'+data.title+'">'
+			+'	</a>'
+			+'	<div class="card-block">'
+			+'		<h5 class="card-title">'
+			+'			<a class="wdo-link text-purple" href="#portfolio" data-toggle="show-portfolio" data-portfolio_id="'+data.portfolio_id+'">'+data.title+'</a>'
+			+'		</h5>'
+			+'	</div>'
+			+'	<div class="card-footer">'
+			+'		<span class="pull-right text-yellow"><i class="fa fa-eye"></i> '+data.views+'</span>'
+			+'		<small><a class="wdo-link text-muted" href="/projects/'+data.cat_name_translated+'/">'+data.cat_name+'</a> / <a class="wdo-link text-muted" href="/projects/'+data.cat_name_translated+'/'+data.subcat_name_translated+'/">'+data.subcat_name+'</a></small>'
+			+'	</div>'
+			+'</div>';
+			return card;
+		},
+		"format_portfolio_attach": function(file,is_cover)
 		{
 			if ( file.error )
 			{
 				showAlert("error",file.error);
 				return;
 			}
-			var is_image = /image/ig;
-			if ( is_image.test(file.type) )
+			// console.log("formatting:",file);
+			if ( file.attach_type == 'image' )
 			{
-				$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a href="'+file.url+'"><img class="img-thumbnail" src="'+file.thumbnailUrl+'" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
+				object = ''
+				+'<a class="wdo-link" href="/get.Attach?attach_id='+file.attach_id+'&w=800&h=800">'
+				+'	<img style="height: 100px; margin-bottom: 0.2rem;" class="img-thumbnail" src="/get.Attach?attach_id='+file.attach_id+'&w=150&h=150&force_resize=true" data-is_cover="'+is_cover+'" data-attach_id="'+file.attach_id+'"/>'
+				+'</a>'
+			}
+			else if ( file.attach_type == 'video' )
+			{
+				object = ''
+				+'<a class="wdo-link" href="'+file.url+'" title="" type="text/html" data-youtube="'+file.youtube_id+'" poster="http://img.youtube.com/vi/'+file.youtube_id+'/0.jpg">'
+				+'	<img style="height: 100px; margin-bottom: 0.2rem;" class="img-thumbnail" src="http://img.youtube.com/vi/'+file.youtube_id+'/0.jpg" data-attach_id="'+file.attach_id+'"/>'
+				+'</a>'
+			}
+			else if ( file.attach_type == 'document' )
+			{
+				object = ''
+				+'<a class="wdo-link download" href="/get.Attach?attach_id='+file.attach_id+'">'
+				+'	<img style="height: 50px; margin-bottom: 0.2rem;" class="img-thumbnail" src="/images/document.png" /> ' + file.file_title + '<br />'
+				+'</a>'
+			}
+			return object;
+		},
+		"format_pf_edit_attach": function(file)
+		{
+			if ( file.error )
+			{
+				showAlert("error",file.error);
+				return;
+			}
+			// console.log("formatting:",file);
+			if ( file.attach_type == 'image' )
+			{
+				object = ''
+				+'<div class="project-upload-attach" data-filename="'+file.name+'" alt="'+file.file_title+'">'
+				+'	<a class="wdo-link" href="/get.Attach?attach_id='+file.attach_id+'&w=800&h=800">'
+				+'		<img style="height: 80px;" class="img-thumbnail" src="/get.Attach?attach_id='+file.attach_id+'&w=150&h=150&force_resize=true" data-attach_id="'+file.attach_id+'"/>'
+				+'	</a>'
+				+'	<br /><a href="'+file.deleteUrl+'" data-filename="'+file.attach_id+'" data-attach_type="'+file.attach_type+'" data-attach_id="'+file.attach_id+'" class="delete" data-deleteType="'+file.deleteType+'">Удалить</a>'
+				+'</div>';
+			}
+			else if ( file.attach_type == 'video' )
+			{
+				object = ''
+				+'<div class="project-upload-attach" data-filename="'+file.name+'" alt="'+file.file_title+'">'
+				+'	<a class="wdo-link" href="'+file.url+'" title="" type="text/html" data-youtube="'+file.youtube_id+'" poster="http://img.youtube.com/vi/'+file.youtube_id+'/0.jpg">'
+				+'		<img style="height: 80px;" class="img-thumbnail" src="http://img.youtube.com/vi/'+file.youtube_id+'/0.jpg" data-attach_id="'+file.attach_id+'"/>'
+				+'	</a>'
+				+'	<br /><a href="'+file.deleteUrl+'" data-filename="'+file.attach_id+'" data-attach_type="'+file.attach_type+'" data-attach_id="'+file.attach_id+'" class="delete" data-deleteType="'+file.deleteType+'">Удалить</a>'
+				+'</div>';
+			}
+			else if ( file.attach_type == 'document' )
+			{
+				object = ''
+				+'<div class="project-upload-attach" data-filename="'+file.name+'" alt="'+file.file_title+'">'
+				+'	<a class="wdo-link download" href="/get.Attach?attach_id='+file.attach_id+'">'
+				+'		<img style="height: 80px;" class="img-thumbnail" src="/images/document.png" />'
+				+'	</a>'
+				+'	<br />'+file.file_title+'<br /><a href="'+file.deleteUrl+'" data-filename="'+file.attach_id+'" data-attach_type="'+file.attach_type+'" data-attach_id="'+file.attach_id+'" class="delete" data-deleteType="'+file.deleteType+'" href="">Удалить</a>'
+				+'</div>';
+			}
+			else if ( /image/.test(file.type) )
+			{
+				if ( !file.thumbnailUrl ) return;
+				object = ''
+				+'<div class="project-upload-attach" data-filename="'+file.name+'" alt="'+file.name+'">'
+				+'	<a class="wdo-link" href="'+file.url+'">'
+				+'		<img style="height: 80px;" class="img-thumbnail" src="'+file.thumbnailUrl+'" />'
+				+'	</a>'
+				+'	<br /><a href="'+file.deleteUrl+'" data-filename="'+file.name+'" class="delete" data-deleteType="'+file.deleteType+'">Удалить</a>'
+				+'</div>';
 			}
 			else
 			{
-				$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a class="download" href="'+file.url+'"><img class="img-thumbnail" width="50px" src="/images/document.png" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
+				object = ''
+				+'<div class="project-upload-attach just_uploaded" data-filename="'+file.name+'" alt="'+file.name+'">'
+				+'	<a class="wdo-link download" href="'+file.url+'">'
+				+'		<img style="height: 80px;" class="img-thumbnail" src="/images/document.png" />'
+				+'	</a>'
+				+'	<br />'+file.name+'<br /><a data-filename="'+file.name+'" href="'+file.deleteUrl+'" data-attach_id="'+file.attach_id+'" class="delete" data-deleteType="'+file.deleteType+'" href="">Удалить</a>'
+				+'</div>';
 			}
+			return object;
 		}
 	}
 }

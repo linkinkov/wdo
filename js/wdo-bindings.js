@@ -30,7 +30,7 @@ $(document).on("click",".custom-radio-cat",function(e){
 })
 $(document).on("click",".project-extra-filter",function(e){
 	$(this).toggleClass("active");
-	reloadProjectsTable();
+	reloadTable();
 })
 $(document).on("click",".wdo-option",function(e){
 	var menu = $(this).parent(),
@@ -141,124 +141,9 @@ $(document).on("click",".download",function(e){
 
 $(document).on("click","[data-toggle='show-portfolio']",function(e){
 	e.preventDefault();
-	var portfolio_id = $(this).data('portfolio-id');
+	var portfolio_id = $(this).data('portfolio_id');
 	app.portfolio.showPortfolio(portfolio_id,function(response){
-		$("#portfolio-title").text('');
-		$("#portfolio-descr").text('');
-		$("#portfolio-photos").html('');
-		$("#portfolio-videos").html('');
-		$("#portfolio-docs").html('');
-		$(".portfolio-photos-container").hide();
-		$(".portfolio-videos-container").hide();
-		$(".portfolio-docs-container").hide();
-		if ( response.result == "true" )
-		{
-			var pf = response.portfolio;
-			$("#portfolio-title").text(pf.title);
-			$("#portfolio-descr").text(pf.descr);
-			$("#portfolio-edit-link").attr("data-pfid",portfolio_id).data("portfolio_id",portfolio_id);
-			$("#portfolio-delete-link").attr("data-pfid",portfolio_id).data("portfolio_id",portfolio_id);
-			if ( pf.attaches.length > 0 )
-			{
-				var att_p = 0,
-						att_v = 0,
-						att_d = 0;
-				$.each(pf.attaches,function(){
-					var object = '',
-							is_cover = (this.attach_id == pf.cover_id) ? 'true' : 'false';
-					if ( this.attach_type == 'image' )
-					{
-						object = '<a href="/get.Attach?attach_id='+this.attach_id+'&w=800&h=800"><img style="height: 100px;" class="img-thumbnail" src="/get.Attach?attach_id='+this.attach_id+'&w=150&h=150&force_resize=true" data-is_cover="'+is_cover+'" data-attach-id="'+this.attach_id+'"/></a>';
-						$("#portfolio-photos").append(object);
-						att_p++;
-					}
-					else if ( this.attach_type == 'video' )
-					{
-						object = '<a '
-						+'	href="'+this.url+'"'
-						+'	title="" type="text/html"'
-						+'	data-youtube="'+this.youtube_id+'" poster="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg">'
-						+'<img style="height: 100px;" class="img-thumbnail" src="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg" />';
-						+'</a>';
-						$("#portfolio-videos").append(object);
-						att_v++;
-					}
-					else if ( this.attach_type == 'document' )
-					{
-						object = '<a class="download" href="/get.Attach?attach_id='+this.attach_id+'"><img class="img-thumbnail" src="/images/document.png" /></a>';
-						$("#portfolio-docs").append(object);
-						att_d++;
-					}
-				});
-				if ( att_p > 0 ) $(".portfolio-photos-container").show();
-				if ( att_v > 0 ) $(".portfolio-videos-container").show();
-				if ( att_d > 0 ) $(".portfolio-docs-container").show();
-				$("#portfolio-photos").click(function (event) {
-					event = event || window.event;
-					var target = event.target || event.srcElement,
-							link = target.src ? target.parentNode : target,
-							options = {
-								index: link,
-								event: event,
-								onopen: function () {
-									$(".portfolio-image-action").show();
-									$(".portfolio-image-action[data-action='delete_image']").data('portfolio_id',portfolio_id).data('attach_id',$(target).data('attach_id'));
-								},
-								onslide: function (index, slide) {
-									var img = $(slide).find("img"),
-											attach_id = $.urlParam('attach_id',$(img).attr('src'));
-									if ( attach_id.length == 32 )
-									{
-										var real_image = $("img[data-attach-id='"+attach_id+"']"),
-												cover_btn = $(".portfolio-image-action[data-action='change_cover']"),
-												delete_btn = $(".portfolio-image-action[data-action='delete_image']");
-										if ( real_image.data('is_cover') == true )
-										{
-											$(delete_btn).data('portfolio_id',portfolio_id).data('attach_id',attach_id);
-											$(cover_btn).data('portfolio_id',portfolio_id).data('attach_id',attach_id).data('subact','delete_cover');
-											$(cover_btn).find("i.fa").removeClass("fa-star-o").addClass("fa-star");
-											$(cover_btn).show();
-										}
-										else if ( real_image.data('is_cover') == false )
-										{
-											$(delete_btn).data('portfolio_id',portfolio_id).data('attach_id',attach_id)
-											$(cover_btn).data('portfolio_id',portfolio_id).data('attach_id',attach_id).data('subact','set-cover');
-											$(cover_btn).find("i.fa").removeClass("fa-star").addClass("fa-star-o");
-											$(cover_btn).show();
-										}
-										else
-										{
-											$(cover_btn).data('portfolio_id','').data('attach_id','').data('subact','');
-											$(cover_btn).find("i.fa").removeClass("fa-star").addClass("fa-star-o");
-											$(cover_btn).hide();
-										}
-									}
-									// Callback function executed on slide change.
-								},
-							},
-							links = $(this).find("a").not(".download");
-					app.portfolio.gallery = blueimp.Gallery(links, options);
-				})
-				$("#portfolio-videos").click(function (event) {
-					video_links = $(this).find("a").not(".download");
-					event = event || window.event;
-					var target = event.target || event.srcElement,
-							link = target.src ? target.parentNode : target,
-							options = {
-								index: link,
-								event: event,
-							};
-					blueimp.Gallery(video_links, options);
-				})
-			}
-			var $sp = $("#portfolio_single");
-			$sp.show().css({
-				left: -($sp.width())
-			}).animate({
-				left: 15
-			}, 500);
-		}
-
+		process_show_portfolio(response);
 	});
 })
 
@@ -270,7 +155,7 @@ $(".portfolio-image-action").click(function(e){
 		app.portfolio.changeCover(data.portfolio_id,data.attach_id,data.subact,function(response){
 			if ( response.result == "true" )
 			{
-				var real_image = $("img[data-attach-id='"+data.attach_id+"']"),
+				var real_image = $("img[data-attach_id='"+data.attach_id+"']"),
 						cover_btn = $(".portfolio-image-action[data-action='change_cover']");
 				if ( real_image.data('is_cover') == true )
 				{
@@ -281,8 +166,10 @@ $(".portfolio-image-action").click(function(e){
 				}
 				else if ( real_image.data('is_cover') == false )
 				{
-					$('[data-toggle="show-portfolio"][data-portfolio-id="'+data.portfolio_id+'"]').find("img.card-img-top").attr('src','/get.Attach?attach_id='+data.attach_id+'&w=230&h=500');
+					$('[data-toggle="show-portfolio"][data-portfolio_id="'+data.portfolio_id+'"]').find("img.card-img-top").attr('src','/get.Attach?attach_id='+data.attach_id+'&w=230&h=500');
 					$(cover_btn).data('portfolio_id',data.portfolio_id).data('attach_id',data.attach_id).data('subact','delete-cover');
+					// $("i.fa-star").removeClass("fa-star").addClass("fa-star-o");
+					$("#portfolio-photos").find("img").data("is_cover",false).attr("data-is_cover","false");
 					$(cover_btn).find("i.fa").removeClass("fa-star-o").addClass("fa-star");
 					$(real_image).data('is_cover',true);
 					$(cover_btn).show();
@@ -296,12 +183,12 @@ $(".portfolio-image-action").click(function(e){
 			}
 		})
 	}
-	else if ( data.action == "delete_image" )
+	else if ( data.action == "delete_attach" )
 	{
 		$("img.slide-content[src='*"+data.attach_id+"*']").remove();
 		var slide_img = $("img.slide-content[src*='"+data.attach_id+"']"),
 				li = $("ol.indicator").find("li[style*='"+data.attach_id+"']");
-		app.portfolio.deleteItem(data.portfolio_id,data.attach_id,"image",function(response){
+		app.portfolio.deleteAttach(data.attach_id,"image",function(response){
 			if ( response == true )
 			{
 				$(li).remove();
@@ -317,7 +204,19 @@ $(".portfolio-image-action").click(function(e){
 		})
 	}
 })
-
+$(document).on('click','#portfolio-delete-link', function(e){
+	var data = $(this).data();
+	var res = confirm('Удалить портфолио?');
+	if ( res == true )
+	{
+		app.portfolio.delete(data.portfolio_id,function(response){
+			if ( response.result == "true" )
+			{
+				$("a[data-target='#portfolio']").click();
+			}
+		});
+	}
+})
 $(document).on('click','a[data-toggle="tab"]', function(e){
 	var target = $(e.target);
 	if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();
@@ -327,7 +226,7 @@ $(document).on('click','a[data-toggle="tab"]', function(e){
 		$(".tab-pane#messages").removeClass("active");
 		$(target).removeClass("active").tab('show');
 	}
-	if ( $(target).data('target') == '#portfolio' )
+	else if ( $(target).data('target') == '#portfolio' && $("#portfolio_list").length > 0 )
 	{
 		$(".tab-pane#portfolio").removeClass("active");
 		$(target).removeClass("active").tab('show');
@@ -335,6 +234,7 @@ $(document).on('click','a[data-toggle="tab"]', function(e){
 })
 $(document).on('shown.bs.tab','a[data-toggle="tab"]', function (e) {
 	$(".dialogs-container").html('');
+	// $("#portfolio_list").html('');
 });
 
 $(document).on('show.bs.tab','a[data-toggle="tab"]', function (e) {

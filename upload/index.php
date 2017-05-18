@@ -32,6 +32,7 @@ if ( isset($_FILES["avatar"]) ) // uploading user avatar
 // uploading attaches
 $upload_handler = new UploadHandler(array(
 	'user_dirs' => true,
+	'correct_image_extensions' => true,
 	'access_control_allow_credentials' => true,
 	'accept_file_types' => '/\.(gif|jpe?g|png|docx?|xlsx?|pdf)$/i'
 ));

@@ -289,6 +289,10 @@ i.fa.active {
 .card-footer {
 	padding: .75rem .6rem;
 }
+.jumbotron {
+	background-color: #f3f1f1;
+	margin-bottom: 0;
+}
 /* ----- bootstrap override END ----- */
 
 
@@ -395,11 +399,11 @@ th.project-table-cost {
 	border-top: 1px solid #dfd9d9;
 	padding-top: 10px;
 }
-.attaches .img-thumbnail {
+/*.attaches .img-thumbnail {
 	min-height: 100px;
 	max-height: 100px;
 	cursor: pointer;
-}
+}*/
 
 .responds-filter-all {
 	cursor: pointer;
@@ -600,12 +604,27 @@ th.project-table-cost {
 	opacity: 1;
 }
 #portfolio_single {
+
 	display: none;
 	position: absolute;
 	width: 720px;
 	height: 100%;
 	background-color: rgb(243, 241, 241);
 	z-index: 5;
+
+	/*
+	display: none;
+	position: fixed;
+	background-color: rgb(243, 241, 241);
+	top: 0px;
+	margin-left: -10px;
+	padding-top: 80px;
+	height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	width: 757px;
+	z-index: 5;
+	*/
 }
 /* ----- END PORTFOLIO ---- */
 /* ----- CUSTOM SELECT ---- */
@@ -762,6 +781,6 @@ td.safe-deal.vip {
 	background-position: bottom 10px right 35%, bottom 10px right 70%;
 	background-size: 18%, 19%;
 }
-.jumbotron {
-	margin-bottom: 0;
+.project-respond-result-body {
+	display: none;
 }

@@ -116,3 +116,13 @@
 	border-color: #940a63 !important;
 	background-color: #940a63 !important;
 }
+
+.project-respond-result {
+	cursor: pointer;
+	padding: 10px;
+	background-color: #cecd48;
+	font-weight: 800;
+}
+.project-respond-result:hover {
+	background-color: #b9b835;
+}

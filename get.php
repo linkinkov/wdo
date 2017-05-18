@@ -25,7 +25,7 @@ switch ( $job )
 		$id = get_var("id","int",0);
 		$list = Attach::get_by_for_type($for,$id);
 		header('Content-Type: application/json');
-		echo json_encode($list);		
+		echo json_encode($list);
 		break;
 	case "cityList":
 		$search = get_var("search","string");
@@ -67,34 +67,31 @@ switch ( $job )
 		{
 			foreach ( $list as $e )
 			{
-				if ( $e->attach_type == "video" && isset($e->youtube_id) )
+				$entry = Array (
+					"deleteType"=>"POST",
+					"attach_type"=>$e->attach_type,
+					"attach_id"=>$e->attach_id,
+					"name"=>$e->attach_id,
+					"file_title"=>$e->file_title,
+					"deleteUrl"=>HOST."/portfolio/delete_attach?attach_id=".$e->attach_id."&type=".$e->attach_type,
+					"url"=>HOST."/get.Attach?attach_id=".$e->attach_id."&w=800&h=800",
+				);
+				if ( $e->attach_type == "video" )
 				{
-					$a = Array(
-						"deleteUrl"=>"https://localhost:91/portfolio/delete_item?portfolio_id=".$portfolio_id."&attach_id=".$e->attach_id."&type=".$e->attach_type,
-						"youtube_id"=>$e->youtube_id
-					);
+					$entry["type"] = "text/html";
+					$entry["youtube_id"] = $e->youtube_id;
+					$entry["url"] = $e->url;
 				}
 				else if ( $e->attach_type == "image" )
 				{
-					$a = Array(
-						// "deleteType"=>"DELETE",
-						// "deleteWithCredentials"=>true,
-						// "name"=>$e->attach_id.".jpeg",
-						// "size"=>2919092,
-						"type"=>"image/jpeg",
-						"deleteUrl"=>"https://localhost:91/portfolio/delete_item?portfolio_id=".$portfolio_id."&attach_id=".$e->attach_id."&type=".$e->attach_type,
-						"thumbnailUrl"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=90&h=90&force_resize=true",
-						"url"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=800&h=800",
-					);
+					$entry["type"] = "image/jpeg";
+					$entry["thumbnailUrl"] = HOST."/get.Attach?attach_id=".$e->attach_id."&w=90&h=90&force_resize=true";
 				}
 				else if ( $e->attach_type == "document" )
 				{
-					$a = Array(
-						"deleteUrl"=>"https://localhost:91/portfolio/delete_item?portfolio_id=".$portfolio_id."&attach_id=".$e->attach_id."&type=".$e->attach_type,
-						"url"=>"https://localhost:91/get.Attach?attach_id=".$e->attach_id."&w=800&h=800",
-					);
+					$entry["type"] = "application/octet-stream";
 				}
-				$attaches["files"][] = $a;
+				$attaches["files"][] = $entry;
 			}
 		}
 		// header('Content-Type: application/json');

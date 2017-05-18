@@ -24,8 +24,9 @@ RewriteRule ^dialog.([a-zA-Z0-9_-]+)$ dialog.php?job=$1 [L,QSA]
 RewriteRule ^profile/?$ profile.php
 RewriteRule ^pp/([a-zA-Z0-9_-]+)$ pp.php?job=$1
 RewriteRule ^profile/id([0-9]+)$ profile.php?id=$1
+RewriteRule ^portfolio/([a-zA-Z0-9_-]+)$ /profile_pages/portfolio.php?job=$1
 
-RewriteRule ^portfolio/(publish|update|delete_item)$ pp.php?job=portfolio-$1
+
 
 RewriteRule ^(login|logout)/?$ $1.php [L,QSA]
 RewriteRule ^dt/([a-zA-Z0-9_-]+)$ /dt/dt.$1.php

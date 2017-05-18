@@ -140,7 +140,7 @@ $(function(){
 			if ( data.portfolios.length > 0 )
 			{
 				$.each(data.portfolios,function(){
-					portfolio_thumbs += '<a href="/profile/id'+data.user.user_id+'#portfolio"><img width="100" class="img-thumbnail" src="/get.Attach?attach_id='+this.cover_id+'&w=250&h=250&force_resize=true&method=crop" /></a>'
+					portfolio_thumbs += '<a href="/profile/id'+data.user.user_id+'#portfolio" title="'+this.title+'"><img width="100" class="img-thumbnail" src="/get.Attach?attach_id='+this.cover_id+'&w=250&h=250&force_resize=true&method=crop" /></a>'
 				})
 			}
 			html += ''

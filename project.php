@@ -47,6 +47,7 @@ if ( isset($_GET["add_respond"]) )
 	include("addProjectRespond.php");
 	exit;
 }
+$window_title = $project->title;
 ?>
 
 
@@ -179,6 +180,9 @@ if ( isset($_GET["add_respond"]) )
 									case 5:
 										$status_class = "text-danger";
 										break;
+									case 6:
+										$status_class = "text-warning";
+										break;
 									default:
 										$status_class = "text-muted";
 										break;
@@ -250,39 +254,38 @@ if ( isset($_GET["add_respond"]) )
 							</div>
 						</div>
 					</div>
-					<?php
-					$attaches = Attach::get_by_for_type('for_project_id',$project->project_id);
-					if ( sizeof($attaches) )
-					{
-						echo '
+
+					<div class="project-photos-container" style="display: none;">
 						<div class="row"><div class="col"><hr /></div></div>
-						<text class="text-muted">Прикрепленные файлы</text><br /><br />
 						<div class="row">
-							<div class="col">
-								<div class="attaches gallery">';
-						foreach ( $attaches as $at )
-						{
-							if ( $at->attach_type == 'image' )
-							{
-								$obj = sprintf('<a href="/get.Attach?attach_id=%s&w=500&h=500"><img class="img-thumbnail" src="/get.Attach?attach_id=%s&w=100&h=100" /></a>',$at->attach_id,$at->attach_id);
-							}
-							else if ( $at->attach_type == 'video' )
-							{
-								$obj = sprintf('<a href="%s" type="text/html" data-youtube="%s" poster="http://img.youtube.com/vi/%s/0.jpg">
-								<img class="img-thumbnail" src="http://img.youtube.com/vi/%s/0.jpg" />
-								</a>',$at->url,$at->youtube_id,$at->youtube_id,$at->youtube_id);
-							}
-							else if ( $at->attach_type == 'document' )
-							{
-								$obj = sprintf('<a class="download" href="/get.Attach?attach_id=%s"><img class="img-thumbnail" src="/images/document.png" /></a>',$at->attach_id);
-							}
-							echo $obj;
-						}
-						echo '
-								</div>
+							<div class="col" style="max-width: 100px;">
+								Фото
 							</div>
-						</div>';
-					}
+							<div class="col gallery" id="project-photos"></div>
+						</div>
+					</div>
+
+					<div class="project-videos-container" style="display: none;">
+						<div class="row"><div class="col"><hr /></div></div>
+						<div class="row">
+							<div class="col" style="max-width: 100px;">
+								Видео
+							</div>
+							<div class="col gallery" id="project-videos"></div>
+						</div>
+					</div>
+
+					<div class="project-docs-container" style="display: none;">
+						<div class="row"><div class="col"><hr /></div></div>
+						<div class="row">
+							<div class="col" style="max-width: 100px;">
+								Документы
+							</div>
+							<div class="col" id="project-docs"></div>
+						</div>
+					</div>
+
+					<?php
 					if ( $pu->user_id != $current_user->user_id )
 					{
 					?>
@@ -297,9 +300,9 @@ if ( isset($_GET["add_respond"]) )
 							{
 								echo sprintf('<a class="wdo-btn text-white btn-sm bg-purple" data-toggle="modal" data-target="#login-modal">Подать заявку</a>');
 							}
-							else if ( $pu->user_id != $current_user->user_id )
+							else if ( $pu->user_id != $current_user->user_id && $current_user->as_performer == 1 )
 							{
-								$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$project->user_id)));
+								$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$project->project_id)));
 								if ( $project->status_id != 1 )
 								{
 									echo sprintf('<div class="wdo-btn btn-sm bg-purple disabled">'.$project->status_name.'</div>');
@@ -310,7 +313,7 @@ if ( isset($_GET["add_respond"]) )
 								}
 								else
 								{
-									echo sprintf('<div class="wdo-btn bg-purple disabled">У вас уже есть заявка на данный проект</div>');
+									echo sprintf('<div class="wdo-btn btn-sm bg-purple disabled">У вас уже есть заявка на данный проект</div>');
 								}
 							}
 							?>
@@ -352,7 +355,41 @@ if ( isset($_GET["add_respond"]) )
 <?php include(PD.'/includes/scripts.php');?>
 
 <script>
+function open_respond_result_body(respond_id)
+{
+	$(".project-respond-result-body[data-respond_id='"+respond_id+"']").slideToggle();
+}
 $(function(){
+	var project_id = $("#project_id").data('project-id');
+	app.project.getAttachList(project_id,function(response){
+		if ( response.length > 0 )
+		{
+			var att_p = 0,
+					att_v = 0,
+					att_d = 0;
+			$.each(response,function(){
+				var object = app.formatter.format_portfolio_attach(this);
+				if ( this.attach_type == 'image' )
+				{
+					$("#project-photos").append(object);
+					att_p++;
+				}
+				else if ( this.attach_type == 'video' )
+				{
+					$("#project-videos").append(object);
+					att_v++;
+				}
+				else if ( this.attach_type == 'document' )
+				{
+					$("#project-docs").append(object);
+					att_d++;
+				}
+			});
+			if ( att_p > 0 ) $(".project-photos-container").show();
+			if ( att_v > 0 ) $(".project-videos-container").show();
+			if ( att_d > 0 ) $(".project-docs-container").show();
+		}
+	})
 	$(".timestamp").each(function(){
 		var ts = $(this).data('timestamp');
 		$(this).text(moment.unix(ts).fromNow());
@@ -373,7 +410,7 @@ $(function(){
 			"url": "/dt/project-responds",
 			"type": "POST",
 			"data": function( d ) {
-				d.for_project_id = $("#project_id").data('project-id');
+				d.for_project_id = project_id;
 				d.status_id = $(".responds-filter.checked").data('status');
 			}
 		},
@@ -447,6 +484,38 @@ $(function(){
 					+'<a class="wdo-link respond-action" data-respond_id="'+data.respond_id+'" data-status_id="3">'
 					+'	<img src="/images/respond-select-ispoln-checked.png" />'
 					+'</a>';
+					actions_bottom = ''
+					+'<div class="row" style="border: 3px solid #cecd48;">'
+					+'	<div class="col">'
+					+'		<div class="row">'
+					+'			<div class="col text-center project-respond-result" onClick="open_respond_result_body('+data.respond_id+')">Принять работу</div>'
+					+'		</div>'
+					+'		<div class="row">'
+					+'			<div class="col text-center project-respond-result-body" data-respond_id="'+data.respond_id+'">'
+					+'				<div class="row">'
+					+'					<div class="col">Ваша оценка работы исполнителя'
+					+'					</div>'
+					+'				</div>'
+					+'				<div class="row">'
+					+'					<div class="col">'
+					+'					</div>'
+					+'				</div>'
+					+'				<div class="row">'
+					+'					<div class="col">'
+					+'					</div>'
+					+'				</div>'
+					+'				<div class="row">'
+					+'					<div class="col">'
+					+'					</div>'
+					+'				</div>'
+					+'				<div class="row">'
+					+'					<div class="col">'
+					+'					</div>'
+					+'				</div>'
+					+'			</div>'
+					+'		</div>'
+					+'	</div>'
+					+'</div>'
 				}
 				header_html = ''
 				+'<div class="row">'
@@ -454,7 +523,7 @@ $(function(){
 				+'		<i class="fa fa-comments-o"></i> <a class="wdo-link" data-toggle="modal" data-target="#conversation-modal" data-recipient_id="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Написать сообщение</a> | <i class="fa fa-pencil"></i> <a class="wdo-link" data-toggle="modal" data-target="#save-note-modal" data-recipient="'+data.respond.user_id+'" data-real_user_name="'+data.user.real_user_name+'">Добавить заметку</a>'
 				+'		<span class="pull-right">'+actions+'</span>'
 				+'	</div>'
-				+'</div>'
+				+'</div>';
 				header.html(header_html).appendTo($('td', row));
 			}
 			respond.html(html);
@@ -463,29 +532,20 @@ $(function(){
 			if ( data.respond.attaches.length > 0 )
 			{
 				$.each(data.respond.attaches,function(){
-					var object = '';
-					if ( this.attach_type == 'image' )
+					var object = app.formatter.format_portfolio_attach(this);
+					if ( this.attach_type == 'document' )
 					{
-						object = '<a href="/get.Attach?attach_id='+this.attach_id+'&w=500&h=500"><img class="img-thumbnail" src="/get.Attach?attach_id='+this.attach_id+'&w=100&h=100" /></a>';
+						$(attach_container).append("<br />" + object);
 					}
-					else if ( this.attach_type == 'video' )
+					else
 					{
-						object = '<a '
-						+'	href="'+this.url+'"'
-						+'	title="" type="text/html"'
-						+'	data-youtube="'+this.youtube_id+'" poster="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg">'
-						+'<img class="img-thumbnail" src="http://img.youtube.com/vi/'+this.youtube_id+'/0.jpg" />';
-						+'</a>';
+						$(attach_container).append(object);
 					}
-					else if ( this.attach_type == 'document' )
-					{
-						object = '<a class="download" href="/get.Attach?attach_id='+this.attach_id+'"><img class="img-thumbnail" src="/images/document.png" /></a>';
-					}
-					$(attach_container).append(object);
 				})
 				$(attaches).html(attach_container);
 				$(attaches).insertAfter(respond);
 			}
+			$(actions_bottom).insertAfter(attaches);
 		},
 		"drawCallback": function( settings, table ) {
 			$(".paginate_button > a").on("focus", function() {
@@ -504,6 +564,7 @@ $(function(){
 				blueimp.Gallery(links, options);
 			});
 			$(".respond-action").click(function(e){
+				if ( $(this).data('status_id') == 3 ) return false;
 				$.ajax({
 					type: "POST",
 					url: "/update.project-respond",

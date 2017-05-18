@@ -57,7 +57,7 @@
 	</div>
 	<div class="col">
 		<div id="uploaded" style="display: none;">
-			<div class="attaches-container gallery">
+			<div class="attaches-container gallery text-center">
 				<!--<a href="/get.Attach?attach_id=1&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id=1&w=100&h=100" /></a>-->
 			</div>
 			<hr />
@@ -92,6 +92,7 @@
 <script>
 var current_links = [];
 $(function(){
+	$(".portfolio-image-action").hide();
 	var upload_btn = $("label[for='fileupload']");
 	var total_files = 0;
 	var max_files = 10;
@@ -132,21 +133,13 @@ $(function(){
 		},
 		done: function (e, data) {
 			$("#uploaded").show();
-			$.each(data.result.files, function (index, file) {
-				if ( file.error )
+			$.each(data.result.files, function () {
+				object = app.formatter.format_pf_edit_attach(this);
+				if ( this.attach_type == 'video' )
 				{
-					showAlert("error",file.error);
-					return;
+					$("#yt_links").find("input.empty[data-name='youtube-link']").addClass("disabled").attr("disabled","disabled").val(this.url).trigger("keyup");
 				}
-				var is_image = /image/ig;
-				if ( is_image.test(file.type) )
-				{
-					$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a href="'+file.url+'"><img class="img-thumbnail" src="'+file.thumbnailUrl+'" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
-				}
-				else
-				{
-					$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a class="download" href="'+file.url+'"><img class="img-thumbnail" width="50px" src="/images/document.png" /></a><br /><a data-filename="'+file.name+'" class="delete" href="'+file.deleteUrl+'">Удалить</a></div>');
-				}
+				$(".attaches-container").append(object);
 				total_files++;
 			});
 			$(".download").click(function(e){
@@ -274,9 +267,9 @@ $(function(){
 				}
 				if ( response.result == "true" )
 				{
-					console.log("published!",response);
+					console.log("result true, reloading tab");
 					$('.tab-pane#portfolio').removeClass("active");
-					$('a[data-toggle="tab"][data-target="portfolio"]').removeClass("active").tab('show');
+					$('a[data-toggle="tab"][data-target="#portfolio"]').removeClass("active").tab('show');
 				}
 			}
 		})

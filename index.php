@@ -154,10 +154,10 @@ $(function(){
 	}
 	?>
 	var opts = config.datePickerOptions;
-	opts.endDate = moment().add(1,"months");
+	opts.endDate = moment().add(6,"months");
 	config.projects.calendar = $('.calendar').daterangepicker(opts);
 	$('.calendar').on('apply.daterangepicker', function(ev, picker) {
-		reloadProjectsTable();
+		reloadTable();
 	});
 	$("#projects-table_length").on("change",function(){
 		config.projects.table.length = this.value;

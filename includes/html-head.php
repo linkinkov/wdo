@@ -1,5 +1,6 @@
 <?php
 $title = ( isset($current_user) && $current_user->user_id ) ? 'WeeDo | '.htmlspecialchars_decode($current_user->real_user_name) : 'WeeDo';
+$title = ( isset($window_title) ) ? 'WeeDo | '.htmlspecialchars_decode($window_title) : $title;
 ?>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">

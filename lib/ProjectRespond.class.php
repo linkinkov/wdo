@@ -31,7 +31,8 @@ class ProjectRespond
 			{
 				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
-			$this->attaches = $this->get_attach_list();
+			// $this->attaches = $this->get_attach_list();
+			$this->attaches = Attach::get_by_for_type("for_respond_id",$id);
 			$project_author_id = $db->getValue("project","user_id","user_id",Array("project_id"=>$this->for_project_id));
 			if ( $current_user->user_id != $this->user_id && $current_user->user_id != $project_author_id )
 			{

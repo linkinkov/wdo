@@ -1,5 +1,69 @@
 <?php
+opcache_reset();
+if ( !isset($from_include) )
+{
+	require_once('../_global.php');
+	include_once(PD.'/_includes.php');
+	$current_user = new User($_SESSION["user_id"]);
+	$user_id = get_var("user_id","int",$current_user->user_id);
+	$user = new User($user_id);
+	$job = get_var("job","string",false);
+	$db = db::getInstance();
+	check_access($db,false);
+}
+
+if ( $job == "publish" )
+{
+	$data = get_var("data","array",Array());
+	$response = Portfolio::publish($data);
+	header('Content-Type: application/json');
+	echo json_encode($response);
+	exit;
+}
+elseif ( $job == "delete" )
+{
+	$portfolio_id = get_var("portfolio_id","int",0);
+	$response = Portfolio::delete($portfolio_id);
+	header('Content-Type: application/json');
+	echo json_encode($response);
+	exit;
+}
+elseif ( $job == "update" )
+{
+	// $portfolio_id = get_var("portfolio_id","int",0);
+	$data = get_var("data","array",Array());
+	$response = Portfolio::update($data);
+	header('Content-Type: application/json');
+	echo json_encode($response);
+	exit;
+}
+elseif ( $job == "update_cover" )
+{
+	$portfolio_id = get_var("portfolio_id","int",0);
+	$attach_id = get_var("attach_id","string","");
+	$action = get_var("action","string","delete-cover");
+	$response = Portfolio::update_cover($portfolio_id,$action,$attach_id);
+	header('Content-Type: application/json');
+	echo json_encode($response);
+	exit;
+}
+elseif ( $job == "delete_attach" )
+{
+	// $portfolio_id = get_var("portfolio_id","int",0);
+	// print_r($_GET);
+	$attach_id = get_var("attach_id","string","");
+	// echo "a_id:".$attach_id;
+	$type = get_var("type","string","image");
+	$response = Array(
+		"result" => Attach::delete($attach_id,$type)
+	);
+	header('Content-Type: application/json');
+	echo json_encode($response);
+	exit;
+}
+
 $_SESSION["LAST_PAGE"] = "profile/portfolio";
+
 if ( $current_user->user_id == $user->user_id )
 {
 ?>
@@ -12,7 +76,8 @@ if ( $current_user->user_id == $user->user_id )
 <?php
 }
 ?>
-<div class="row">
+
+<div class="row" style="min-height: 1200px;">
 	<div class="col" style="overflow-x: hidden;position: relative;">
 		<div id="portfolio_single">
 			<div class="row">
@@ -39,12 +104,17 @@ if ( $current_user->user_id == $user->user_id )
 				</div>
 			</div>
 			<div class="row"><div class="col"><hr /></div></div>
+
 			<div class="row">
 				<div class="col">
-					<p id="portfolio-descr" class="text-justify">Описание</p>
+					<div class="jumbotron jumbotron-fluid">
+						<div class="container" style="max-width: 700px;">
+							<p id="portfolio-descr" class="lead" style="white-space: pre-wrap;"></p>
+						</div>
+					</div>
 				</div>
 			</div>
-			
+
 			<div class="portfolio-photos-container">
 				<div class="row"><div class="col"><hr /></div></div>
 				<div class="row">
@@ -76,7 +146,11 @@ if ( $current_user->user_id == $user->user_id )
 			</div>
 
 		</div>
-		<div class="card-columns" id="portfolio_list"></div>
+
+		<div class="card-columns" id="portfolio_list">
+		<!-- Portfolio cards from JSON answer -->
+		</div>
+
 	</div>
 </div>
 <script>
@@ -86,7 +160,7 @@ $(function(){
 		{
 			$("#portfolio_list").html('');
 			$.each(response,function(){
-				$("#portfolio_list").append(app.portfolio.format_preview(this));
+				$("#portfolio_list").append(app.formatter.format_portfolio_preview(this));
 			})
 		}
 	})

@@ -45,6 +45,8 @@ if ( !isset($error) )
 							<!--<hr />-->
 							<!--<h5>-->
 							<?php
+							// print_r($_SERVER);
+							$link = '<a href="'.$_SERVER["REDIRECT_URL"].'" class="wdo-link underline">Вернуться</a>';
 							if ( !isset($error) ) $error = get_var("code","int");
 							switch ( $error )
 							{
@@ -57,11 +59,18 @@ if ( !isset($error) )
 								case "500":
 									echo 'Внутренняя ошибка сервера, попробуйте позже';
 									break;
+								case "700":
+									echo 'У вас уже есть заявка на данный проект';
+									// $link = '<a href="javascript:history.back()" class="wdo-link underline">Вернуться на главную</a>';
+									break;
+								default:
+									echo 'Произошла ошибка';
+									break;
 							}
 							?>
 							<!--</h5>-->
 							<hr />
-							<a href="<?php echo HOST;?>" class="wdo-link underline">Вернуться на главную</a>
+							<?php echo $link;?>
 						</div>
 					</div>
 				</div><!-- /.wdo-main-right -->
