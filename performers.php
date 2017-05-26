@@ -21,6 +21,66 @@ if ( $ref == "profile/project-responds" )
 }
 $_SESSION["LAST_PAGE"] = "/performers";
 $preselect = get_var("preselect","array",Array());
+
+$job = get_var("job","string","");
+$min = get_var("min","array",Array());
+$max = get_var("max","array",Array());
+if ( $job == "getUsers" )
+{
+
+	$boundMarker[0] = $min["lat"]." ".$min["lng"];
+	$boundMarker[1] = $min["lat"]." ".$max["lng"];
+	$boundMarker[2] = $max["lat"]." ".$max["lng"];
+	$boundMarker[3] = $max["lat"]." ".$min["lng"];
+	$boundMarker[4] = $min["lat"]." ".$min["lng"];
+	$bounds = implode(",",$boundMarker);
+	// $showStatus = "";
+	// if ( $showParams["online"] == "true" && $showParams["offline"] == "false" )
+	// {
+	// 	$showStatus .= " AND (`alive` = '1')";
+	// } else if ( $showParams["online"] == "false" && $showParams["offline"] == "true" )
+	// {
+	// 	$showStatus .= " AND (`alive` = '0')";
+	// } else if ( $showParams["online"] == "false" && $showParams["offline"] == "false" )
+	// {
+	// 	$showStatus .= " AND (`alive` = '-1')";
+	// }
+	$showStatus = "";
+	$collection = Array();
+	$sql = sprintf("SELECT `user_id`,`real_user_name`,`rating`,
+	(SELECT COUNT(`id`) FROM `user_responds` WHERE `user_id` = `users`.`user_id` AND `grade` <5) as `responds_bad`,
+	(SELECT COUNT(`id`) FROM `user_responds` WHERE `user_id` = `users`.`user_id` AND `grade` >=5) as `responds_good`,
+	X(`gps_point`) as `lat`, 
+	Y(`gps_point`) as `lon`
+	FROM `users`	WHERE MBRContains( ST_GeomFromText( 'Polygon((%s))' ),`gps_point` ) AND `status_id` = 1 AND `as_performer` = 1 %s",$bounds,$showStatus); 
+	// echo $sql;
+	try {
+		$res = $db->queryRows($sql);
+		foreach ( $res as $row )
+		{
+			$marker = new stdClass();
+			$user = new User($row->user_id);
+			$marker->user_id = $user->user_id;
+			$marker->lat = $row->lat;
+			$marker->lon = $row->lon;
+			$marker->name = '<a class="wdo-link" href="/profile/id'.$user->user_id.'#portfolio">'.$user->real_user_name.'</a>';
+			$marker->className = 'rounded-circle';
+			$marker->details = new stdClass();
+			$marker->details->user_id = $user->user_id;
+			$marker->details->rating = $row->rating;
+			$marker->details->responds = '<text class="text-danger">'.$row->responds_bad.'</text> <text class="text-success">'.$row->responds_good.'</text>';
+			// $marker->details->responds_bad = intval($db->getValue("user_responds","COUNT(`id`)","counter",Array("user_id"=>$user->user_id,"grade"=>"<5")));
+			// $marker->details->responds_good = intval($db->getValue("user_responds","COUNT(`id`)","counter",Array("user_id"=>$user->user_id,"grade"=>">=5")));
+			$collection[] = $marker;
+		}
+	}
+	catch ( Exception $e )
+	{
+		$collection["error"] = $e->getMessage();
+	}
+	echo json_encode($collection);
+	exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -55,6 +115,9 @@ $preselect = get_var("preselect","array",Array());
 					</div>
 					<div class="row">
 						<div class="col" style="padding-top: 5px;">
+							<span class="pull-right" style="padding: 10px; font-weight: 800;">
+								<a href="#" class="wdo-link text-purple" data-toggle="modal" data-target="#performers-map-modal">Поиск по карте</a>
+							</span>
 							<img src="/images/arrow-down.png" style="position: absolute; top: -3px; left: 50px;" >
 							Сортировать по: 
 							<span class="performers-sort active" data-dir="desc" data-col="rating">рейтингу</span>
@@ -81,6 +144,7 @@ $preselect = get_var("preselect","array",Array());
 <?php include(PD.'/includes/modals.php');?>
 <?php include(PD.'/includes/scripts.php');?>
 
+<script type="text/javascript" src="/js/leaflet/leafletembed-performers.js"></script>
 <script>
 $(function(){
 
@@ -164,7 +228,7 @@ $(function(){
 			+'	</div>'
 			+'	<div class="col text-center" style="max-width: 165px; background-color: #f6f5f6; padding-top: 15px;">'
 			+'		<text style="line-height: 2rem;"><span class="pull-left">Рейтинг</span><span class="pull-right">'+data.user.rating+'</span></text><br />'
-			+'		<text style="line-height: 2rem;"><span class="pull-left"><a class="wdo-link underline" href="/profile/id'+data.user.user_id+'#responds">Отзывов</a></span><span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
+			+'		<text style="line-height: 2rem;"><span class="pull-left"><a class="wdo-link underline" href="/profile/id'+data.user.user_id+'#user-responds">Отзывов</a></span><span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
 			+'		<text style="line-height: 2rem;"><span class="pull-left">В сервисе</span><span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
 			+'		<br />'
 			+'		<text style="line-height: 3rem; font-size:.8rem;"><a class="wdo-link underline" href="/profile/id'+data.user.user_id+'#portfolio">Смотреть портфолио</a></text><br />'
@@ -200,7 +264,18 @@ $(function(){
 		prevSort.dir = dir;
 		config.performers.dt.ajax.reload();
 	})
+	ajaxRequest=getXmlHttpObject();
+	if (ajaxRequest==null) {
+		alert ("This browser does not support HTTP Request");
+		return;
+	}
+	initmap(config.profile.placeCoords);
+	map.on('moveend', onMapMove);
+	onMapMove();
+
 });
+config.profile.placeCoords = '<?php echo str_replace(" ",",",$current_user->gps);?>';
+console.log("config.profile.placeCoords:",config.profile.placeCoords);
 </script>
 </body>
 </html>

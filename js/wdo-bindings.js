@@ -57,7 +57,7 @@ $(document).on("click",".dialog",function(){
 				},3000);
 			}
 			$.each(response.messages,function(){
-				$(".conversation-messages").prepend(app.im.format_message(this));
+				$(".conversation-messages").prepend(app.formatter.format_message(this));
 			})
 			$(".dialogs-container").hide();
 			$(".conversation-container").removeClass("loading").show();
@@ -110,6 +110,12 @@ $(document).on("click",".wdo-btn",function(e){
 $(document).on("click",".list-group-item,.custom-control-description-cat, .toggle-category",function(e){
 	e.stopPropagation();
 	e.preventDefault();
+	if ( $(this).hasClass("scenario-subcategory") )
+	{
+		var value = $(this).find("input[type='radio']").prop("checked");
+		toggleScenarioCategory($(this).data('scenario_id'),$(this).data('subcat_id'),!value);
+		return;
+	}
 	if ( $(this).hasClass("category") )
 	{
 		slideCategory($(this).data('cat_id'));
@@ -237,6 +243,11 @@ $(document).on('shown.bs.tab','a[data-toggle="tab"]', function (e) {
 	// $("#portfolio_list").html('');
 });
 
+$(document).on("click",'a[data-toggle="custom-tab"]', function(e) {
+	var target = $(this).data('target');
+	$('a[data-toggle="tab"][data-target="'+target+'"]').tab('show');
+})
+
 $(document).on('show.bs.tab','a[data-toggle="tab"]', function (e) {
 	var current_tab = e.target,
 			prev = e.relatedTarget,
@@ -308,4 +319,27 @@ $(document).on("keyup","input[data-name='youtube-link']",function(){
 	}
 	var empty = $("input.empty[data-name='youtube-link']");
 	if ( empty.length == 0 ) $('<input type="text" class="form-control empty" data-name="youtube-link" placeholder="Ссылка на ваше видео в YouTube" />').appendTo("#yt_links");
+})
+
+$(document).on("click",".rating-grade", function(e){
+	var grade_val = parseInt($(this).text()),
+			respond_id = $(this).data("respond_id"),
+			grade_text = "балл",
+			ico = "good",
+			container = $(".project-respond-result-body[data-respond_id='"+respond_id+"']");
+	$(container).find(".rating-grade").removeClass("selected");
+	$(this).addClass("selected");
+	switch ( grade_val )
+	{
+		case 1: grade_text = "балл"; break;
+		case 2: grade_text = "балла"; break;
+		case 3: grade_text = "балла"; break;
+		case 4: grade_text = "балла"; break;
+		default: grade_text = "баллов"; break;
+	}
+	ico = ( grade_val >= 5 ) ? "good" : "bad";
+	$(container).find(".rating-grade-value").text(grade_val);
+	$(container).find(".rating-grade-text").text(grade_text);
+	$(container).find(".rating-ico").attr("src","/images/rating-"+ico+"-big.png");
+
 })

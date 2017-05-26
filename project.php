@@ -29,7 +29,7 @@ $_SESSION["LAST_PAGE"] = "/project";
 
 $project = new Project($id);
 
-if ( $project->status_id == 5 && $current_user->user_id != $project->user_id )
+if ( $project->error == true || ($project->status_id == 5 && $current_user->user_id != $project->user_id) )
 {
 	$error = 404;
 	include(PD.'/errors/error.php');
@@ -44,10 +44,12 @@ if ( $project->for_user_id > 0 && $current_user->user_id != $project->for_user_i
 
 if ( isset($_GET["add_respond"]) )
 {
-	include("addProjectRespond.php");
+	include("project-respond.php");
 	exit;
 }
 $window_title = $project->title;
+
+$pu = new User($project->user_id);
 ?>
 
 
@@ -94,6 +96,7 @@ $window_title = $project->title;
 					<?php include(PD.'/includes/left-list-top-10.php');?>
 				</div><!-- /.wdo-main-left -->
 				<div class="invisible" id="project_id" data-project-id="<?php echo $project->project_id;?>"></div>
+				<div class="invisible" id="project_user_id" data-project-user-id="<?php echo $pu->user_id;?>" data-project-user-name="<?php echo $pu->real_user_name;?>"></div>
 				<div class="col wdo-main-right" style="padding: 30px;">
 					<div class="row">
 						<div class="col" style="flex: 0 0 75%; max-width: 75%;">
@@ -225,7 +228,6 @@ $window_title = $project->title;
 						</div>
 						<div class="col text-center" style="align-self: center;"><!-- user block -->
 							<?php
-							$pu = new User($project->user_id);
 							$pu->get_counters();
 							echo sprintf('
 							<a href="%s" class="wdo-link"><img class="rounded-circle shadow" src="%s" />
@@ -355,9 +357,12 @@ $window_title = $project->title;
 <?php include(PD.'/includes/scripts.php');?>
 
 <script>
-function open_respond_result_body(respond_id)
+function toggle_respond_result_body(respond_id)
 {
-	$(".project-respond-result-body[data-respond_id='"+respond_id+"']").slideToggle();
+	$(".project-respond-result-body[data-respond_id='"+respond_id+"']").slideToggle('medium', function() {
+		if ($(this).is(':visible'))
+			$(this).css('display','flex');
+	});
 }
 $(function(){
 	var project_id = $("#project_id").data('project-id');
@@ -429,6 +434,7 @@ $(function(){
 					attaches = $('<div/>',{class: "attaches"}),
 					header = $('<div/>',{class: "project-respond-header"}),
 					header_html = '',
+					actions_bottom = '',
 					html = ''
 			+'<div class="row">'
 			+'	<div class="col" style="border-right: 1px solid #eee;">'
@@ -488,35 +494,76 @@ $(function(){
 					+'<div class="row" style="border: 3px solid #cecd48;">'
 					+'	<div class="col">'
 					+'		<div class="row">'
-					+'			<div class="col text-center project-respond-result" onClick="open_respond_result_body('+data.respond_id+')">Принять работу</div>'
+					+'			<div class="col text-center project-respond-result" onClick="toggle_respond_result_body('+data.respond_id+')">Принять работу</div>'
 					+'		</div>'
-					+'		<div class="row">'
-					+'			<div class="col text-center project-respond-result-body" data-respond_id="'+data.respond_id+'">'
-					+'				<div class="row">'
-					+'					<div class="col">Ваша оценка работы исполнителя'
+					+'		<div class="row project-respond-result-body" data-respond_id="'+data.respond_id+'">'
+					+'			<div class="col">'
+					+'					<div class="row">'
+					+'						<div class="col"><small class="text-muted">Ваша оценка работы исполнителя</small></div>'
 					+'					</div>'
-					+'				</div>'
-					+'				<div class="row">'
-					+'					<div class="col">'
+					+'					<div class="row">'
+					+'						<div class="col" style="padding: 20px;">'
+					+'							<div class="row" style="align-items: center;">'
+					+'								<div class="col" style="max-width:55px;">'
+					+'									<img class="rounded-circle shadow" src="/user.getAvatar?user_id='+$("#project_user_id").data("project-user-id")+'&w=55&h=55" />'
+					+'								</div>'
+					+'								<div class="col" style="max-width: 180px;">'
+					+'									<text class="text-purple strong">'+$("#project_user_id").data("project-user-name")+'</text>'
+					+'								</div>'
+					+'								<div class="col">'
+					+'									<ul class="set-rating">'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">1</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">2</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">3</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">4</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">5</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">6</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">7</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">8</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">9</li>'
+					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">10</li>'
+					+'									</ul>'
+					+'								</div>'
+					+'							</div>'
+					+'						</div>'
 					+'					</div>'
-					+'				</div>'
-					+'				<div class="row">'
-					+'					<div class="col">'
+					+'					<div class="row" style="padding: 10px;">'
+					+'						<div class="col" style="border: 1px solid rgba(0,0,0,0.1);">'
+					+'							<div class="row" style="align-items: center;">'
+					+'								<div class="col" style="border-right: 1px dotted #ccc;">'
+					+'									<img src="/images/arrow-down-transparent.png" style="position: absolute;top: -2px;left: 28px;background-color: #fff;">'
+					+'									<textarea class="form-control respond-text" placeholder="Ваш отзыв" rows="3"></textarea>'
+					+'								</div>'
+					+'								<div class="col text-center" style="max-width: 100px;padding-top: 10px;">'
+					+'									<img style="border: 0;" src="/images/rating-good-big.png" class="rating-ico" /><br />'
+					+'									<h4 class="rating-grade-value" style="display: inline-block;">0</h4> <small class="rating-grade-text">баллов</small>'
+					+'								</div>'
+					+'							</div>'
+					+'						</div>'
 					+'					</div>'
-					+'				</div>'
-					+'				<div class="row">'
-					+'					<div class="col">'
+					+'					<div class="row">'
+					+'						<div class="col wave">'
+					+'						</div>'
 					+'					</div>'
-					+'				</div>'
-					+'				<div class="row">'
-					+'					<div class="col">'
+					+'					<div class="row">'
+					+'						<div class="col" style="background-color: #ece7e7;margin-top: -10px;">'
+					+'							<div class="row" style="padding: 15px 0px; align-items: center;">'
+					+'								<div class="col">'
+					+'									Я согласен принять работу исполнителя и перечислить оплату с моего лицевого счета на счет исполнителя'
+					+'								</div>'
+					+'								<div class="col" style="display: flex; max-width: 240px; justify-content: space-between;">'
+					+'									<div class="wdo-btn bg-white btn-sm" onClick="toggle_respond_result_body('+data.respond_id+')">Отменить</div>'
+					+'									<div class="wdo-btn bg-yellow btn-sm" onClick="app.project.acceptRespond('+data.respond_id+',this)" data-lt="Загрузка" data-ot="Принять работу">Принять работу</div>'
+					+'								</div>'
+					+'							</div>'
+					+'						</div>'
 					+'					</div>'
-					+'				</div>'
 					+'			</div>'
 					+'		</div>'
 					+'	</div>'
 					+'</div>'
 				}
+				
 				header_html = ''
 				+'<div class="row">'
 				+'	<div class="col">'
@@ -525,6 +572,17 @@ $(function(){
 				+'	</div>'
 				+'</div>';
 				header.html(header_html).appendTo($('td', row));
+			}
+			if ( data.respond.status_id == 5 )
+			{
+				actions_bottom = ''
+				+'<div class="row" style="border: 3px solid #cecd48;">'
+				+'	<div class="col">'
+				+'		<div class="row">'
+				+'			<div class="col text-center project-respond-result">Работа принята ('+moment.unix(data.respond.modify_timestamp).calendar()+')</div>'
+				+'		</div>'
+				+'	</div>'
+				+'</div>';
 			}
 			respond.html(html);
 			respond.appendTo(container);
@@ -551,6 +609,7 @@ $(function(){
 			$(".paginate_button > a").on("focus", function() {
 				$(this).blur();
 			});
+			autosize($(".respond-text"));
 			$(".gallery").click(function (event) {
 				event = event || window.event;
 				var target = event.target || event.srcElement,
@@ -564,10 +623,10 @@ $(function(){
 				blueimp.Gallery(links, options);
 			});
 			$(".respond-action").click(function(e){
-				if ( $(this).data('status_id') == 3 ) return false;
+				// if ( $(this).data('status_id') == 3 ) return false;
 				$.ajax({
 					type: "POST",
-					url: "/update.project-respond",
+					url: "/project_respond/update",
 					data: {
 						"respond_id": $(this).data('respond_id'),
 						"field": "status_id",

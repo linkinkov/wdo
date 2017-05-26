@@ -224,3 +224,22 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+
+<!-- alert-modal -->
+<div class="modal" id="performers-map-modal" tabindex="-1" role="dialog" aria-labelledby="performers-map-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="max-width: 80%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-roboto-cond" id="performers-map-modal-label">Исполнители на карте</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div id="map" style="height: 700px;"></div>
+			</div><!-- /.modal-body -->
+			<div class="modal-footer" style="height: 55px; background: url(/images/ornament-3.png) repeat-x bottom 10px right;"></div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

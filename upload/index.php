@@ -34,5 +34,7 @@ $upload_handler = new UploadHandler(array(
 	'user_dirs' => true,
 	'correct_image_extensions' => true,
 	'access_control_allow_credentials' => true,
-	'accept_file_types' => '/\.(gif|jpe?g|png|docx?|xlsx?|pdf)$/i'
+	'accept_file_types' => '/\.(gif|jpe?g|png|docx?|xlsx?|pdf)$/i',
+	'max_file_size' => 4000000,
+	'max_number_of_files' => 11
 ));

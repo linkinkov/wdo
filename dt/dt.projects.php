@@ -33,10 +33,8 @@ $end_date = get_var("end_date","int",time()+(86400*3));
 $only_vip = get_var("vip","string",false);
 $only_safe = get_var("safe_deal","string",false);
 $user_id = get_var("user_id","int",0);
-$for_profile = get_var("for_profile","string",false);
+// $for_profile = get_var("for_profile","string",false);
 
-// print_r($only_vip);
-// print_r($only_safe);
 if (sizeof($columns) > 0)
 {
 	foreach($columns as $idx=>$col)
@@ -67,20 +65,21 @@ $timerange = sprintf(' AND (`start_date` >= "%d" AND `end_date` <= "%d")', $star
 $for_user_id = sprintf(' AND (`user_id` = "%d" OR `for_user_id` = "0" OR `for_user_id` = "%d")',$current_user->user_id,$current_user->user_id);
 if ( $user_id > 0 )
 {
-	$user_id = sprintf(' AND (`user_id` = "%d")',$user_id);
+	$author_id = sprintf(' AND (`user_id` = "%d")',$user_id);
 	$timerange = "";
 }
 else
 {
-	$user_id = "";
+	$author_id = "";
 }
 
 $select_status_name = "";
 $select_performer_name = "";
-if ( $for_profile == "true" )
+// if ( $for_profile == "true" )
+if ( $current_user->user_id == $user_id )
 {
 	$select_status_name = ", `status_name`";
-	$select_performer_name = ", (SELECT `user_id` FROM `project_responds` WHERE `for_project_id` = `project_id` AND `status_id` = '3' ) as performer_name";
+	$select_performer_name = ", (SELECT `user_id` FROM `project_responds` WHERE `for_project_id` = `project_id` AND `status_id` IN (3,5) ) as performer_name";
 }
 
 $safe_vip = "";
@@ -103,7 +102,7 @@ $sql_main = "SELECT `project_id`,
 	$select_performer_name
 	FROM `project`
 	LEFT JOIN `project_statuses` ON `project_statuses`.`id` = `project`.`status_id`
-	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $user_id
+	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $author_id
 	ORDER BY `project`.`vip` DESC, $orderStr
 	LIMIT $start, $length";
 // echo $sql_main;
@@ -118,7 +117,7 @@ try {
 $recordsTotal = 0;
 $recordsFiltered = 0;
 
-$sql = "SELECT COUNT(`project_id`) as recordsTotal FROM `project` WHERE 1 $statusStr $cityStr $for_user_id $user_id";
+$sql = "SELECT COUNT(`project_id`) as recordsTotal FROM `project` WHERE 1 $statusStr $cityStr $for_user_id $author_id";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
@@ -130,7 +129,7 @@ try {
 
 $sql = "SELECT COUNT(`project_id`) as recordsFiltered 
 	FROM `project` 
-	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $user_id";
+	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $author_id";
 try {
 	$tdr = $db->queryRow($sql);
 	$recordsFiltered = $tdr->recordsFiltered;
@@ -161,7 +160,8 @@ if ( sizeof ($aaData) )
 		$title_tr = strtolower(r2t($project->title));
 		$row->project_link = HOST.'/project/'.$project->cat_name_translated.'/'.$project->subcat_name_translated.'/p'.$row->project_id.'/'.$title_tr.'.html';
 		if ( $project->vip == 1 ) $row->DT_RowClass .= " vip";
-		if ( $for_profile == "true" )
+		// if ( $for_profile == "true" )
+		if ( $current_user->user_id == $user_id )
 		{
 			$row->DT_RowClass .= " no-pointer";
 			$row->performer_id = $row->performer_name;

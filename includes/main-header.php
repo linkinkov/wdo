@@ -97,7 +97,7 @@ else
 											</span>
 											Сообщения
 										</a>
-										<a class="wdo-link dropdown-item" href="/profile/#responds">
+										<a class="wdo-link dropdown-item" href="/profile/#user-responds">
 											<span class="pull-right">
 												<span data-type="responds" class="badge badge-pill badge-info profile-counter"></span>
 											</span>

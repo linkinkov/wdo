@@ -18,7 +18,7 @@ if ( $current_user->user_id <= 0 )
 	exit;
 }
 $job = get_var("job","string","");
-$_SESSION["LAST_PAGE"] = "/addProject";
+$_SESSION["LAST_PAGE"] = "/add-project";
 if ( $job == "publish" )
 {
 	$data = get_var("data","array",Array());
@@ -304,17 +304,7 @@ $(function(){
 	$('#fileupload').fileupload({
 		dataType: 'json',
 		url: '/upload/',
-		change : function (e, data) {
-			if(total_files>=max_files){
-				alert("Максимум "+max_files+" файлов");
-				return false;
-			}
-		},
 		submit:  function (e, data) {
-			if(total_files>=max_files){
-				alert("Максимум "+max_files+" файлов");
-				return false;
-			}
 			$("#uploaded").show();
 			$(".progress").show();
 			set_btn_state(upload_btn,"loading");
@@ -541,9 +531,12 @@ $(function(){
 	var search_performer = "";
 	$("#search_performer").keyup(function(){
 		var search = $(this).val();
-		if ( search == "" ) $("#performers").html('');
+		if ( search == "" )
+		{
+			$("#performers").html('').hide();
+			$("#performers_separator").hide();
+		}
 		if ( search == search_performer ) return;
-		console.log("search:",search,", search_performer:",search_performer);
 		search_performer = search;
 		$.ajax({
 			type: "POST",
@@ -567,6 +560,12 @@ $(function(){
 						$(obj).appendTo("#performers");
 					})
 					$("#performers_separator").show();
+					$("#performers").show();
+				}
+				else
+				{
+					$("#performers").html('').hide();
+					$("#performers_separator").hide();
 				}
 			}
 		});

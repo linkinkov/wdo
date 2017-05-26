@@ -45,8 +45,8 @@ if ( !isset($error) )
 							<!--<hr />-->
 							<!--<h5>-->
 							<?php
-							// print_r($_SERVER);
-							$link = '<a href="'.$_SERVER["REDIRECT_URL"].'" class="wdo-link underline">Вернуться</a>';
+							// print_r($_SERVER["REDIRECT_URL"]);
+							$link = isset($_SERVER["HTTP_REFERER"]) ? '<a href="'.$_SERVER["HTTP_REFERER"].'" class="wdo-link underline">Вернуться</a>' : '<a href="/" class="wdo-link underline">Вернуться на главную</a>';
 							if ( !isset($error) ) $error = get_var("code","int");
 							switch ( $error )
 							{

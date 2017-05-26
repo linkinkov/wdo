@@ -5,6 +5,7 @@ class User
 	public function __construct($user_id = false, $username = false, $login = false)
 	{
 		global $db;
+		global $current_user;
 		if ( !isset($_SESSION["viewed_projects"]) )
 		{
 			$_SESSION["viewed_projects"] = Array();
@@ -53,6 +54,11 @@ class User
 			{
 				$this->ts_project_responds = $db->getValue("users","ts_project_responds","last_visit",Array("user_id"=>$this->user_id));
 			}
+			if ( $login == false && (!isset($current_user) || $current_user->user_id == 0) )
+			{
+				$this->phone = "Скрыт";
+				$this->skype = "Скрыт";
+			}
 		}
 		catch (Exception $e)
 		{
@@ -79,6 +85,10 @@ class User
 			{
 				$value = filter_string($value,'in');
 				$set[] = sprintf('`%s` = "%s"',$key,$value);
+				if ( $key == "gps" )
+				{
+					$set[] = sprintf("`gps_point` = GeomFromText('POINT(%s)',0)",str_replace(","," ",$value));
+				}
 			}
 		}
 		$sql = sprintf("UPDATE `users` SET %s WHERE `user_id` = '%d'",implode(",",$set),$this->user_id);
@@ -315,6 +325,8 @@ class User
 		);
 		if ( $this->user_id != $current_user->user_id ) return $response;
 		$this->balance = 100500;
+		$this->balance = $db->getValue("project_responds","SUM(`COST`)","total",Array("user_id"=>$current_user->user_id,"status_id"=>5));
+		
 		return $this->balance;
 	}
 

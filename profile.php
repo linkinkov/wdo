@@ -61,7 +61,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 					<div class="row">
 						<div class="col">
 							<hr />
-							<a href="#scenario" class="wdo-link profile-link">
+							<a class="nav-link text-muted pointer" data-toggle="custom-tab" data-target="#scenarios">
 								<span class="fa-stack text-purple">
 									<i class="fa fa-circle-o fa-stack-2x"></i>
 									<i class="fa fa-star fa-stack-1x"></i>
@@ -214,7 +214,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 									"project-responds" => "Мои заявки",
 									"portfolio" => "Портфолио",
 									"messages" => "Сообщения",
-									"responds" => "Отзывы"
+									"user-responds" => "Отзывы"
 								);
 							}
 							else
@@ -223,7 +223,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 								$tabs = Array(
 									"projects" => "Проекты",
 									"portfolio" => "Портфолио",
-									"responds" => "Отзывы"
+									"user-responds" => "Отзывы"
 								);
 							}
 							foreach ( $tabs as $id=>$tab_name )
@@ -243,6 +243,9 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							<li class="nav-item" style="display: none;">
 								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-edit" role="tab">Редактировать портфолио</a>
 							</li>
+							<li class="nav-item" style="display: none;">
+								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#scenarios" role="tab">Типовые</a>
+							</li>
 
 							</ul>
 							<!-- Tab panes -->
@@ -259,6 +262,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							?>
 								<div class="tab-pane" id="portfolio-add" role="tabpanel"></div>
 								<div class="tab-pane" id="portfolio-edit" role="tabpanel"></div>
+								<div class="tab-pane" id="scenarios" role="tabpanel"></div>
 							</div>
 
 						</div>
@@ -274,8 +278,9 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 <?php include(PD.'/includes/modals.php');?>
 <?php include(PD.'/includes/scripts.php');?>
 
-<script src="<?php echo HOST;?>/js/jquery-ui/jquery-ui.js"></script>
-<script src="<?php echo HOST;?>/js/jquery-ui.multidatespicker.js"></script>
+<script type="text/javascript" src="/js/leaflet/leafletembed-profile.js"></script>
+<script type="text/javascript" src="/js/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/js/jquery-ui.multidatespicker.js"></script>
 <script>
 <?php echo sprintf('config.profile.user_id = "%d";',$user->user_id);?>
 $(function(){
@@ -290,6 +295,7 @@ $(function(){
 			$(this).parent().html('<text class="text-success">Сейчас на сайте</text>');
 			$("#online_tracker").show();
 		}
+		$(this).removeClass("timestamp");
 	});
 	var hash = window.location.hash;
 	if ( hash != "" )

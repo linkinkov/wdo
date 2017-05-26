@@ -19,6 +19,7 @@ var config = {
 	"profile":
 	{
 		"user_id": 0,
+		"placeCoords": "55,55",
 		"messages_per_page": 10
 	},
 	"datePickerOptions": {
@@ -226,6 +227,37 @@ var app = {
 					callback(response);
 				}
 			})
+		},
+		"acceptRespond": function(respond_id,btn){
+			var container = $(".project-respond-result-body[data-respond_id='"+respond_id+"']"),
+					grade_val = parseInt($(container).find(".rating-grade-value").text()),
+					respond_text = $(container).find(".respond-text").val();
+			if ( grade_val <= 0 ) {showAlert("danger","Пожалуйста, укажите оценку");return;};
+			if ( respond_text.length < 2 ) {showAlert("danger","Пожалуйста, укажите текст отзыва"); return;};
+			set_btn_state(btn,'loading');
+			$.ajax({
+				type: "POST",
+				url: "/project_respond/accept",
+				data: {
+					"respond_id": respond_id,
+					"descr": respond_text,
+					"grade": grade_val
+				},
+				dataType: "JSON",
+				success: function (response) {
+					if ( response.result == "true" )
+					{
+						// window.location.reload();
+						$(btn).text(response.message);
+					}
+					else
+					{
+						var message = ( response.message ) ? response.message : "Произошла ошибка, обновите страницу или попробуйте позже";
+						showAlert("danger",message);
+						set_btn_state(btn,"reset");
+					}
+				}
+			})
 		}
 	},
 	"getCityList": function(search,limit,callback,print_user_city){
@@ -234,7 +266,7 @@ var app = {
 		limit = limit || 3;
 		$.ajax({
 			type: "POST",
-			url: "/get.cityList",
+			url: "/get.CityList",
 			data: {
 				"search": search,
 				"limit": limit,
@@ -250,7 +282,7 @@ var app = {
 		callback = callback || function(){};
 		$.ajax({
 			type: "POST",
-			url: "/get.subCatList",
+			url: "/get.SubCatList",
 			data: {
 				"parent_id": parent_id
 			},
@@ -354,49 +386,11 @@ var app = {
 				})
 			},250)
 		},
-		"format_dialog": function(data)
-		{
-			var message_time = ( (moment().format("X") - data.timestamp) > 86400 ) ? moment.unix(data.timestamp).calendar() : moment.unix(data.timestamp).calendar(),
-					dialog_class = ( data.unreaded > 0 ) ? 'unreaded' : '',
-					unreaded_row = ( data.unreaded > 0 ) ? '<div class="col text-right text-purple strong text-roboto-cond" style="max-width: 45px;">+'+data.unreaded+'</div>' : '';
-			var dialog = ''
-				+'<div class="row">'
-				+'	<div class="col">'
-				+'		<div class="dialog '+dialog_class+'" data-dialog_id="'+data.dialog_id+'">'
-				+'			<div class="col" style="max-width: 80px;"><img class="rounded-circle shadow" src="'+data.dialog_avatar_path+'&w=50&h=50" /></div>'
-				+'			<div class="col">'
-				+'				<h6 class="text-purple">'+data.real_user_name+'</h6>'
-				+'				<text class="text-truncate" style="max-width: 350px;">'+data.last_message_text+'</text>'
-				+'			</div>'
-				+'			'+unreaded_row
-				+'			<div class="col text-right text-muted" style="max-width: 180px;">'+message_time+'</div>'
-				+'		</div>'
-				+'	</div>'
-				+'</div>';
-			return dialog;
-		},
-		"format_message": function(data)
-		{
-			var message = ''
-			+'<div class="row">'
-			+'	<div class="message">'
-			+'	<div class="col" style="max-width: 80px;">'
-			+'		<a href="/profile/id'+data.user.id+'" class="wdo-link"><img class="rounded-circle shadow" src="'+data.user.avatar_path+'&w=50&h=50" /></a>'
-			+'	</div>'
-			+'	<div class="col">'
-			+'		<span class="pull-right">'+moment.unix(data.message.timestamp).calendar()+'</span>'
-			+'		<h6><a href="/profile/id'+data.user.id+'" class="wdo-link text-purple">'+data.user.real_user_name+'</a></h6>'
-			+'		<text>'+data.message.text+'</text>'
-			+'	</div>'
-			+'	</div>'
-			+'</div>';
-			return message;
-		},
 		"append_messages": function(messages)
 		{
 			if ( messages.length == 0 ) return;
 			$.each(messages,function(){
-				$(".conversation-messages").append(app.im.format_message(this));
+				$(".conversation-messages").append(app.formatter.format_message(this));
 			});
 			var d = $('#conversation-messages');
 			setTimeout(function(){
@@ -494,10 +488,92 @@ var app = {
 			})
 		},
 	},
-	"formatter": {
-		"format_project_attach": function(data)
+	"scenario": {
+		"getList": function(callback)
 		{
-
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/get.ScenarioList",
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"start": function()
+		{
+			var card = $(".scenario-card.show"),
+					scenario_id = $(card).data("scenario_id"),
+					subcats = [],
+					title = $(card).find("input[data-name='title']").val(),
+					budget = $(card).find("input[data-name='budget']").val(),
+					timestamp_start = $(card).find("input[data-name='start_end']").data("timestamp_start"),
+					timestamp_end = $(card).find("input[data-name='start_end']").data("timestamp_end");
+			$.each($(".scenario-subcategory[data-scenario_id='"+scenario_id+"']"),function(i,li){
+				if ( $(li).hasClass("selected") ) subcats.push($(li).data("subcat_id"));
+			})
+			$.ajax({
+				type: "POST",
+				url: "/pp/scenarios",
+				dataType: "JSON",
+				data: {
+					"action": "create_event",
+					"title": title,
+					"budget": budget,
+					"timestamp_start": timestamp_start,
+					"timestamp_end": timestamp_end,
+					"scenario_id": scenario_id,
+					"subcats": subcats
+				},
+				success: function (response) {
+					if ( response.result == "false" )
+					{
+						showAlert("danger",response.message);
+						return;
+					}
+				}
+			})
+		}
+	},
+	"formatter": {
+		"format_dialog": function(data)
+		{
+			var message_time = ( (moment().format("X") - data.timestamp) > 86400 ) ? moment.unix(data.timestamp).calendar() : moment.unix(data.timestamp).calendar(),
+					dialog_class = ( data.unreaded > 0 ) ? 'unreaded' : '',
+					unreaded_row = ( data.unreaded > 0 ) ? '<div class="col text-right text-purple strong text-roboto-cond" style="max-width: 45px;">+'+data.unreaded+'</div>' : '';
+			var dialog = ''
+				+'<div class="row">'
+				+'	<div class="col">'
+				+'		<div class="dialog '+dialog_class+'" data-dialog_id="'+data.dialog_id+'">'
+				+'			<div class="col" style="max-width: 80px;"><img class="rounded-circle shadow" src="'+data.dialog_avatar_path+'&w=50&h=50" /></div>'
+				+'			<div class="col">'
+				+'				<h6 class="text-purple">'+data.real_user_name+'</h6>'
+				+'				<text class="text-truncate" style="max-width: 350px;">'+data.last_message_text+'</text>'
+				+'			</div>'
+				+'			'+unreaded_row
+				+'			<div class="col text-right text-muted" style="max-width: 180px;">'+message_time+'</div>'
+				+'		</div>'
+				+'	</div>'
+				+'</div>';
+			return dialog;
+		},
+		"format_message": function(data)
+		{
+			var message = ''
+			+'<div class="row">'
+			+'	<div class="message">'
+			+'	<div class="col" style="max-width: 80px;">'
+			+'		<a href="/profile/id'+data.user.id+'" class="wdo-link"><img class="rounded-circle shadow" src="'+data.user.avatar_path+'&w=50&h=50" /></a>'
+			+'	</div>'
+			+'	<div class="col">'
+			+'		<span class="pull-right">'+moment.unix(data.message.timestamp).calendar()+'</span>'
+			+'		<h6><a href="/profile/id'+data.user.id+'" class="wdo-link text-purple">'+data.user.real_user_name+'</a></h6>'
+			+'		<text>'+data.message.text+'</text>'
+			+'	</div>'
+			+'	</div>'
+			+'</div>';
+			return message;
 		},
 		"format_portfolio_preview": function(data)
 		{
@@ -609,6 +685,39 @@ var app = {
 				+'</div>';
 			}
 			return object;
+		},
+		"format_scenario_col": function(data)
+		{
+			var col = ''
+			+'<div class="col-sm-12">'
+			+'	<div class="card scenario-card" data-scenario_id="'+data.scenario_id+'">'
+			+'		<h5 class="card-header scenario-header" data-scenario_id="'+data.scenario_id+'" onClick="showScenarioDetails(this);">'
+			+'			<span class="pull-right"><i class="fa fa-arrow-circle-o-up text-muted" aria-hidden="true"></i></span>'
+			+'			'+data.scenario_name+''
+			+'		</h5>'
+			+'		<div class="card-block">'
+			+'			<small class="text-purple-dark">Для проведения этого мероприятия вам потребуется создать проект в следующих разделах:</small>'
+			+'			<hr />'
+			+'			<ul class="list-group">';
+			$.each(data.scenario_subcats,function(i,ss){
+				var li = ''
+			+'				<li class="small list-group-item justify-content-between scenario-subcategory" data-scenario_id="'+data.scenario_id+'" data-subcat_id="'+ss.subcat_id+'">'
+			+'					<label class="custom-control custom-radio custom-radio">'
+			+'						<input name="radio-c-'+data.scenario_id+'-'+ss.subcat_id+'" type="radio" class="custom-control-input">'
+			+'						<span class="custom-control-indicator"></span>'
+			+'						<span class="custom-control-description">'+ss.subcat_name+'</span>'
+			+'					</label>'
+			+'				</li>';
+				col += li;
+			});
+			col += ''
+			+'			</ul>'
+			+'			<hr />'
+			+'			<div class="wdo-btn btn-sm bg-purple" onClick="app.scenario.start()">Старт</div>'
+			+'		</div>'
+			+'	</div>'
+			+'</div>'
+			return col;
 		}
 	}
 }

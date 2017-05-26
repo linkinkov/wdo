@@ -3,42 +3,91 @@ require_once('_global.php');
 include_once('_includes.php');
 
 $job = get_var("job","string","");
-$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$project->project_id)));
-if ( $already_has_respond > 0 )
+if ( $job != "" )
 {
-	$error = "700";
-	include(PD.'/errors/error.php');
-	exit;
-}
-if ( $job == "publish" )
-{
-	if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
-	{
-		$redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-		header('Location: ' . $redirect, true, 301);
-		exit();
-	}
 	$db = db::getInstance();
 	check_access($db,false);
 
 	$current_user = new User($_SESSION["user_id"]);
 	$current_user->set_city_auto();
 
+	$response = Array(
+		"result" => "false",
+		"message" => "Ошибка"
+	);
+}
+if ( $job == "publish" )
+{
+	header('Content-Type: application/json');
 	$data = get_var("data","array",Array());
-	// $data["for_project_id"] = $project->project_id;
+	$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$data["for_project_id"])));
+	if ( $already_has_respond > 0 )
+	{
+		$response = Array(
+			"result"=>"false",
+			"message"=>"У вас уже есть заявка на данный проект"
+		);
+		echo json_encode($response);
+		exit;
+	}
+	if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
+	{
+		$redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		header('Location: ' . $redirect, true, 301);
+		exit();
+	}
 	$response = ProjectRespond::publish($data);
+	echo json_encode($response);
+	exit;
+}
+else if ( $job == "accept" )
+{
+	header('Content-Type: application/json');
+	$respond_id = get_var("respond_id","int",0);
+	$descr = get_var("descr","string","");
+	$grade = get_var("grade","int",0);
+	if ( $respond_id <= 0 )
+	{
+		$response["message"] = "Отзыв не существует";
+		echo json_encode($response);
+		exit;
+	}
+	if ( $grade < 1 )
+	{
+		$response["message"] = "Укажите оценку";
+		echo json_encode($response);
+		exit;
+	}
+	if ( trim($descr) == "" )
+	{
+		$response["message"] = "Укажите текст";
+		echo json_encode($response);
+		exit;
+	}
+	$respond = new ProjectRespond($respond_id);
+	$response = $respond->close($descr,$grade);
+	echo json_encode($response);
+	exit;	
+}
+else if ( $job == "update" )
+{
+	$respond_id = get_var("respond_id","int",0);
+	$field = get_var("field","string",false);
+	$value = get_var("value","string",false);
+	if ( !$respond_id || !$field || !$value ) exit(json_encode($response));
+	$respond = new ProjectRespond($respond_id);
+	$response = $respond->update($field,$value);
 	header('Content-Type: application/json');
 	echo json_encode($response);
 	exit;
 }
-
 if ( $current_user->user_id == 0 )
 {
 	$error = 401;
 	include(PD.'/errors/error.php');
 	exit;
 }
-$_SESSION["LAST_PAGE"] = "/addProjectPespond";
+$_SESSION["LAST_PAGE"] = "/add-project-respond";
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -113,7 +162,7 @@ $_SESSION["LAST_PAGE"] = "/addProjectPespond";
 								</div>
 								<br />
 							</div>
-							<label for="fileupload" class="wdo-btn bg-purple" data-lt="Загрузка..." data-ot="Выберите файлы">Выберите файлы (<small>Не более 10</small>)</label>
+							<label for="fileupload" class="wdo-btn bg-purple" data-lt="Загрузка..." data-ot="Выберите файлы (<small>Не более 10</small>)">Выберите файлы (<small>Не более 10</small>)</label>
 							<input id="fileupload" type="file" name="files[]" multiple style="display: none;">
 						</div>
 					</div>
@@ -187,17 +236,7 @@ $(function(){
 	$('#fileupload').fileupload({
 		dataType: 'json',
 		url: '/upload/',
-		change : function (e, data) {
-			if(total_files>=max_files){
-				alert("Максимум "+max_files+" файлов");
-				return false;
-			}
-		},
 		submit:  function (e, data) {
-			if(total_files>=max_files){
-				alert("Максимум "+max_files+" файлов");
-				return false;
-			}
 			$("#uploaded").show();
 			$(".progress").show();
 			set_btn_state(upload_btn,"loading");
@@ -205,6 +244,11 @@ $(function(){
 		done: function (e, data) {
 			$("#uploaded").show();
 			$.each(data.result.files, function (index, file) {
+				if ( file.error )
+				{
+					showAlert("error",file.error);
+					return;
+				}
 				object = app.formatter.format_pf_edit_attach(this);
 				if ( this.attach_type == 'image' || this.attach_type == 'document' )
 				{
@@ -261,7 +305,6 @@ $(function(){
 			})
 		},
 		acceptFileTypes: /(\.|\/)(gif|jpe?g|png|docx?|xlsx?|pdf)$/i,
-		maxFileSize: 4000000,
 		stop: function(e, data) {
 			set_btn_state(upload_btn,"reset");
 			$(".progress").hide();
@@ -272,8 +315,8 @@ $(function(){
 				'width',
 				progress + '%'
 			);
-		}
-	});
+		},
+	})
 	$(".gallery").click(function (event) {
 		event = event || window.event;
 		var target = event.target || event.srcElement,
@@ -302,7 +345,6 @@ $(function(){
 			(value === true) ? $("#submit").removeClass("disabled") : $("#submit").addClass("disabled");
 		}
 	})
-
 
 	$("#submit").click(function(){
 		if ( $(this).hasClass("disabled") ) return false;

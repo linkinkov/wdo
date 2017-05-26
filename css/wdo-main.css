@@ -145,6 +145,9 @@ body { padding-right: 0 !important }
 .bg-yellow {
 	background-color: #cecd48;
 }
+.bg-white {
+	background-color: #fff;
+}
 .text-purple {
 	color: #940a63 !important;
 }
@@ -740,6 +743,22 @@ th.project-table-cost {
 	border: 0px;
 	padding: 0.15rem 1.25rem;
 }
+.scenario-subcategory {
+	border: 0 !important;
+	padding: 0 !important;
+	font-weight: 800;
+}
+.scenario-subcategory:not(.selected) {
+	color: #636c72;
+	font-weight: 400;
+}
+.scenario-card .card-header {
+	cursor: pointer;
+	color: #500a37;
+}
+.scenario-card .card-block {
+	display: none;
+}
 .custom-checkbox {
 	padding-left: 3.5rem;
 }
@@ -783,4 +802,33 @@ td.safe-deal.vip {
 }
 .project-respond-result-body {
 	display: none;
+}
+ul.set-rating {
+	padding: 0;
+	margin: 0;
+}
+ul.set-rating li {
+	cursor: pointer;
+	display: inline-block;
+	padding: 5px 10px;
+	border-radius: 1.25rem;
+	border: 1px solid #fff;
+	font-size: 0.75rem;
+}
+ul.set-rating li:last-child {
+	padding: 5px 6px;
+}
+ul.set-rating li:hover {
+	border-radius: 1.25rem;
+	border: 1px solid #ccc;
+}
+ul.set-rating li.selected {
+	background-color: #cecd48;
+	border-color: #cecd48;
+}
+.respond-text {
+	border: 0; margin-top: 15px; width: 95%;
+}
+.row-bordered {
+	border: 1px solid #ece7e7;
 }

@@ -36,7 +36,7 @@ $(function(){
 		{
 			$(".dialogs-container").html('');
 			$.each(response.dialogs,function(){
-				$(".dialogs-container").append(app.im.format_dialog(this));
+				$(".dialogs-container").append(app.formatter.format_dialog(this));
 			})
 		}
 	})
@@ -60,7 +60,7 @@ $(function(){
 				{
 					var now_loaded = $(".conversation-container").data('loaded')+config.profile.messages_per_page;
 					$.each(response.messages,function(){
-						$(".conversation-messages").prepend(app.im.format_message(this));
+						$(".conversation-messages").prepend(app.formatter.format_message(this));
 					})
 					$(".conversation-container").data('loaded',now_loaded);
 					$(".conversation-messages").scrollTop(last_scroll+response.messages.length*70);

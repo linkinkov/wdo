@@ -31,7 +31,6 @@ class ProjectRespond
 			{
 				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
-			// $this->attaches = $this->get_attach_list();
 			$this->attaches = Attach::get_by_for_type("for_respond_id",$id);
 			$project_author_id = $db->getValue("project","user_id","user_id",Array("project_id"=>$this->for_project_id));
 			if ( $current_user->user_id != $this->user_id && $current_user->user_id != $project_author_id )
@@ -39,45 +38,13 @@ class ProjectRespond
 				unset($this->cost);
 				unset($this->status_id);
 				unset($this->modify_timestamp);
+				unset($this->status_name);
 			}
 			$this->error = false;
 		}
 		catch (Exception $e)
 		{
 			return;
-		}
-	}
-
-	public function get_attach_list()
-	{
-		global $db;
-		$sql = sprintf("SELECT `attach_id`,`attach_type`,`url` FROM `attaches` WHERE `for_respond_id` = '%d' ORDER BY `attach_type`, `attach_id` ASC",$this->respond_id);
-		try {
-			$list = $db->queryRows($sql);
-			$idx = 0;
-			foreach ( $list as $row )
-			{
-				if ( $row->attach_type == 'video' )
-				{
-					if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $row->url, $match)) {
-						$row->youtube_id = $match[1];
-					}
-					else
-					{
-						unset($list[$idx]);
-					}
-				}
-				else
-				{
-					unset($row->url);
-				}
-				$idx++;
-			}
-			return $list;
-		}
-		catch (Exception $e)
-		{
-			return Array();
 		}
 	}
 
@@ -91,9 +58,10 @@ class ProjectRespond
 		);
 		$project_author_id = $db->getValue("project","user_id","user_id",Array("project_id"=>$this->for_project_id));
 		$project_status_id = $db->getValue("project","status_id","status_id",Array("project_id"=>$this->for_project_id));
-		if ( $project_author_id != $current_user->user_id || $project_status_id != 1 )
+		$db->autocommit(false);
+		if ( $project_author_id != $current_user->user_id || !in_array($project_status_id,Array(1,2)) )
 		{
-			$response["error"] = "Ошибка доступа";
+			$response["error"] = "Ошибка доступа (Вы не автор проекта)";
 			return $response;
 		}
 		if ( $field == "status_id" && $value == 2 && $this->status_id == 2 ) $value = 1;
@@ -112,8 +80,13 @@ class ProjectRespond
 		}
 		try {
 			$db->query($sql);
+			if ( $value == 3 )
+			{
+				$db->query(sprintf("UPDATE `project` SET `status_id` = '2' WHERE `project_id` = '%d' AND `user_id` = '%d'",$this->for_project_id,$current_user->user_id));
+			}
 			$response["result"] = "true";
 			$response["message"] = "Обновлено";
+			$db->commit();
 		}
 		catch (Exception $e)
 		{
@@ -186,6 +159,64 @@ class ProjectRespond
 		{
 			// $response["error"] = $e->getMessage();
 		}
+		return $response;
+	}
+
+	public function close($descr,$grade)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( trim($descr) == "" )
+		{
+			$response["message"] = "Введите текст отзыва";
+			return $response;
+		}
+		$grade = ($grade > 10) ? 10 : ($grade<1) ? 1 : $grade;
+		// check respond for user already submitted
+		$already_submitted = $db->getValue("user_responds","COUNT(`id`)","counter",Array("author_id"=>$current_user->user_id,"project_id"=>$this->for_project_id,"user_id"=>$this->user_id));
+		if ( $already_submitted > 0 )
+		{
+			$response["message"] = "Ваш отзыв уже опубликован";
+			return $response;
+		}
+		// check current user is author of project
+		$can_modify = $db->getValue("project","user_id","user_id",Array("project_id"=>$this->for_project_id,"user_id"=>$current_user->user_id,"status_id"=>2));
+		if ( $can_modify != $current_user->user_id )
+		{
+			$response["temp"] = $can_modify;
+			$response["message"] = "Ошибка доступа";
+			return $response;
+		}
+		// check current respond is in progress
+		if ( $this->status_id != 3 )
+		{
+			$response["message"] = "Отзыв на проект не в работе";
+			return $response;
+		}
+		$db->autocommit(false);
+		$insert = sprintf("INSERT INTO `user_responds` (`user_id`,`project_id`,`author_id`,`descr`,`created`,`grade`)
+		VALUES ('%d','%d','%d','%s',UNIX_TIMESTAMP(),'%d')",$this->user_id,$this->for_project_id,$current_user->user_id,$descr,$grade);
+		// echo $insert;
+		try {
+			if ( $db->query($insert) && $db->affected_rows == 1 )
+			{
+				$update = $this->update("status_id",5);
+				$db->query(sprintf("UPDATE `project` SET `status_id` = '3' WHERE `project_id` = '%d' AND `user_id` = '%d'",$this->for_project_id,$current_user->user_id));
+				$response["update"] = $update;
+				$response["result"] = "true";
+				$response["message"] = "Отзыв опубликован, проект закрыт";
+				$db->commit();
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["error"] = $e->getMessage();
+		}
+		$db->autocommit(true);
 		return $response;
 	}
 }

@@ -11,10 +11,10 @@ RewriteRule ^(performers)/([,a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ performers.php?pr
 
 RewriteRule ^(project)/([,a-zA-Z0-9_-]+)/([,a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_name=$2&subcat_name=$3&id=$4&title=$5 [L,QSA]
 RewriteRule ^(project)/([,a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_name=$2&subcat_name=&id=$3&title=$4 [L,QSA]
-RewriteRule ^project/add/?$ addProject.php
-RewriteRule ^project/publish/?$ addProject.php?job=publish
+RewriteRule ^project/add/?$ add-project.php
+RewriteRule ^project/publish/?$ add-project.php?job=publish
 RewriteRule ^project/preview/?$ previewProject.php
-RewriteRule ^project_respond/publish/?$ addProjectRespond.php?job=publish
+RewriteRule ^project_respond/(publish|accept|update)/?$ project-respond.php?job=$1
 
 RewriteRule ^update.([a-zA-Z0-9_-]+)$ update.php?type=$1 [L,QSA]
 RewriteRule ^get.([a-zA-Z0-9_-]+)$ get.php?job=$1 [L,QSA]

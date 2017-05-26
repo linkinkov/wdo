@@ -20,6 +20,7 @@ $distribute_classes = Array(
 	"SubCategory",
 	"Dialog",
 	"Portfolio",
+	"Scenario",
 	"Resize",
 	"Avatar",
 	"Attach"

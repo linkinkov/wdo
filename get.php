@@ -27,15 +27,15 @@ switch ( $job )
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;
-	case "cityList":
+	case "CityList":
 		$search = get_var("search","string");
 		$print_user_city = get_var("print_user_city","string","false");
 		$limit = get_var("limit","int",30);
-		$cities = City::get_list($search,$limit,$print_user_city);
+		$list = City::get_list($search,$limit,$print_user_city);
 		header('Content-Type: application/json');
-		echo json_encode($cities);
+		echo json_encode($list);
 		break;
-	case "subCatList":
+	case "SubCatList":
 		$parent_id = get_var("parent_id","int",1);
 		$list = SubCategory::get_list($parent_id);
 		header('Content-Type: application/json');
@@ -97,5 +97,9 @@ switch ( $job )
 		// header('Content-Type: application/json');
 		echo json_encode($attaches);
 		break;
-
+	case "ScenarioList":
+		$list = Scenario::get_list();
+		header('Content-Type: application/json');
+		echo json_encode($list);
+		break;
 }

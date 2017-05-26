@@ -147,11 +147,8 @@ $(function(){
 			if ( files.length > 0 )
 			{
 				var $form = $('#fileupload_edit');
-				// console.log("totaL_files:",total_files);
 				$form.fileupload();
 				$form.fileupload('option', 'done').call($form, $.Event('done'), {result: {files: files}});
-				// total_files = files.length;
-				// console.log("add:",files.length,", now:",total_files);
 			}
 		}
 		catch (msg)
@@ -169,7 +166,6 @@ $(function(){
 				$form.fileupload();
 				$form.fileupload('option', 'done').call($form, $.Event('done'), {result: {files: files}});
 				total_files += files.length;
-				console.log("add from uploaded:",files.length,", now:",total_files);
 			}
 		}
 		catch (msg)
@@ -177,23 +173,10 @@ $(function(){
 			console.log(msg);
 		}
 	})
-	console.log("total_files:",total_files);
 	$('#fileupload_edit').fileupload({
 		dataType: 'json',
 		url: '/upload/',
-		change : function (e, data) {
-			if(total_files>=max_files){
-				console.log("total_files:",total_files,", max_files:",max_files);
-				showAlert("error","Максимум "+max_files+" файлов");
-				return false;
-			}
-		},
 		submit:  function (e, data) {
-			if(total_files>=max_files){
-				console.log("total_files2:",total_files,", max_files2:",max_files);
-				showAlert("error","Максимум "+max_files+" файлов");
-				return false;
-			}
 			$("#uploaded").show();
 			$(".progress").show();
 			set_btn_state(upload_btn,"loading");
@@ -279,7 +262,6 @@ $(function(){
 			})
 		},
 		acceptFileTypes: /(\.|\/)(gif|jpe?g|png|docx?|xlsx?|pdf)$/i,
-		maxFileSize: 16000000,
 		stop: function(e, data) {
 			set_btn_state(upload_btn,"reset");
 			$(".progress").hide();
@@ -290,14 +272,6 @@ $(function(){
 				'width',
 				progress + '%'
 			);
-		},
-		processfail: function(e,data) {
-			$.each(data.files, function (index, file) {
-				if ( file.error )
-				{
-					showAlert("error","("+file.name+"): "+file.error);
-				}
-			})
 		}
 	});
 	$(".gallery").click(function (event) {

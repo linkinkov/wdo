@@ -33,10 +33,19 @@ class SubCategory
 	public static function get_name($subcat_id)
 	{
 		global $db;
-		$subcat_id = intval($subcat_id);
-		if ( !$subcat_id ) return "";
-		$name = $db->getValue("subcats","subcat_name","subcat_name",Array("id"=>$subcat_id));
-		return $name;
+		$subcat_id = (is_array($subcat_id)) ? $subcat_id : intval($subcat_id);
+		if ( is_array($subcat_id) )
+		{
+			if ( sizeof($subcat_id) == 0 ) return Array();
+			$res = $db->queryRows(sprintf("SELECT `id` as `subcat_id`,`subcat_name` FROM `subcats` WHERE `id` IN (%s)",implode(",",$subcat_id)));
+			return $res;
+		}
+		else
+		{
+			if ( !$subcat_id ) return "";
+			$name = $db->getValue("subcats","subcat_name","subcat_name",Array("id"=>$subcat_id));
+			return $name;
+		}
 	}
 
 	public static function get_list($parent_id = false)

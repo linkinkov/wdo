@@ -15,9 +15,19 @@
 }
 .wdo-btn.btn-sm {
 	display: inline-block;
+	min-width: auto;
 }
 .wdo-btn.bg-yellow {
 	color: black;
+}
+.wdo-btn.bg-white {
+	color: black;
+	background-color: #fff;
+	border: 1px solid #fff;
+}
+.wdo-btn.bg-white:hover {
+	background-color: #eeecec;
+	border-color: #a0a09d;
 }
 .wdo-btn.bg-yellow:hover {
 	background-color: #b9b835;
