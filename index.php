@@ -206,7 +206,7 @@ $(function(){
 			$("#projects-table_length").val(config.projects.table.length);
 		},
 		"createdRow": function ( row, data, index ) {
-			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
+			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project.project_link,data.project.title);
 			var category = $.sprintf('<br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
 			var start_date = moment.unix(data.project.start_date).format("DD.MM.YYYY");
 			var duration = "";

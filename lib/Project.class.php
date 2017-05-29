@@ -13,7 +13,7 @@ class Project
 		{
 			return;
 		}
-		$public_fields = Array("title","descr","user_id","created","status_id","status_name","cost","accept_till","start_date","end_date","cat_name","subcat_name","safe_deal","vip","views","for_user_id");
+		$public_fields = Array("title","descr","user_id","created","status_id","status_name","cost","accept_till","start_date","end_date","cat_name","subcat_name","safe_deal","vip","views","for_user_id","for_event_id");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s, `cats`.`translated` as `cat_name_translated`, `subcats`.`translated` as `subcat_name_translated`
 		FROM `project`
@@ -50,6 +50,17 @@ class Project
 				$this->update("status_id",4);
 			}
 			$this->is_project_author = ( $this->user_id == $current_user->user_id ) ? 1 : 0;
+			if ( $this->is_project_author == 1 )
+			{
+				$this->performer = $this->get_performer();
+			}
+			else
+			{
+				unset($this->for_event_id);
+			}
+			$title_tr = strtolower(r2t($this->title));
+			$this->project_link = HOST.'/project/'.$this->cat_name_translated.'/'.$this->subcat_name_translated.'/p'.$this->project_id.'/'.$title_tr.'.html';
+
 			// $this->status_name = $db->getValue("project_statuses","status_name","status_name",Array("id"=>$this->status_id));
 			$this->error = false;
 		}
@@ -57,6 +68,38 @@ class Project
 		{
 			// $this->error = $e->getMessage();
 			return;
+		}
+	}
+
+	private function get_performer()
+	{
+		global $db;
+		if ( $this->is_project_author != 1 ) return false;
+		$sql = sprintf("SELECT `project_responds`.`user_id`,`project_responds`.`cost`,`real_user_name`
+		FROM `project_responds`
+		LEFT JOIN `users` ON `users`.`user_id` = `project_responds`.`user_id`
+		WHERE `for_project_id` = '%d' AND `project_responds`.`status_id` IN (3,5)",$this->project_id);
+		$not_selected = Array(
+			"performer_id" => 0,
+			"real_user_name" => "<text class='text-warning'>Не выбран</text>",
+			"cost" => 0
+		);
+		try {
+			// echo $sql;
+			$i = $db->queryRow($sql);
+			if ( isset($i->user_id) )
+			{
+				return $i;
+			}
+			else 
+			{
+				return $not_selected;
+			}
+		}
+		catch ( Exception $e )
+		{
+			// echo $e->getMessage();
+			return $not_selected;
 		}
 	}
 
@@ -122,7 +165,7 @@ class Project
 			"result" => "false",
 			"message" => "Проверьте данные"
 		);
-		$all_fields = Array("title","descr","cost","accept_till","start_date","end_date","cat_id","subcat_id","safe_deal","vip","for_user_id","youtube_links");
+		$all_fields = Array("title","descr","cost","accept_till","start_date","end_date","cat_id","subcat_id","safe_deal","vip","for_user_id","youtube_links","for_event_id");
 		$req_fields = Array("title","descr","accept_till","start_date","end_date","cat_id","subcat_id");
 		foreach ( $req_fields as $field )
 		{
@@ -136,7 +179,7 @@ class Project
 		{
 			if ( !isset($data[$field]) )
 			{
-				$data[$field] = 0;
+				$data[$field] = "";
 			}
 		}
 		$status_id = 1;
@@ -146,8 +189,8 @@ class Project
 			$data["vip"] = 1;
 			$status_id = 6;
 		}
-		$sql = sprintf("INSERT INTO `project` (`title`,`descr`,`cost`,`created`,`status_id`,`user_id`,`accept_till`,`start_date`,`end_date`,`cat_id`,`subcat_id`,`city_id`,`safe_deal`,`vip`,`views`,`for_user_id`)
-		VALUES ('%s','%s','%d',UNIX_TIMESTAMP(),'%d','%d','%d','%d','%d','%d','%d','%d','%d','%d',0,'%d')",
+		$sql = sprintf("INSERT INTO `project` (`title`,`descr`,`cost`,`created`,`status_id`,`user_id`,`accept_till`,`start_date`,`end_date`,`cat_id`,`subcat_id`,`city_id`,`safe_deal`,`vip`,`views`,`for_user_id`,`for_event_id`)
+		VALUES ('%s','%s','%d',UNIX_TIMESTAMP(),'%d','%d','%d','%d','%d','%d','%d','%d','%d','%d',0,'%d','%s')",
 			filter_string($data["title"],'in'),
 			filter_string($data["descr"],'in'),
 			intval($data["cost"]),
@@ -161,7 +204,8 @@ class Project
 			intval($_COOKIE['city_id']),
 			intval($data["safe_deal"]),
 			intval($data["vip"]),
-			intval($data["for_user_id"])
+			intval($data["for_user_id"]),
+			trim($data["for_event_id"])
 		);
 		try {
 			$db->autocommit(false);

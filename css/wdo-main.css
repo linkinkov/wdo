@@ -832,3 +832,50 @@ ul.set-rating li.selected {
 .row-bordered {
 	border: 1px solid #ece7e7;
 }
+.event-budget-dashboard {
+	align-items: center;
+	background-color: #fff;
+	border: 1px solid;
+	border-color: #c2c04d;
+	border-radius: 5px;
+	height: 70px;
+}
+.event-progress {
+	position: relative;
+	overflow: visible;
+}
+.event-progress .event-progress-bar {
+	width: 0%;
+	height: 15px;
+	background-color: #cecd48;
+	border-radius: 15px;
+	border: 1px solid #c2c04d;
+}
+.event-progress .event-progress-current {
+	position: absolute;
+	left: -5px;
+	top: -5px;
+	color: #fff;
+	background-color: #681149;
+	border: 0;
+	border-radius: 20px;
+	padding: 5px 15px;
+	font-size: .8rem;
+	text-decoration: none !important;
+	text-align: center;
+}
+.event-budget-scale .scale {
+	border-radius: 5px; min-width: 27px; max-width: 27px; min-height: 70px; margin-left: 5px; 
+}
+.event-budget-scale .scale-default {
+	background-color: #ccc;
+}
+.event-budget-scale .scale-red {
+	background-color: #fd0803;
+}
+.event-budget-scale .scale-yellow {
+	background-color: #fcb106;
+}
+.event-budget-scale .scale-green {
+	background-color: #d5d362;
+}

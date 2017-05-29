@@ -28,6 +28,12 @@ if ( $job == "publish" )
 	exit;
 }
 $for_performer = get_var("for_performer","int",0);
+$event_id = get_var("event_id","string","");
+$subcat_id = get_var("subcat_id","int","");
+if ( strlen($event_id) == 32 )
+{
+	$event = $db->queryRow(sprintf("SELECT `event_id`,`title`,`timestamp_start`,`timestamp_end` FROM `user_scenarios` WHERE `user_id` = '%d' AND `event_id` = '%s'",$current_user->user_id,$event_id));
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -51,6 +57,27 @@ $for_performer = get_var("for_performer","int",0);
 					</div>
 				</div><!-- /.wdo-main-left -->
 				<div class="col wdo-main-right" style="padding-top: 20px; padding-bottom: 0px;">
+					<?php
+					if ( isset($event->event_id) )
+					{
+					?>
+						<div class="row">
+							<div class="col">
+								<span class="pull-right">
+									<a class="wdo-link text-muted" href="/profile/#scenarios">
+										Вернуться в мастер праздников
+										<span class="fa-stack text-purple">
+											<i class="fa fa-circle-o fa-stack-2x"></i>
+											<i class="fa fa-star fa-stack-1x"></i>
+										</span>
+									</a>
+								</span>
+							</div>
+						</div>
+						<hr />
+					<?php
+					}
+					?>
 					<div class="row">
 						<div class="col" style="flex: 0 0 280px; max-width: 280px; align-self: center;">
 							<text class="text-muted">Выберите раздел</text>
@@ -59,7 +86,8 @@ $for_performer = get_var("for_performer","int",0);
 							<div class="btn-group" style="width: 100%;">
 								<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-name="category" aria-haspopup="true" aria-expanded="false" style="width: 100%;">Категория</button>
 								<div class="dropdown-menu cat-list" style="width: 100%;">
-									<?php foreach ( Category::get_list() as $cat )
+									<?php
+									foreach ( Category::get_list() as $cat )
 									{
 										echo sprintf('<a class="dropdown-item wdo-option" data-name="category" data-value="%d">%s</a>',$cat->id,$cat->cat_name);
 									}
@@ -278,9 +306,53 @@ $for_performer = get_var("for_performer","int",0);
 <?php include(PD.'/includes/footer.php');?>
 <?php include(PD.'/includes/modals.php');?>
 <?php include(PD.'/includes/scripts.php');?>
-
+<script>
+var preselected_event_id="",
+		preselected_cat_id=0,
+		preselected_subcat_id=0,
+		preselected_timestart=0,
+		preselected_timeend=0,
+		preselected_title="";
+</script>
+<?php
+if ( isset($event->event_id) ) // creating project for event
+{
+	$cat = $db->queryRow(sprintf("SELECT `id`,`cat_name` FROM `cats` WHERE `id` = (SELECT DISTINCT `parent_cat_id` FROM `subcats` WHERE `id` = '%d')",$subcat_id));
+	echo sprintf("<script>
+	var preselected_event_id='%s',
+			preselected_cat_id='%d',
+			preselected_subcat_id='%d',
+			preselected_timestart='%d',
+			preselected_timeend='%d',
+			preselected_title='%s';
+	</script>
+	",$event->event_id,$cat->id,$subcat_id,$event->timestamp_start,$event->timestamp_end,$event->title);
+}
+?>
 <script>
 $(function(){
+	$("button[data-name='subcategory']").text('Подкатегория');
+	if ( preselected_title != "" )
+	{
+		$("input[data-name='title']").attr('placeholder','Название проекта, например: '+preselected_title);
+	}
+	if ( preselected_cat_id > 0 && preselected_subcat_id > 0 )
+	{
+		$(".wdo-option[data-name='category'][data-value='"+preselected_cat_id+"']").addClass("active");
+		$("button[data-name='category']").text($(".wdo-option[data-name='category'][data-value='"+preselected_cat_id+"']").text());
+		app.getSubCategories(preselected_cat_id,function(response){
+			if ( response )
+			{
+				$(".subcat-list").html('');
+				$.each(response,function(){
+					$(".subcat-list").append($.sprintf('<a class="dropdown-item wdo-option" data-name="subcategory" data-value="%d" data-parentid="%d">%s</a>',this.id,this.parent_cat_id,this.subcat_name));
+				})
+				$(".dropdown-toggle[data-name='subcategory']").removeClass("disabled");
+				$(".wdo-option[data-name='subcategory'][data-value='"+preselected_subcat_id+"']").click();
+			}
+		})
+	}
+
 	var upload_btn = $("label[for='fileupload']");
 	var total_files = 0;
 	var max_files = 10;
@@ -416,6 +488,15 @@ $(function(){
 	start_end_opts.endDate = moment().add(7,"days");
 	start_end_opts.dateLimit = {months: 1},
 	start_end_opts.separator = " / ";
+	if ( preselected_timestart > 0 )
+	{
+		accept_till_opts.startDate = moment.unix(preselected_timestart);
+		start_end_opts.startDate = moment.unix(preselected_timestart);
+	}
+	if ( preselected_timeend > 0 )
+	{
+		start_end_opts.endDate = moment.unix(preselected_timeend);
+	} 
 
 	$('input[data-name="accept_till"]').daterangepicker(accept_till_opts);
 	$('input[data-name="accept_till"]').on('hide.daterangepicker',function(ev,picker){
@@ -460,7 +541,8 @@ $(function(){
 				"end_date": $("input[data-name='start_end']").data('timestamp_end'),
 				"descr": $("textarea[data-name='descr']").val(),
 				"youtube_links": ar,
-				"for_user_id": $(".performer_found.active").data('user_id')
+				"for_user_id": $(".performer_found.active").data('user_id'),
+				"for_event_id": preselected_event_id
 			},
 			error = 0,
 			text = '';

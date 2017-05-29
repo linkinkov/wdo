@@ -9,14 +9,11 @@ if ( $action == "create_event" )
 	$scenario_id = get_var("scenario_id","int",0);
 	$subcats = get_var("subcats","array",Array());
 	$response["result"] = "false";
-	if ( $scenario_id > 0 && sizeof($subcats) )
+	if ( $title == "" ) $response["message"] = "Укажите название праздника";
+	else if ( sizeof($subcats) == 0 ) $response["message"] = "Выберите хотя-бы один раздел";
+	else if ( $scenario_id > 0 && sizeof($subcats) )
 	{
 		$response = Scenario::create_event($title,$budget,$timestamp_start,$timestamp_end,$scenario_id,$subcats);
-	}
-	else
-	{
-		if ( $title == "" ) $response["message"] = "Укажите название праздника";
-		if ( sizeof($subcats) == 0 ) $response["message"] = "Выберите хотя-бы один раздел";
 	}
 	header('Content-Type: application/json');
 	echo json_encode($response);
@@ -37,6 +34,159 @@ if ( $action != "" )
 	</div>
 </div>
 <br />
+
+<?php
+
+$list_active = Scenario::get_active();
+if ( sizeof($list_active) > 0 )
+{
+?>
+<h4 class="text-muted text-roboto-cond event_id" data-event_id="">Праздник: <text class="text-purple event-title">Свадьба Вовы и Маши</text></h4>
+<br />
+<div class="row">
+	<div class="col">
+		<div class="row event-budget-dashboard">
+			<div class="col">
+				<div class="row" style="align-items: center;">
+					<div class="col" style="max-width: 35px;">
+						<img src="/images/event-budget-total.png" />
+					</div>
+					<div class="col">
+						Бюджет: <br />
+						<text class="event-budget-total">1 200 000 р.</text>
+					</div>
+				</div>
+			</div>
+			<div class="col">
+				<div class="row" style="align-items: center;">
+					<div class="col" style="max-width: 45px;">
+						<img src="/images/event-budget-spent.png" />
+					</div>
+					<div class="col">
+						Истрачено: <br />
+						<text class="event-budget-spent">60 000 р.</text>
+					</div>
+				</div>
+			</div>
+			<div class="col">
+				<div class="row" style="align-items: center;">
+					<div class="col" style="max-width: 45px;">
+						<img src="/images/event-budget-left.png" />
+					</div>
+					<div class="col">
+						Осталось: <br />
+						<text class="event-budget-left">1 140 000 р.</text>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col" style="max-width: 200px;">
+		<div class="row event-budget-scale">
+			<div class="col scale scale-green"></div>
+			<div class="col scale scale-green"></div>
+			<div class="col scale scale-green"></div>
+			<div class="col scale scale-default"></div>
+			<div class="col scale scale-default"></div>
+		</div>
+	</div>
+</div>
+<br />
+<div class="progress event-progress">
+  <div class="progress-bar event-progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+	<div class="event-progress-current">3/8</div>
+</div>
+<br />
+<hr />
+<h6 class="text-muted">Вы создали проекты</h6>
+<hr />
+<div class="event-projects-created">
+	<div class="row event-project" data-project_id="1">
+		<div class="col">
+			<label class="custom-control custom-radio custom-radio">
+				<input name="radio-c-1-2" checked="true" type="radio" class="custom-control-input">
+				<span class="custom-control-indicator"></span>
+				<span class="custom-control-description event-project-title">Ведущий</span>
+			</label>
+		</div>
+		<div class="col event-project-cost">
+			20 000 р.
+		</div>
+		<div class="col event-project-performer">
+			Женя Черн
+		</div>
+		<div class="col event-add-chat">
+			<a title="Добавить исполнителя в общий чат" href="" class="wdo-link">+ <i class="fa fa-comments"></i></a>
+		</div>
+		<div class="col event-project-status">
+			В работе
+		</div>
+	</div>
+</div>
+<hr />
+<h6 class="text-muted">Нужно создать</h6>
+<hr />
+<div class="event-projects-to-create">
+	<a class="btn-link wdo-link underline" onClick="add_project()">+ Добавить проект</a>
+</div>
+<hr />
+<div class="wdo-btn btn-sm bg-purple">+ Добавить праздник</div>
+<div class="wdo-btn btn-sm bg-purple">В архив</div>
+<script>
+function add_project()
+{
+	var preselected_subcat_id = 0;
+	$.each($("input[name='radio-c-1']"),function(i,v){
+		if ( $(v).prop("checked") == true )
+		{
+			preselected_subcat_id = $(v).attr("data-subcat_id");
+			return;
+		}
+	})
+	var event_id = $(".event_id").data('event_id'),
+			link = '/project/add?event_id='+event_id;
+	if ( preselected_subcat_id > 0 ) link += '&subcat_id='+preselected_subcat_id;
+	window.location = link;
+}
+$(function(){
+	var event_id = '796722fb15975876560de5d7ce0c87d7';
+	app.scenario.getEventInfo(event_id,function(response){
+		console.log("got response:",response);
+		if ( response.event_id.length != 32 )
+		{
+			console.log("error response");
+			return false;
+		}
+		$(".event_id").attr("data-event_id",event_id).data('event_id',event_id);
+		$(".event-title").text(response.event.title);
+		$(".event-budget-total").text(response.event.budget_total+" р.");
+		$(".event-budget-spent").text(response.event.budget_spent+" р.");
+		$(".event-budget-left").text(response.event.budget_left+" р.");
+		if ( response.created_projects.length > 0 )
+		{
+			$(".event-projects-created").html("");
+			$.each(response.created_projects,function(i,project){
+				$(".event-projects-created").append(app.formatter.format_scenario_created_project(project));
+			})
+		}
+		if ( response.event.projects_to_create.length > 0 )
+		{
+			$(".event-projects-to-create").html("");
+			$.each(response.event.projects_to_create,function(i,subcat){
+				$(".event-projects-to-create").append(app.formatter.format_scenario_projects_to_create(subcat));
+			})
+			$(".event-projects-to-create").append('<a class="btn-link wdo-link underline" onClick="add_project()">+ Добавить проект</a>');
+		}
+		$(".event-progress-bar").css("width",response.progress.percent+"%");
+		$(".event-progress-current").css("left","calc("+response.progress.percent+"% - 25px").text(response.progress.projects_done+"/"+response.progress.projects_total);
+	})
+})
+</script>
+<?php
+}
+else // user have no active events, let him create one
+{
+?>
 <h4 class="text-muted text-roboto-cond">Создайте праздник:</h4>
 
 <div class="row"><div class="col"><hr /></div></div>
@@ -74,7 +224,6 @@ if ( $action != "" )
 
 <div id="scenario-list" style="width: 400px;">
 </div>
-
 
 <script>
 $(function(){
@@ -115,3 +264,6 @@ $(function(){
 })
 
 </script>
+<?php
+} // user have no active events, let him create one
+?>

@@ -506,10 +506,10 @@ var app = {
 			var card = $(".scenario-card.show"),
 					scenario_id = $(card).data("scenario_id"),
 					subcats = [],
-					title = $(card).find("input[data-name='title']").val(),
-					budget = $(card).find("input[data-name='budget']").val(),
-					timestamp_start = $(card).find("input[data-name='start_end']").data("timestamp_start"),
-					timestamp_end = $(card).find("input[data-name='start_end']").data("timestamp_end");
+					title = $("input[data-name='title']").val(),
+					budget = $("input[data-name='budget']").val(),
+					timestamp_start = $("input[data-name='start_end']").data("timestamp_start"),
+					timestamp_end = $("input[data-name='start_end']").data("timestamp_end");
 			$.each($(".scenario-subcategory[data-scenario_id='"+scenario_id+"']"),function(i,li){
 				if ( $(li).hasClass("selected") ) subcats.push($(li).data("subcat_id"));
 			})
@@ -532,6 +532,21 @@ var app = {
 						showAlert("danger",response.message);
 						return;
 					}
+				}
+			})
+		},
+		"getEventInfo": function(event_id, callback)
+		{
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/get.ScenarioEventInfo",
+				dataType: "JSON",
+				data: {
+					"event_id": event_id
+				},
+				success: function (response) {
+					callback(response);
 				}
 			})
 		}
@@ -718,6 +733,46 @@ var app = {
 			+'	</div>'
 			+'</div>'
 			return col;
+		},
+		"format_scenario_created_project": function(data)
+		{
+			var html = ''
+			+'<div class="row event-project" data-project_id="'+data.project_id+'">'
+			+'	<div class="col">'
+			+'		<label class="custom-control custom-radio custom-radio">'
+			+'			<input name="radio-c-1-'+data.project_id+'" checked="true" type="radio" class="custom-control-input">'
+			+'			<span class="custom-control-indicator"></span>'
+			+'			<span class="custom-control-description event-project-title"><a class="wdo-link" href="'+data.project_link+'">'+data.subcat_name+'</a></span>'
+			+'		</label>'
+			+'	</div>'
+			+'	<div class="col event-project-cost">'
+			+'		'+data.cost_formatted+' р.'
+			+'	</div>'
+			+'	<div class="col event-project-performer" style="min-width: 200px;">'
+			+'		'+data.performer.real_user_name+''
+			+'	</div>'
+			+'	<div class="col event-add-chat">'
+			+'		<a title="Добавить исполнителя в общий чат" href="" class="wdo-link">+ <i class="fa fa-comments"></i></a>'
+			+'	</div>'
+			+'	<div class="col event-project-status">'
+			+'		'+data.status_name+''
+			+'	</div>'
+			+'</div>'
+			return html;
+		},
+		"format_scenario_projects_to_create": function(data)
+		{
+			var html = ''
+			+'<div class="row>'
+			+'	<div class="col">'
+			+'		<label class="custom-control custom-radio custom-radio">'
+			+'			<input name="radio-c-1" type="radio" class="custom-control-input" data-subcat_id="'+data.subcat_id+'">'
+			+'			<span class="custom-control-indicator"></span>'
+			+'			<span class="custom-control-description event-project-title">'+data.subcat_name+'</span>'
+			+'		</label>'
+			+'	</div>'
+			+'</div>';
+			return html;
 		}
 	}
 }

@@ -102,4 +102,10 @@ switch ( $job )
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;
+	case "ScenarioEventInfo":
+		$event_id = get_var("event_id","string","");
+		$event = new Scenario($event_id);
+		header('Content-Type: application/json');
+		echo json_encode($event);
+		break;
 }

@@ -81,6 +81,10 @@
 .wdo-link.text-white:hover {
 	color: #fff !important;
 }
+.wdo-link.disabled {
+	color: #ccc !important;
+	cursor: not-allowed !important;
+}
 .dropdown-item.project-extra-filter {
 	color: #ccc;
 }

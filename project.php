@@ -211,6 +211,25 @@ $pu = new User($project->user_id);
 							</div>
 							<?php
 							}
+							if ( strlen($project->for_event_id) == 32 )
+							{
+							?>
+							<div class="row"><div class="col"><hr /></div></div>
+							<div class="row">
+								<div class="col" style="align-self: center;">
+									<span class="fa-stack text-purple" title="Проект создан через мастер праздников">
+										<i class="fa fa-circle-o fa-stack-2x"></i>
+										<i class="fa fa-star fa-stack-1x"></i>
+									</span>
+									<a class="wdo-link" href="/profile/#scenarios">
+							<?php
+								echo $db->getValue("user_scenarios","title","title",Array("event_id"=>$project->for_event_id,"user_id"=>$current_user->user_id));
+							?>
+									</a>
+								</div>
+							</div>
+							<?php
+							}
 							if ( $project->status_id == 5 )
 							{
 								$reason = $db->getValue("warnings","message","message",Array("for_project_id"=>$project->project_id));
@@ -601,8 +620,8 @@ $(function(){
 					}
 				})
 				$(attaches).html(attach_container);
-				$(attaches).insertAfter(respond);
 			}
+			$(attaches).insertAfter(respond);
 			$(actions_bottom).insertAfter(attaches);
 		},
 		"drawCallback": function( settings, table ) {
