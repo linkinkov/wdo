@@ -83,9 +83,9 @@ if ( sizeof($list_active) > 0 )
 	</div>
 	<div class="col" style="max-width: 200px;">
 		<div class="row event-budget-scale">
-			<div class="col scale scale-green"></div>
-			<div class="col scale scale-green"></div>
-			<div class="col scale scale-green"></div>
+			<div class="col scale scale-default"></div>
+			<div class="col scale scale-default"></div>
+			<div class="col scale scale-default"></div>
 			<div class="col scale scale-default"></div>
 			<div class="col scale scale-default"></div>
 		</div>
@@ -148,20 +148,68 @@ function add_project()
 	if ( preselected_subcat_id > 0 ) link += '&subcat_id='+preselected_subcat_id;
 	window.location = link;
 }
+function colorize_budget(budget_left_percent)
+{
+	if ( budget_left_percent >= 81 )
+	{
+		$(".event-budget-scale").find(".scale").each(function(i,v){
+			$(v).removeClass("scale-default").addClass("scale-green");
+		})
+		cost_class = 'text-success';
+	}
+	else if ( budget_left_percent >= 61 )
+	{
+		$(".event-budget-scale").find(".scale").each(function(i,v){
+			if ( i > 3 ) return;
+			$(v).removeClass("scale-default").addClass("scale-green");
+		})
+		cost_class = 'text-success';
+	}
+	else if ( budget_left_percent >= 41 )
+	{
+		$(".event-budget-scale").find(".scale").each(function(i,v){
+			if ( i > 2 ) return;
+			$(v).removeClass("scale-default").addClass("scale-green");
+		})
+		cost_class = 'text-warning';
+	}
+	else if ( budget_left_percent >= 21 )
+	{
+		$(".event-budget-scale").find(".scale").each(function(i,v){
+			if ( i > 1 ) return;
+			$(v).removeClass("scale-default").addClass("scale-yellow");
+		})
+		cost_class = 'text-warning';
+	}
+	else if ( budget_left_percent >= 0 )
+	{
+		$(".event-budget-scale").find(".scale").each(function(i,v){
+			if ( i > 0 ) return;
+			$(v).removeClass("scale-default").addClass("scale-red");
+		})
+		cost_class = 'text-danger';
+	}
+	else
+	{
+		cost_class = 'text-danger';
+	}
+	return cost_class;
+}
 $(function(){
 	var event_id = '796722fb15975876560de5d7ce0c87d7';
 	app.scenario.getEventInfo(event_id,function(response){
-		console.log("got response:",response);
 		if ( response.event_id.length != 32 )
 		{
-			console.log("error response");
 			return false;
 		}
+		var budget_left_percent = parseInt(response.event.budget_left.value) / parseInt(response.event.budget_total.value) * 100;
+		var cost_class = colorize_budget(budget_left_percent);
+
 		$(".event_id").attr("data-event_id",event_id).data('event_id',event_id);
 		$(".event-title").text(response.event.title);
-		$(".event-budget-total").text(response.event.budget_total+" р.");
-		$(".event-budget-spent").text(response.event.budget_spent+" р.");
-		$(".event-budget-left").text(response.event.budget_left+" р.");
+		$(".event-budget-total").text(response.event.budget_total.format+" р.");
+		$(".event-budget-spent").text(response.event.budget_spent.format+" р.");
+		$(".event-budget-left").text(response.event.budget_left.format+" р.").addClass(cost_class);
 		if ( response.created_projects.length > 0 )
 		{
 			$(".event-projects-created").html("");

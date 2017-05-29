@@ -736,9 +736,12 @@ var app = {
 		},
 		"format_scenario_created_project": function(data)
 		{
+			var profile_link = ( data.performer.user_id > 0 ) 
+			? '<a class="wdo-link" href="/profile/id'+data.performer.user_id+'">'+data.performer.real_user_name+'</a>' 
+			: data.performer.real_user_name;
 			var html = ''
 			+'<div class="row event-project" data-project_id="'+data.project_id+'">'
-			+'	<div class="col">'
+			+'	<div class="col event-project-title">'
 			+'		<label class="custom-control custom-radio custom-radio">'
 			+'			<input name="radio-c-1-'+data.project_id+'" checked="true" type="radio" class="custom-control-input">'
 			+'			<span class="custom-control-indicator"></span>'
@@ -748,8 +751,8 @@ var app = {
 			+'	<div class="col event-project-cost">'
 			+'		'+data.cost_formatted+' р.'
 			+'	</div>'
-			+'	<div class="col event-project-performer" style="min-width: 200px;">'
-			+'		'+data.performer.real_user_name+''
+			+'	<div class="col event-project-performer">'
+			+'		'+profile_link
 			+'	</div>'
 			+'	<div class="col event-add-chat">'
 			+'		<a title="Добавить исполнителя в общий чат" href="" class="wdo-link">+ <i class="fa fa-comments"></i></a>'

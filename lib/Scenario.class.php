@@ -69,8 +69,10 @@ class Scenario
 					{
 						$p->cost = $p->performer->cost;
 					}
-					$this->event->budget_spent += $p->cost;
-					$this->event->budget_left -= $p->cost;
+					if ( $p->status_id == 3 ) {
+						$this->event->budget_spent += $p->cost;
+						$this->event->budget_left -= $p->cost;
+					}
 					$p->cost_formatted = number_format($p->cost,0,","," ");
 
 					$this->created_projects[] = $p;
@@ -81,10 +83,11 @@ class Scenario
 					}
 				}
 			}
+			// $this->event->budget_left = 8100;
 			$this->progress->percent = intval($this->progress->projects_done / $this->progress->projects_total * 100);
-			$this->event->budget_total = number_format($this->event->budget_total,0,","," ");
-			$this->event->budget_spent = number_format($this->event->budget_spent,0,","," ");
-			$this->event->budget_left = number_format($this->event->budget_left,0,","," ");
+			$this->event->budget_total = Array("value"=>$this->event->budget_total,"format"=>number_format($this->event->budget_total,0,","," "));
+			$this->event->budget_spent = Array("value"=>$this->event->budget_spent,"format"=>number_format($this->event->budget_spent,0,","," "));
+			$this->event->budget_left = Array("value"=>$this->event->budget_left,"format"=>number_format($this->event->budget_left,0,","," "));
 			$this->event->projects_to_create = SubCategory::get_name($subcats);
 		}
 		catch ( Exception $e )

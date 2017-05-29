@@ -234,7 +234,7 @@ $(function(){
 			$('td', row).eq(3).attr("title",extra_title.join("; "))
 			if ( extra_title.length == 0 ) $('td', row).eq(3).removeClass('align-top');
 			$(row).click(function(){
-				window.location.href = data.project_link;
+				window.location.href = data.project.project_link;
 			})
 		},
 		"drawCallback": function( settings ) {

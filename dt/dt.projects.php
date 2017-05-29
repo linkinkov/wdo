@@ -97,7 +97,8 @@ else if ( $only_vip == "true" )
 }
 
 $sql_main = "SELECT `project_id`,
-	(SELECT COUNT(`respond_id`) FROM `project_responds` WHERE `for_project_id` = `project_id`) as bids
+	(SELECT COUNT(`respond_id`) FROM `project_responds` WHERE `for_project_id` = `project_id`) as bids,
+	(SELECT COUNT(`respond_id`) FROM `project_responds` WHERE `for_project_id` = `project_id` AND `created` > ".$current_user->ts_project_responds.") as bids_new
 	$select_status_name
 	$select_performer_name
 	FROM `project`
@@ -155,7 +156,7 @@ if ( sizeof ($aaData) )
 		}
 		$project->cost = number_format($project->cost,0,","," ");
 		$row->user = new User($project->user_id);
-		$title_tr = strtolower(r2t($project->title));
+		// $title_tr = strtolower(r2t($project->title));
 		if ( $project->vip == 1 ) $row->DT_RowClass .= " vip";
 		if ( $current_user->user_id == $user_id )
 		{
@@ -186,6 +187,7 @@ if ( sizeof ($aaData) )
 			}
 			$project->status_name = sprintf('<text class="%s">%s</text>',$status_class,$project->status_name);
 		}
+		if ( $row->bids_new > 0 ) $row->bids .= ' <text class="text-purple">(+'.$row->bids_new.')</text>';
 		$row->project = $project;
 		$idx++;
 	}

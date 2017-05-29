@@ -879,3 +879,15 @@ ul.set-rating li.selected {
 .event-budget-scale .scale-green {
 	background-color: #d5d362;
 }
+.event-project .event-project-title {
+	min-width: 190px;
+	max-width: 190px;
+}
+.event-project .event-project-cost {
+	min-width: 120px;
+	max-width: 120px;
+	text-align: center;
+}
+.event-project .event-project-performer {
+	min-width: 200px;
+}

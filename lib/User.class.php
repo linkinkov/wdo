@@ -14,21 +14,6 @@ class User
 		{
 			$_SESSION["viewed_portfolio"] = Array();
 		}
-/*
-		if ( $login == true )
-		{
-		}
-		if ( isset($_COOKIE["city_id"]) && isset($_COOKIE["city_name"]) )
-		{
-			$this->city_id = intval($_COOKIE["city_id"]);
-			$this->city_name = trim($_COOKIE["city_name"]);
-		}
-		else
-		{
-			$this->city_id = 1;
-			$this->city_name = "Москва";
-		}
-*/
 		if ( intval($user_id) == 0 && $username == false )
 		{
 			$this->user_id = 0;
@@ -53,6 +38,8 @@ class User
 			if ( $this->user_id == $_SESSION["user_id"] )
 			{
 				$this->ts_project_responds = $db->getValue("users","ts_project_responds","last_visit",Array("user_id"=>$this->user_id));
+				$timestamps_b64 = $db->getValue("users","timestamps","timestamps_b64",Array("user_id"=>$this->user_id));
+				$this->timestamps = json_decode(base64_decode($timestamps_b64));
 			}
 			if ( $login == false && (!isset($current_user) || $current_user->user_id == 0) )
 			{

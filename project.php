@@ -211,7 +211,7 @@ $pu = new User($project->user_id);
 							</div>
 							<?php
 							}
-							if ( strlen($project->for_event_id) == 32 )
+							if ( isset($project->for_event_id) && strlen($project->for_event_id) == 32 )
 							{
 							?>
 							<div class="row"><div class="col"><hr /></div></div>

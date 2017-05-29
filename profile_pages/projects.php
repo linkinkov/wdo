@@ -58,7 +58,7 @@ $(function(){
 		"initComplete": function(table,data) {
 		},
 		"createdRow": function ( row, data, index ) {
-			var scenario_icon = (data.project.for_event_id.length == 32 ) ? '<span style="font-size: 0.5rem;" class="fa-stack text-purple" title="Проект создан через мастер праздников">'
+			var scenario_icon = (data.project.for_event_id && data.project.for_event_id.length == 32 ) ? '<span style="font-size: 0.5rem;" class="fa-stack text-purple" title="Проект создан через мастер праздников">'
 										+'<i class="fa fa-circle-o fa-stack-2x"></i>'
 										+'<i class="fa fa-star fa-stack-1x"></i>'
 										+'</span>' : '';
