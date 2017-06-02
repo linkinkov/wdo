@@ -2,7 +2,7 @@
 
 class User
 {
-	public function __construct($user_id = false, $username = false, $login = false)
+	public function __construct($id = false, $username = false, $login = false)
 	{
 		global $db;
 		global $current_user;
@@ -10,16 +10,21 @@ class User
 		{
 			$_SESSION["viewed_projects"] = Array();
 		}
+		if ( !isset($_COOKIE["viewed_project_respond"]) )
+		{
+			setcookie("viewed_project_respond", json_encode(Array()),0,"/");
+		}
 		if ( !isset($_SESSION["viewed_portfolio"]) )
 		{
 			$_SESSION["viewed_portfolio"] = Array();
 		}
-		if ( intval($user_id) == 0 && $username == false )
+		if ( intval($id) == 0 && $username == false )
 		{
 			$this->user_id = 0;
+			$_SESSION["user_id"] = 0;
 			return;
 		}
-		$where = (intval($user_id) > 0) ? sprintf("`user_id` = '%d'",$user_id) : sprintf("`username` = '%s'",$username);
+		$where = (intval($id) > 0) ? sprintf("`user_id` = '%d'",$id) : sprintf("`username` = '%s'",$username);
 		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","status_id","rating","rezume","phone","skype","site","gps","signature");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` LEFT JOIN `cities` ON `cities`.`id` = `users`.`city_id` WHERE %s",implode(",",$public_fields),$where);
@@ -35,23 +40,25 @@ class User
 			$this->city_name = City::get_name($this->city_id);
 			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
 			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
-			if ( $this->user_id == $_SESSION["user_id"] )
-			{
-				$this->ts_project_responds = $db->getValue("users","ts_project_responds","last_visit",Array("user_id"=>$this->user_id));
-				$timestamps_b64 = $db->getValue("users","timestamps","timestamps_b64",Array("user_id"=>$this->user_id));
-				$this->timestamps = json_decode(base64_decode($timestamps_b64));
-			}
-			if ( $login == false && (!isset($current_user) || $current_user->user_id == 0) )
+			// if ( $login == false && (!isset($current_user) || $current_user->user_id == 0) )
+			if ( $login == false && (!isset($_SESSION["user_id"]) || $_SESSION["user_id"] == 0) )
 			{
 				$this->phone = "Скрыт";
 				$this->skype = "Скрыт";
+			}
+			if ( $login == true )
+			{
+				setcookie("city_id",$this->city_id,0,"/");
+				setcookie("city_name",$this->city_name,0,"/");
+				$_COOKIE["city_id"] = $this->city_id;
+				$_COOKIE["city_name"] = $this->city_name;
 			}
 		}
 		catch (Exception $e)
 		{
 			$this->user_id = 0;
+			$_SESSION["user_id"] = 0;
 			// echo $e->getMessage();
-			// die();
 			return false;
 		}
 	}
@@ -143,10 +150,10 @@ class User
 		}
 		else
 		{
-			setcookie("city_id",$this->city_id);
-			setcookie("city_name",$this->city_name);
-			$_COOKIE["city_id"] = $this->city_id;
-			$_COOKIE["city_name"] = $this->city_name;
+			setcookie("city_id",$this->city_id,0,"/");
+			setcookie("city_name",$this->city_name,0,"/");
+			// $_COOKIE["city_id"] = $this->city_id;
+			// $_COOKIE["city_name"] = $this->city_name;
 		}
 	}
 
@@ -155,29 +162,10 @@ class User
 		global $db;
 		$cats = Array();
 		try {
-			$sql = sprintf("SELECT
-					`cat_id`
-			FROM
-					`project`
-			WHERE
-					`project_id` IN(
-					SELECT
-							`for_project_id`
-					FROM
-							`project_responds`
-					WHERE
-							`user_id` = '%d'
-					GROUP BY
-							`for_project_id`
-					ORDER BY
-							COUNT(`for_project_id`)
-					DESC
-			)
-			GROUP BY
-					`cat_id`
-			ORDER BY
-					COUNT(`cat_id`)
-			DESC
+			$sql = sprintf("SELECT `cat_id` FROM `project`
+			WHERE `project_id` IN(SELECT `for_project_id` FROM `project_responds` WHERE `user_id` = '%d' GROUP BY `for_project_id` ORDER BY COUNT(`for_project_id`) DESC)
+			GROUP BY `cat_id`
+			ORDER BY COUNT(`cat_id`) DESC
 			",$this->user_id);
 			$ids = $db->queryRows($sql);
 			$cats = Array();
@@ -214,11 +202,36 @@ class User
 			$this->counters->project_responds->created = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$this->user_id)));
 			if ( $current_user->user_id == $this->user_id )
 			{
-				// $this->counters->messages = intval($db->getValue("messages","COUNT(`message_id`)","counter",Array("user_id_from"=>"!=".$this->user_id,"readed"=>0)));
 				$this->counters->messages = Dialog::get_unreaded_counter();
-				$this->counters->project_responds->unreaded = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$this->user_id,"modify_timestamp"=>">".$this->ts_project_responds)));
+				// get new project responds and modified responds for performer
+				$sql = sprintf("SELECT COUNT(`respond_id`) as counter 
+				FROM `project_responds` 
+				WHERE 1
+					AND `respond_id` NOT IN (
+						SELECT `id` FROM `user_readed_log` WHERE `type` = 'project_respond' AND `user_id` = '%d'
+					)
+					AND (
+						`for_project_id` IN (
+							SELECT `project_id` FROM `project` WHERE `user_id` = '%d' AND status_id NOT IN(4,5,6)
+						)
+						OR
+						`user_id` = '%d'
+					)
+					",$this->user_id,$this->user_id,$this->user_id);
+				$tmp = $db->queryRow($sql);
+				$this->counters->project_responds->unreaded = $tmp->counter;
 				$this->counters->project_responds->won = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$this->user_id,"status_id"=>3)));
 				$this->counters->project_responds->won_sum = intval($db->getValue("project_responds","SUM(`cost`)","counter",Array("user_id"=>$this->user_id,"status_id"=>3),"AND","user_id"));
+				// get new user responds
+				$sql = sprintf("SELECT COUNT(`id`) as counter 
+				FROM `user_responds` 
+				WHERE 1
+					AND `user_id` = '%d' 
+					AND `id` NOT IN (
+						SELECT `id` FROM `user_readed_log` WHERE `type` = 'user_respond' AND `user_id` = '%d'
+					)",$this->user_id,$this->user_id);
+				$tmp = $db->queryRow($sql);
+				$this->counters->responds->unreaded = $tmp->counter;
 			}
 			$this->counters->responds->good = intval($db->getValue("user_responds","COUNT(`id`)","counter",Array("user_id"=>$this->user_id,"grade"=>">=5")));
 			$this->counters->responds->bad = intval($db->getValue("user_responds","COUNT(`id`)","counter",Array("user_id"=>$this->user_id,"grade"=>"<5")));
@@ -473,6 +486,50 @@ class User
 		return $list;
 	}
 
+	public function add_readed($type="project_respond",$id = "")
+	{
+		global $db;
+		global $current_user;
+		if ( $current_user->user_id == 0 || $id == "" ) return true;
+		$counter = $db->getValue("user_readed_log","COUNT(`id`)","counter",Array("user_id"=>$current_user->user_id,"type"=>$type,"id"=>$id));
+		if ( isset($counter->counter) && $counter->counter > 0 )
+		{
+
+		}
+		else
+		{
+			try {
+				$sql = sprintf("INSERT INTO `user_readed_log` (`user_id`,`type`,`id`) VALUES ('%d','%s','%s')",$current_user->user_id,$type,$id);
+				if ( $db->query($sql) )
+				{
+					$_SESSION["viewed_".$type][] = $id;
+					setcookie("viewed_".$type,json_encode($_SESSION["viewed_".$type]),0,"/");
+				}
+			}
+			catch (Exception $e)
+			{
+				//return $e->getMessage();
+			}
+		}
+	}
+
+	public function is_readed($type="project_respond",$id = "")
+	{
+		global $db;
+		global $current_user;
+		if ( $current_user->user_id == 0 || $id == "" ) return true;
+		$sql = sprintf("SELECT COUNT(`id`) FROM `user_readed_log` WHERE `user_id` = '%d' AND `type` = '%s' AND `id` = '%s'",$current_user->user_id,$type,$id);
+		$readed = $db->getValue("user_readed_log","COUNT(`id`)","counter",Array("user_id"=>$current_user->user_id,"type"=>$type,"id"=>$id));
+		return ( isset($readed) && intval($readed) > 0 ) ? true : false;
+	}
+
+	public function init_wallet()
+	{
+		if ( $this->user_id > 0 || !isset($this->wallet) || !isset($this->wallet->user_id) )
+		{
+			$this->wallet = new Wallet($this->user_id);
+		}
+	}
 }
 
 ?>

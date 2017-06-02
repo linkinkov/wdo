@@ -120,45 +120,34 @@ function determine_user_city()
 	} else {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
+	if ( $ip == "127.0.0.1" )
+	{
+		// $ip = "85.143.184.138";
+	}
 	// $ip = "193.169.111.6";
 	// $ip = "188.242.136.98";
-	if ( $data = $gb->getRecord($ip) )
+	// echo "checking ip:".$ip;
+	setcookie("city_id", "1",0,"/");
+	setcookie("city_name", "Москва",0,"/");
+	$_COOKIE["city_id"] = "1";
+	$_COOKIE["city_name"] = "Москва";
+
+	if ( $data = $gb->getRecord($ip) ) // found record in geo base
 	{
 		if (isset($data["city"]) && $data["city"] != "")
 		{
 			$city = iconv("windows-1251", "utf-8", $data["city"]);
 			$city_info = City::get_list($city);
-			if ( sizeof($city_info) )
+			if ( sizeof($city_info) ) // found detected city in db
 			{
 				$city_id = $city_info[0]->id;
 				$city_name = $city_info[0]->city_name;
-				setcookie("city_id", $city_id);
-				setcookie("city_name", $city_name);
+				setcookie("city_id", $city_id,0,"/");
+				setcookie("city_name", $city_name,0,"/");
 				$_COOKIE["city_id"] = $city_id;
 				$_COOKIE["city_name"] = $city_name;
 			}
-			else
-			{
-				setcookie("city_id", "1");
-				setcookie("city_name", "Москва");
-				$_COOKIE["city_id"] = "1";
-				$_COOKIE["city_name"] = "Москва";
-			}
 		}
-		else
-		{
-			setcookie("city_id", "1");
-			setcookie("city_name", "Москва");
-			$_COOKIE["city_id"] = "1";
-			$_COOKIE["city_name"] = "Москва";
-		}
-	}
-	else
-	{
-		setcookie("city_id", "1");
-		setcookie("city_name", "Москва");
-		$_COOKIE["city_id"] = "1";
-		$_COOKIE["city_name"] = "Москва";
 	}
 }
 
@@ -259,7 +248,7 @@ function sqlize_array(&$item)
 function check_access($db,$regen = true)
 {
 	if ( session_status() != PHP_SESSION_ACTIVE ) sec_session_start($regen);
-	else if ( $regen )
+	else if ( $regen && $_SESSION["user_id"] > 0 )
 	{
 		delTree(PD."/upload/files/".session_id());
 		session_regenerate_id($regen);
@@ -268,36 +257,33 @@ function check_access($db,$regen = true)
 	{
 		$_SESSION["user_id"] = 0;
 		return false;
-		// header('HTTP/1.0 403 Forbidden');
-		// header('Location: /login.php?');
-		// die();
 	}
 }
 
 function checkbrute($username, $db) {
-    // Get timestamp of current time 
-    $now = time();
- 
-    // All login attempts are counted from the past 2 hours. 
-    $valid_attempts = $now - (2 * 60 * 60);
- 
-    if ($stmt = $db->prepare("SELECT `time`
-                             FROM `login_attempts`
-                             WHERE `username` = ? 
-                            AND `time` > '$valid_attempts'")) {
-        $stmt->bind_param('i', $username);
- 
-        // Execute the prepared query. 
-        $stmt->execute();
-        $stmt->store_result();
- 
-        // If there have been more than 25 failed logins 
-        if ($stmt->num_rows > 25) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	// Get timestamp of current time 
+	$now = time();
+
+	// All login attempts are counted from the past 2 hours. 
+	$valid_attempts = $now - (2 * 60 * 60);
+
+	if ($stmt = $db->prepare("SELECT `time`
+														FROM `login_attempts`
+														WHERE `username` = ? 
+													AND `time` > '$valid_attempts'")) {
+			$stmt->bind_param('i', $username);
+
+			// Execute the prepared query. 
+			$stmt->execute();
+			$stmt->store_result();
+
+			// If there have been more than 25 failed logins 
+			if ($stmt->num_rows > 25) {
+					return true;
+			} else {
+					return false;
+			}
+	}
 }
 
 

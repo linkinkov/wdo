@@ -8,7 +8,6 @@ require_once(PD.'/lib/mysqli.class.php');
 require_once(PD.'/includes/functions.php');
 $db = db::getInstance();
 session_name('wdo_session_id');
-if ( session_status() != PHP_SESSION_ACTIVE ) sec_session_start(false);
 
 define('HOST','https://'.$_SERVER["HTTP_HOST"]);
 $distribute_classes = Array(
@@ -23,6 +22,7 @@ $distribute_classes = Array(
 	"Scenario",
 	"Resize",
 	"Avatar",
-	"Attach"
+	"Attach",
+	"Wallet"
 
 );

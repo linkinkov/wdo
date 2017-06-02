@@ -20,14 +20,20 @@ class Scenario
 		$sql = sprintf("SELECT * FROM `user_scenarios` WHERE `event_id` = '%s' AND `user_id` = '%d'",$event_id,$current_user->user_id);
 		try {
 			$i = $db->queryRow($sql);
+			if ( !isset($i->event_id) )
+			{
+				throw new Exception("Такой праздник не существует");
+			};
 			$subcats = explode(",",$i->subcats);
 			$this->event_id = $event_id;
+			$this->user_id = $i->user_id;
 			$this->event = new stdClass();
 			$this->progress = new stdClass();
 			$this->progress->percent = 0;
 			$this->progress->projects_total = sizeof($subcats);
 			$this->progress->projects_done = 0;
 			$this->event->title = $i->title;
+			$this->event->archive = $i->archive;
 			$this->event->budget_total = intval($i->budget);
 			$this->event->budget_spent = 0;
 			$this->event->budget_left = $this->event->budget_total;
@@ -84,7 +90,7 @@ class Scenario
 				}
 			}
 			// $this->event->budget_left = 8100;
-			$this->progress->percent = intval($this->progress->projects_done / $this->progress->projects_total * 100);
+			$this->progress->percent = intval($this->progress->projects_done / $this->progress->projects_total * 100)+2;
 			$this->event->budget_total = Array("value"=>$this->event->budget_total,"format"=>number_format($this->event->budget_total,0,","," "));
 			$this->event->budget_spent = Array("value"=>$this->event->budget_spent,"format"=>number_format($this->event->budget_spent,0,","," "));
 			$this->event->budget_left = Array("value"=>$this->event->budget_left,"format"=>number_format($this->event->budget_left,0,","," "));
@@ -92,7 +98,7 @@ class Scenario
 		}
 		catch ( Exception $e )
 		{
-
+			return false;
 		}
 	}
 
@@ -133,6 +139,8 @@ class Scenario
 				$response["result"] = "true";
 				$response["event_id"] = $event_id;
 				$response["message"] = "Событие создано";
+				$dialog_id = md5($event_id.$current_user->user_id.time());
+				$db->query(sprintf("INSERT INTO `dialogs` (`dialog_id`,`dialog_users`,`for_event_id`) VALUES ('%s','%s','%s')",$dialog_id,$current_user->user_id,$event_id));
 			}
 			else
 			{
@@ -146,7 +154,54 @@ class Scenario
 		return $response;
 	}
 
-	public static function get_list()
+	public function add_to_event_dialog($performer_id = false)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа 1"
+		);
+		if ( $current_user->user_id <= 0 || $this->user_id != $current_user->user_id ) return $response;
+		// check that invited user belong to event project
+		$sql = sprintf("SELECT `respond_id` FROM `project_responds` WHERE `user_id` = '%d' AND `for_project_id` IN (SELECT `project_id` FROM `project` WHERE `for_event_id` = '%s' AND `user_id` = '%d')",$performer_id,$this->event_id,$current_user->user_id);
+		$respond = $db->query($sql);
+		if ( $respond->num_rows > 0 )
+		{
+			$dialog_id = $db->getValue("dialogs","dialog_id","dialog_id",Array("for_event_id"=>$this->event_id));
+			// echo "add_to_event_dialog: $this->event_id, $dialog_id, $performer_id\n";
+			// $dialog_users = Dialog::get_dialog_users($dialog_id);
+			$response = Dialog::invite_user($dialog_id,$performer_id,$this->event_id);
+		}
+		return $response;
+	}
+
+	public function archive_event()
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа"
+		);
+		if ( $current_user->user_id <= 0 || $this->user_id != $current_user->user_id ) return $response;
+		$sql = sprintf("UPDATE `user_scenarios` SET `archive` = 1 WHERE `event_id` = '%s' AND `user_id` = '%d'",$this->event_id,$current_user->user_id);
+		try {
+			// echo "try: ".$sql;
+			if ( $db->query($sql) )
+			{
+				$response["result"] = "true";
+				$response["message"] = "Сохранено";
+			}
+		}
+		catch ( Exception $e )
+		{
+
+		}
+		return $response;
+	}
+
+	public static function get_templates()
 	{
 		global $db;
 		$list = Array();
@@ -171,7 +226,7 @@ class Scenario
 		return $list;
 	}
 
-	public static function get_active()
+	public static function get_list($archive = 0)
 	{
 		global $db;
 		global $current_user;
@@ -180,7 +235,7 @@ class Scenario
 			"message" => "Ошибка доступа"
 		);
 		if ( $current_user->user_id <= 0 ) return $response;
-		$list = $db->queryRows(sprintf("SELECT * FROM `user_scenarios` WHERE `archive` = 0 AND `user_id` = '%d' ORDER BY `timestamp_start` ASC",$current_user->user_id));
+		$list = $db->queryRows(sprintf("SELECT * FROM `user_scenarios` WHERE `archive` = '%d' AND `user_id` = '%d' ORDER BY `timestamp_start` ASC",$archive,$current_user->user_id));
 		return $list;
 	}
 }

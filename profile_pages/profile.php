@@ -18,10 +18,6 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 		<h3 class="text-purple">Общая информация</h3>
 	</div>
 </div>
-<?php
-echo ":";
-print_r($user->timestamps);
-?>
 <div class="row"><div class="col"><hr /></div></div>
 
 <div class="row">

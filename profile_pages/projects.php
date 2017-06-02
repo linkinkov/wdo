@@ -62,7 +62,7 @@ $(function(){
 										+'<i class="fa fa-circle-o fa-stack-2x"></i>'
 										+'<i class="fa fa-star fa-stack-1x"></i>'
 										+'</span>' : '';
-			var title = $.sprintf(scenario_icon+' <a class="wdo-link word-break" href="%s">%s</a>',data.project_link,data.project.title);
+			var title = $.sprintf(scenario_icon+' <a class="wdo-link word-break" href="%s">%s</a>',data.project.project_link,data.project.title);
 			var category = $.sprintf('<br /><small><text class="text-purple strong">%s</text> / <text title="Был опубликован">%s</text></small>',data.project.cat_name,moment.unix(data.project.created).fromNow());
 			var cost = data.project.cost + ' <i class="fa fa-rouble"></i>';
 			if ( data.performer_id ) $('td', row).eq(3).html('<a class="wdo-link" href="/profile/id'+data.performer_id+'">'+data.performer_name+'</a>');
@@ -89,6 +89,6 @@ $(function(){
 		}
 	})
 
-	$(".loader").remove();
+	// $(".loader").remove();
 })
 </script>

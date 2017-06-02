@@ -2,17 +2,11 @@
 if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 {
 	$redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-	// header('HTTP/1.1 301 Moved Permanently');
 	header('Location: ' . $redirect, true, 301);
 	exit();
 }
 require_once('_global.php');
 include_once('_includes.php');
-$db = db::getInstance();
-check_access($db,false);
-
-$current_user = new User($_SESSION["user_id"]);
-$current_user->set_city_auto();
 $ref = isset($_SESSION["LAST_PAGE"]) ? trim($_SESSION["LAST_PAGE"]) : false;
 if ( $ref == "profile/project-responds" )
 {

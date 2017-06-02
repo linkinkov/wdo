@@ -103,12 +103,30 @@ else
 											</span>
 											Отзывы
 										</a>
+										<?php
+										if ( $current_user->as_performer == 0 )
+										{
+										?>
+										<a class="wdo-link dropdown-item" href="/profile/#projects">
+											<span class="pull-right">
+												<span data-type="project-responds" class="badge badge-pill badge-info profile-counter"></span>
+											</span>
+											Заявки
+										</a>
+										<?php
+										}
+										else
+										{
+										?>
 										<a class="wdo-link dropdown-item" href="/profile/#project-responds">
 											<span class="pull-right">
 												<span data-type="project-responds" class="badge badge-pill badge-info profile-counter"></span>
 											</span>
 											Заявки
 										</a>
+										<?php
+										}
+										?>
 										<a class="wdo-link dropdown-item" href="/profile/#warnings">
 											<span class="pull-right">
 												<span data-type="warnings" class="badge badge-pill badge-info profile-counter"></span>

@@ -7,6 +7,19 @@ $.urlParam = function(name, url) {
 	if (!results[2]) return '';
 	return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
+$.extend({
+	playSound: function () {
+		return $(
+			'<audio class="sound-player" autoplay="autoplay" style="display:none;">'
+				+ '<source src="' + arguments[0] + '" />'
+				+ '<embed src="' + arguments[0] + '" hidden="true" autostart="true" loop="false"/>'
+			+ '</audio>'
+		).appendTo('body');
+	},
+	stopSound: function () {
+		$(".sound-player").remove();
+	}
+});
 function formhash(form, password) {
 	var submit = $(form).find("button[type='submit']");
 	console.log(form,$(form).serialize());

@@ -39,7 +39,7 @@ $(function(){
 		},
 		"columns": [
 			{"data": "author_user_name","width":"200px"},
-			{"data": "project.url"},
+			{"data": "project.url","name":"project_id"},
 			{"data": "grade","width":"100px","class":"text-center align-middle"}
 		],
 		"order": [[0, 'asc']],
@@ -97,6 +97,6 @@ $(function(){
 		}
 	})
 
-	$(".loader").remove();
+	// $(".loader").remove();
 })
 </script>

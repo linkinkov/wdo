@@ -7,11 +7,6 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 }
 require_once('_global.php');
 include_once('_includes.php');
-$db = db::getInstance();
-check_access($db,false);
-
-$current_user = new User($_SESSION["user_id"]);
-$current_user->set_city_auto();
 
 $id = get_var("id","int");
 $cat_name = get_var("cat_name","string");
@@ -424,7 +419,7 @@ $(function(){
 		$(this).text(moment.unix(ts).fromNow());
 		$(this).attr("title",moment.unix(ts).fromNow());
 	})
-	var respondsTable = $("#project-responds-table").DataTable({
+	config.respondsTable = $("#project-responds-table").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"dom": 'tr<"row"<"col"p>>',
 		"bProcessing": true,
@@ -657,7 +652,7 @@ $(function(){
 						{
 							showAlert("error",response.message);
 						}
-						else respondsTable.ajax.reload(false,false);
+						else config.respondsTable.ajax.reload(false,false);
 					}
 				});
 			})
@@ -666,7 +661,7 @@ $(function(){
 	$(".responds-filter").click(function(){
 		$(".responds-filter").removeClass("checked");
 		$(this).addClass("checked");
-		respondsTable.ajax.reload(false,true);
+		config.respondsTable.ajax.reload(false,true);
 	})
 })
 </script>

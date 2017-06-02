@@ -2,17 +2,12 @@
 if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 {
 	$redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-	// header('HTTP/1.1 301 Moved Permanently');
 	header('Location: ' . $redirect, true, 301);
 	exit();
 }
 require_once('_global.php');
 include_once('_includes.php');
-$db = db::getInstance();
-check_access($db,false);
 
-$current_user = new User($_SESSION["user_id"]);
-$current_user->set_city_auto();
 $ref = isset($_SESSION["LAST_PAGE"]) ? trim($_SESSION["LAST_PAGE"]) : false;
 if ( $ref == "profile/project-responds" )
 {
@@ -34,17 +29,6 @@ if ( $job == "getUsers" )
 	$boundMarker[3] = $max["lat"]." ".$min["lng"];
 	$boundMarker[4] = $min["lat"]." ".$min["lng"];
 	$bounds = implode(",",$boundMarker);
-	// $showStatus = "";
-	// if ( $showParams["online"] == "true" && $showParams["offline"] == "false" )
-	// {
-	// 	$showStatus .= " AND (`alive` = '1')";
-	// } else if ( $showParams["online"] == "false" && $showParams["offline"] == "true" )
-	// {
-	// 	$showStatus .= " AND (`alive` = '0')";
-	// } else if ( $showParams["online"] == "false" && $showParams["offline"] == "false" )
-	// {
-	// 	$showStatus .= " AND (`alive` = '-1')";
-	// }
 	$showStatus = "";
 	$collection = Array();
 	$sql = sprintf("SELECT `user_id`,`real_user_name`,`rating`,
@@ -274,7 +258,7 @@ $(function(){
 	onMapMove();
 
 });
-config.profile.placeCoords = '<?php echo str_replace(" ",",",$current_user->gps);?>';
+config.profile.placeCoords = '<?php echo isset($current_user->gps) ? str_replace(" ",",",$current_user->gps) : "";?>';
 console.log("config.profile.placeCoords:",config.profile.placeCoords);
 </script>
 </body>

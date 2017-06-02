@@ -5,12 +5,6 @@ include_once('_includes.php');
 $job = get_var("job","string","");
 if ( $job != "" )
 {
-	$db = db::getInstance();
-	check_access($db,false);
-
-	$current_user = new User($_SESSION["user_id"]);
-	$current_user->set_city_auto();
-
 	$response = Array(
 		"result" => "false",
 		"message" => "Ошибка"

@@ -83,6 +83,9 @@ class ProjectRespond
 			if ( $value == 3 )
 			{
 				$db->query(sprintf("UPDATE `project` SET `status_id` = '2' WHERE `project_id` = '%d' AND `user_id` = '%d'",$this->for_project_id,$current_user->user_id));
+				$db->query(sprintf("DELETE FROM `user_readed_log` WHERE `user_id` = '%d' AND `type` = 'project_respond' AND `id` = '%d'",$this->user_id,$this->respond_id));
+				$dates = $db->queryRow(sprintf("SELECT `start_date`,`end_date` FROM `project` WHERE `project_id` = '%d'",$this->for_project_id));
+				User::calendar($this->user_id,"set",Array($dates->start_date,$dates->end_date),0);
 			}
 			$response["result"] = "true";
 			$response["message"] = "Обновлено";
@@ -198,10 +201,83 @@ class ProjectRespond
 			return $response;
 		}
 		$db->autocommit(false);
-		$insert = sprintf("INSERT INTO `user_responds` (`user_id`,`project_id`,`author_id`,`descr`,`created`,`grade`)
-		VALUES ('%d','%d','%d','%s',UNIX_TIMESTAMP(),'%d')",$this->user_id,$this->for_project_id,$current_user->user_id,$descr,$grade);
-		// echo $insert;
 		try {
+
+			// check safe deal
+			if ( $db->getValue("project","safe_deal","safe_deal",Array("project_id"=>$this->for_project_id)) == 1 ) // project is safe deal. check balances
+			{
+				// check project author balance > respond cost
+				$current_user->init_wallet();
+				$transaction_hold = $current_user->wallet->find_transaction_for_project($this->for_project_id,"HOLD");
+				// $db->queryRow(sprintf("SELECT `transaction_id`,`amount` FROM `wallet_transactions` WHERE `wallet_id` = '%s' AND `for_project_id` = '%d'",$current_user->wallet->wallet_id,$this->for_project_id));
+				if ( !isset($transaction_hold->amount) || $transaction_hold->amount <= 0 )
+				{
+					$response["message"] = "Невозможно найти транзакцию на удержание";
+					return $response;
+				}
+				$more_to_withdrawal = (intval($this->cost) - intval($transaction_hold->amount));
+				if ( $current_user->wallet->balance < $more_to_withdrawal )
+				{
+					$response["_1"] = $current_user->wallet->balance;
+					$response["_2"] = $more_to_withdrawal;
+					// author's balance less than holded amount + respond cost
+					$response["message"] = "Недостаточно средств для перевода исполнителю";
+					return $response;
+				}
+				if ( $more_to_withdrawal > 0 )
+				{
+					// insert additional withdrawal transaction overhead project budget
+					$new_transaction = Array (
+						"reference_id"=>$transaction_hold->transaction_id,
+						"type"=>"WITHDRAWAL",
+						"amount"=>intval($more_to_withdrawal),
+						"descr"=>"Дополнительное списание сверх бюджета в проекте",
+						"for_project_id"=>$this->for_project_id,
+						"commit"=>false
+					);
+					if ( $current_user->wallet->create_transaction($new_transaction) !== true )
+					{
+						$response["message"] = "Не удалось создать транзакцию по сверх-списанию";
+						return $response;
+					}
+				}
+				// confirm previously HOLD amount as withdrawal from wallet
+				$confirm_transaction = Array (
+					"transaction_id"=>$transaction_hold->transaction_id,
+					"commit"=>false
+				);
+				if ( $current_user->wallet->confirm_holded_transaction($confirm_transaction) !== true )
+				{
+					$response["message"] = "Не удалось подтвердить транзакцию HOLD";
+					return $response;
+				}
+				else
+				{
+					// payment to performer
+					$respond_user = new User($this->user_id);
+					$respond_user->init_wallet();
+					$project_title = $db->getValue("project","title","title",Array("project_id"=>$this->for_project_id,"user_id"=>$current_user->user_id));
+					$project_cost = $db->getValue("project","cost","cost",Array("project_id"=>$this->for_project_id,"user_id"=>$current_user->user_id));
+					$cost = (intval($this->cost) > 0) ? intval($this->cost) : intval($project_cost);
+					$new_transaction = Array (
+						"reference_id"=>$transaction_hold->transaction_id,
+						"type"=>"PAYMENT",
+						"amount"=>intval($cost),
+						"descr"=>"Зачисление средств за исполненную заявку",
+						"for_project_id"=>$this->for_project_id,
+						"commit"=>false
+					);
+
+					if ( $respond_user->wallet->create_transaction($new_transaction) !== true )
+					{
+						$response["message"] = "Ошибка зачисления средств исполнителю";
+						return $response;
+					}
+				}
+			}
+			$insert = sprintf("INSERT INTO `user_responds` (`user_id`,`project_id`,`author_id`,`descr`,`created`,`grade`)
+			VALUES ('%d','%d','%d','%s',UNIX_TIMESTAMP(),'%d')",$this->user_id,$this->for_project_id,$current_user->user_id,$descr,$grade);
+			// echo $insert;
 			if ( $db->query($insert) && $db->affected_rows == 1 )
 			{
 				$update = $this->update("status_id",5);

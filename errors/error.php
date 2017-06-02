@@ -10,11 +10,6 @@ if ( !isset($error) )
 	}
 	require_once('../_global.php');
 	include_once('../_includes.php');
-	$db = db::getInstance();
-	check_access($db,false);
-
-	$current_user = new User($_SESSION["user_id"]);
-	$current_user->set_city_auto();
 }
 
 ?>

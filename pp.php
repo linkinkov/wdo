@@ -14,7 +14,7 @@ if ( !$job ) echo "no data";
 
 $user = new User($user_id);
 
-$pp = Array("profile","projects","project-responds","messages","portfolio","portfolio-add","portfolio-edit","user-responds","scenarios");
+$pp = Array("profile","projects","project-responds","messages","portfolio","portfolio-add","portfolio-edit","user-responds","scenarios","transactions");
 
 if ( in_array($job,$pp) )
 {
@@ -24,6 +24,6 @@ if ( in_array($job,$pp) )
 ?>
 <script>
 $(function(){
-	$(".loader").remove();
+	$(".loader").hide();
 })
 </script>

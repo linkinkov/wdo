@@ -264,7 +264,8 @@ $(document).on('show.bs.tab','a[data-toggle="tab"]', function (e) {
 
 	$(prev_tab).html('');
 	$(target_tab).html('');
-	$(target_tab).html('<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+	$(target_tab).html('<div class="loader text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+	$(".loader").show();
 	var post_data = {
 		"user_id": config.profile.user_id
 	}

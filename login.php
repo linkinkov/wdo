@@ -14,7 +14,6 @@ if (isset($_POST['username'], $_POST['p'])) {
 		$current_user = new User($_SESSION["user_id"],false,true);
 		$response["result"] = true;
 		$response["message"] = "Authorized";
-		// header('Location: /');
 	} else {
 		// Login failed 
 	}

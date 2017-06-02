@@ -98,7 +98,7 @@ switch ( $job )
 		echo json_encode($attaches);
 		break;
 	case "ScenarioList":
-		$list = Scenario::get_list();
+		$list = Scenario::get_templates();
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;

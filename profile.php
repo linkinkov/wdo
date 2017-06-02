@@ -2,20 +2,13 @@
 if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 {
 	$redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-	// header('HTTP/1.1 301 Moved Permanently');
 	header('Location: ' . $redirect, true, 301);
 	exit();
 }
 require_once('_global.php');
 include_once('_includes.php');
-$db = db::getInstance();
-check_access($db,false);
-
-$current_user = new User($_SESSION["user_id"]);
-$current_user->set_city_auto();
 
 $user_id = get_var("id","int",$_SESSION["user_id"]);
-// print_r($user_id);
 if ( $user_id <= 0 )
 {
 	header($_SERVER["SERVER_PROTOCOL"]." 401 Not authorized", true, 404);
@@ -57,6 +50,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 					<?php
 					if ( $self_profile )
 					{
+						$current_user->init_wallet();
 					?>
 					<div class="row">
 						<div class="col">
@@ -66,18 +60,18 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 									<i class="fa fa-circle-o fa-stack-2x"></i>
 									<i class="fa fa-star fa-stack-1x"></i>
 								</span>
-								Типовые сценарии
+								Мастер праздников
 							</a>
 						</div>
 					</div>
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col account-management">
-							<h6 class="strong">Баланс: <text class="text-purple-dark"><i class="fa fa-rouble"></i> <?php echo number_format($user->get_balance(),0,","," ");?></text></h6>
+							<h6 class="strong">Баланс: <text class="text-purple-dark"><i class="fa fa-rouble"></i> <?php echo number_format($current_user->wallet->balance,0,","," ");?></text></h6>
 							<div style="text-align: center; margin-top: 35px;">
 								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">Пополнить баланс</a></h6>
 								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">Вывести средства</a></h6>
-								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">История транзакций</a></h6>
+								<h6 style="line-height: 1.6rem;"><a class="wdo-link" data-toggle="custom-tab" data-target="#transactions" role="tab">История транзакций</a></h6>
 							</div>
 						</div>
 					</div>
@@ -237,15 +231,18 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							}
 							?>
 
-							<li class="nav-item" style="display: none;">
-								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-add" role="tab">Добавить портфолио</a>
-							</li>
-							<li class="nav-item" style="display: none;">
-								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-edit" role="tab">Редактировать портфолио</a>
-							</li>
-							<li class="nav-item" style="display: none;">
-								<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#scenarios" role="tab">Типовые</a>
-							</li>
+								<li class="nav-item" style="display: none;">
+									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-add" role="tab">Добавить портфолио</a>
+								</li>
+								<li class="nav-item" style="display: none;">
+									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-edit" role="tab">Редактировать портфолио</a>
+								</li>
+								<li class="nav-item" style="display: none;">
+									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#scenarios" role="tab">Мастер праздников</a>
+								</li>
+								<li class="nav-item" style="display: none;">
+									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#transactions" role="tab">Транзакции</a>
+								</li>
 
 							</ul>
 							<!-- Tab panes -->
@@ -255,7 +252,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							{
 								if ( $user->as_performer == 0 && $id == "portfolio" ) continue;
 								$class = ($id == $active) ? "active" : "";
-								$content = ($class == "active") ? '<div class="loader text-center" style="width: 100%;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>' : '';
+								$content = ($class == "active") ? '<div class="loader text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>' : '';
 								echo sprintf('
 								<div class="tab-pane %s" id="%s" role="tabpanel">%s</div>',$class,$id,$content);
 							}
@@ -263,6 +260,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 								<div class="tab-pane" id="portfolio-add" role="tabpanel"></div>
 								<div class="tab-pane" id="portfolio-edit" role="tabpanel"></div>
 								<div class="tab-pane" id="scenarios" role="tabpanel"></div>
+								<div class="tab-pane" id="transactions" role="tabpanel"></div>
 							</div>
 
 						</div>

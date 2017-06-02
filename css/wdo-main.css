@@ -26,6 +26,7 @@ body {
 	font-weight: 400;
 	line-height: 1.5;
 	min-width: 1000px;
+	overflow: auto !important;
 }
 .text-roboto {
 	font-family: 'myRoboto';
@@ -123,6 +124,18 @@ body { padding-right: 0 !important }
 }
 .top-banner {
 	padding: 10px !important; text-align: center !important;
+}
+.loader {
+	width: 100%;
+	display: none; 
+	position: absolute;
+	left: 0;
+	z-index: 10;
+	padding-top: 20%;
+	min-height: 700px;
+	height: 100%;
+	border-radius: 5px;
+	/*background-color: rgba(0,0,0,0.05);*/
 }
 .logo {
 	background-color: #500a37;
@@ -581,19 +594,25 @@ th.project-table-cost {
 	width: 100%;
 	padding: 15px;
 }
-.conversation-container .conversation-footer {
-	padding-top: 10px;
+.conversation-container .conversation-footer #conversation-message-text {
+	border: 0;
+	box-shadow: 0px 0px 12px -5px;
 }
 .conversation-container .conversation-messages {
 	max-height: 800px;
 	overflow-y: auto;
 	overflow-x: hidden;
 	padding-right: 5px;
+	/* modding */
+	background-color: #fff;
+	box-shadow: 0px 2px 12px -5px;
 }
 .conversation-container .conversation-messages .message {
 	display: flex;
 	width: 100%;
 	padding: 15px;
+	/* modding */
+	border-top: 1px solid #eee;
 }
 /* ----- END PROFILE ---- */
 
@@ -833,6 +852,7 @@ ul.set-rating li.selected {
 	border: 1px solid #ece7e7;
 }
 .event-budget-dashboard {
+	margin-left: 0;
 	align-items: center;
 	background-color: #fff;
 	border: 1px solid;
@@ -879,6 +899,9 @@ ul.set-rating li.selected {
 .event-budget-scale .scale-green {
 	background-color: #d5d362;
 }
+.event-project {
+	line-height: 2.5rem;
+}
 .event-project .event-project-title {
 	min-width: 190px;
 	max-width: 190px;
@@ -890,4 +913,7 @@ ul.set-rating li.selected {
 }
 .event-project .event-project-performer {
 	min-width: 200px;
+}
+.event-projects-to-create .row {
+	line-height: 2rem;
 }

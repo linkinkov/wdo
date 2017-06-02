@@ -26,7 +26,26 @@ $columns = get_var("columns","array",Array());
 $user_id = get_var("user_id","int",0);
 
 $orderStr = "`user_responds`.`created` DESC";
-$sql_main = "SELECT `id`,`project_id`,`author_id`,`user_responds`.`descr`,`user_responds`.`created`,`grade`
+if (sizeof($columns) > 0)
+{
+	foreach($columns as $idx=>$col)
+	{
+		$orderColumns[] = isset($col["name"]) && $col["name"] != ""  ? $col["name"] : $col["data"];
+	}
+}
+if (sizeof($order) > 0)
+{
+	foreach($order as $ord)
+	{
+		if ($ord["dir"])
+		{
+			$orderArr[] = $orderColumns[$ord["column"]] . " " . $ord["dir"];
+		}
+	}
+}
+$orderStr = isset($orderArr) ? implode(", ", $orderArr) : "`project`.`project_id` ASC";
+
+$sql_main = "SELECT `id`,`project_id`,(SELECT `real_user_name` FROM `users` WHERE `user_id` = `author_id`) as `author_user_name`,`user_responds`.`descr`,`user_responds`.`created`,`grade`
 	FROM `user_responds`
 	WHERE `user_responds`.`user_id` = '$user_id'
 	ORDER BY $orderStr
@@ -76,7 +95,7 @@ if ( sizeof ($aaData) )
 		$row->DT_RowId = $row->id;
 		$row->DT_RowClass = "bg-white row-bordered";
 		$row->user_name = User::get_real_user_name($user_id);
-		$row->author_user_name = User::get_real_user_name($row->author_id);
+		// $row->author_user_name = User::get_real_user_name($row->author_id);
 		$row->project = new Project($row->project_id);
 		if ( $row->project->error ) {
 			// echo $project->error;
@@ -93,6 +112,10 @@ if ( sizeof ($aaData) )
 			HOST.'/projects/'.$row->project->cat_name_translated.'/',$row->project->cat_name, // category href link
 			HOST.'/projects/'.$row->project->cat_name_translated.'/'.$row->project->subcat_name_translated.'/',$row->project->subcat_name, $row->created // subcategory href link
 		);
+		if ( !$current_user->is_readed('user_respond',$row->id) )
+		{
+			$current_user->add_readed("user_respond",$row->id);
+		}
 	}
 }
 

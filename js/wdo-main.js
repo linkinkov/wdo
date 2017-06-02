@@ -1,4 +1,15 @@
 var current_date = new Date;
+moment.locale("ru");
+moment.updateLocale('ru', {
+	calendar: {
+		lastDay : '[Вчера в] LT',
+		sameDay : '[Сегодня в] LT',
+		nextDay : '[Завтра в] LT',
+		lastWeek : 'dddd[,] LT',
+		nextWeek : 'dddd[,] LT',
+		sameElse : 'L'
+	}
+});
 
 var config = {
 	"city_id": getCookie("city_id") || 1,
@@ -16,6 +27,7 @@ var config = {
 	{
 		"dt": null,
 	},
+	"respondsTable": null,
 	"profile":
 	{
 		"user_id": 0,
@@ -119,6 +131,10 @@ var app = {
 								if ( key == 'project_responds' )
 								{
 									updateProfileCounter('project-responds',value.unreaded);
+								}
+								else if ( key == 'responds' )
+								{
+									updateProfileCounter('responds',value.unreaded);
 								}
 							}
 							else
@@ -247,7 +263,7 @@ var app = {
 				success: function (response) {
 					if ( response.result == "true" )
 					{
-						// window.location.reload();
+						config.respondsTable.ajax.reload();
 						$(btn).text(response.message);
 					}
 					else
@@ -308,6 +324,7 @@ var app = {
 							{
 								app.im.lmts = response.messages[0].message.timestamp;
 								app.im.append_messages(response.messages);
+								$.playSound('/sounds/message.ogg');
 							}
 							app.im.poller.check_msgs(dialog_id,response.wait);
 						}
@@ -532,6 +549,12 @@ var app = {
 						showAlert("danger",response.message);
 						return;
 					}
+					else
+					{
+						$("#event-create").hide();
+						show_event(response.event_id);
+						setCookie('last_event_id',response.event_id);
+					}
 				}
 			})
 		},
@@ -549,7 +572,23 @@ var app = {
 					callback(response);
 				}
 			})
-		}
+		},
+		"moveToArchive": function(event_id, callback)
+		{
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/pp/scenarios",
+				dataType: "JSON",
+				data: {
+					"action": "archive_event",
+					"event_id": event_id
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
 	},
 	"formatter": {
 		"format_dialog": function(data)
@@ -561,9 +600,10 @@ var app = {
 				+'<div class="row">'
 				+'	<div class="col">'
 				+'		<div class="dialog '+dialog_class+'" data-dialog_id="'+data.dialog_id+'">'
-				+'			<div class="col" style="max-width: 80px;"><img class="rounded-circle shadow" src="'+data.dialog_avatar_path+'&w=50&h=50" /></div>'
+				// +'			<div class="col" style="max-width: 80px;"><img class="rounded-circle shadow" src="'+data.dialog_avatar_path+'" /></div>'
+				+'			<div class="col" style="max-width: 80px;">'+data.dialog_avatar_path+'</div>'
 				+'			<div class="col">'
-				+'				<h6 class="text-purple">'+data.real_user_name+'</h6>'
+				+'				<h6 class="text-purple">'+data.dialog_title+'</h6>'
 				+'				<text class="text-truncate" style="max-width: 350px;">'+data.last_message_text+'</text>'
 				+'			</div>'
 				+'			'+unreaded_row
@@ -575,16 +615,25 @@ var app = {
 		},
 		"format_message": function(data)
 		{
+			var msg_time_title = moment.unix(data.message.timestamp).format("LLL");
+			if ( (parseInt(moment().format("X")) - data.message.timestamp) > 86400 )
+			{
+				var msg_time = moment.unix(data.message.timestamp).calendar();
+			}
+			else
+			{
+				var msg_time = moment.unix(data.message.timestamp).fromNow();
+			}
 			var message = ''
 			+'<div class="row">'
 			+'	<div class="message">'
 			+'	<div class="col" style="max-width: 80px;">'
-			+'		<a href="/profile/id'+data.user.id+'" class="wdo-link"><img class="rounded-circle shadow" src="'+data.user.avatar_path+'&w=50&h=50" /></a>'
+			+'		<a href="/profile/id'+data.user.id+'#projects" class="wdo-link"><img class="rounded-circle shadow" src="'+data.user.avatar_path+'&w=50&h=50" /></a>'
 			+'	</div>'
 			+'	<div class="col">'
-			+'		<span class="pull-right">'+moment.unix(data.message.timestamp).calendar()+'</span>'
+			+'		<span class="pull-right" title="'+msg_time_title+'">'+msg_time+'</span>'
 			+'		<h6><a href="/profile/id'+data.user.id+'" class="wdo-link text-purple">'+data.user.real_user_name+'</a></h6>'
-			+'		<text>'+data.message.text+'</text>'
+			+'		<text style="white-space: pre;">'+data.message.text+'</text>'
 			+'	</div>'
 			+'	</div>'
 			+'</div>';
@@ -742,11 +791,7 @@ var app = {
 			var html = ''
 			+'<div class="row event-project" data-project_id="'+data.project_id+'">'
 			+'	<div class="col event-project-title">'
-			+'		<label class="custom-control custom-radio custom-radio">'
-			+'			<input name="radio-c-1-'+data.project_id+'" checked="true" type="radio" class="custom-control-input">'
-			+'			<span class="custom-control-indicator"></span>'
-			+'			<span class="custom-control-description event-project-title"><a class="wdo-link" href="'+data.project_link+'">'+data.subcat_name+'</a></span>'
-			+'		</label>'
+			+'		<a class="wdo-link underline" href="'+data.project_link+'">'+data.subcat_name+'</a>'
 			+'	</div>'
 			+'	<div class="col event-project-cost">'
 			+'		'+data.cost_formatted+' р.'
@@ -755,7 +800,7 @@ var app = {
 			+'		'+profile_link
 			+'	</div>'
 			+'	<div class="col event-add-chat">'
-			+'		<a title="Добавить исполнителя в общий чат" href="" class="wdo-link">+ <i class="fa fa-comments"></i></a>'
+			+'		<a title="Добавить исполнителя в общий чат" onClick="addToEventDialog('+data.performer.user_id+')" class="wdo-link">+ <i class="fa fa-comments"></i></a>'
 			+'	</div>'
 			+'	<div class="col event-project-status">'
 			+'		'+data.status_name+''
@@ -765,14 +810,12 @@ var app = {
 		},
 		"format_scenario_projects_to_create": function(data)
 		{
-			var html = ''
-			+'<div class="row>'
+			var event_id = $(".event_id").data('event_id'),
+					link = '/project/add?event_id='+event_id+'&subcat_id='+data.subcat_id,
+					html = ''
+			+'<div class="row">'
 			+'	<div class="col">'
-			+'		<label class="custom-control custom-radio custom-radio">'
-			+'			<input name="radio-c-1" type="radio" class="custom-control-input" data-subcat_id="'+data.subcat_id+'">'
-			+'			<span class="custom-control-indicator"></span>'
-			+'			<span class="custom-control-description event-project-title">'+data.subcat_name+'</span>'
-			+'		</label>'
+			+'		<a class="wdo-link underline" href="'+link+'">'+data.subcat_name+'</a>'
 			+'	</div>'
 			+'</div>';
 			return html;
@@ -789,14 +832,3 @@ try {
 	config.projects.specs = specs;
 } catch (error) {}
 
-moment.locale("ru");
-moment.updateLocale('ru', {
-	calendar: {
-		lastDay : '[Вчера в] LT',
-		sameDay : '[Сегодня в] LT',
-		nextDay : '[Завтра в] LT',
-		lastWeek : 'dddd[,] LT',
-		nextWeek : 'dddd[,] LT',
-		sameElse : 'L'
-	}
-});

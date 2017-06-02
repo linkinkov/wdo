@@ -54,6 +54,6 @@ $(function(){
 		}
 	})
 
-	$(".loader").remove();
+	// $(".loader").remove();
 })
 </script>
