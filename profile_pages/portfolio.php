@@ -1,5 +1,4 @@
 <?php
-opcache_reset();
 if ( !isset($from_include) )
 {
 	require_once('../_global.php');

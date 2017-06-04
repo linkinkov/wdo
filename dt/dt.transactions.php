@@ -21,7 +21,7 @@ $search = isset($_REQUEST["search"]["value"]) ? htmlspecialchars($_REQUEST["sear
 $order = get_var("order","array",Array());
 $columns = get_var("columns","array",Array());
 
-$start_date = get_var("start_date","int",time()-86400);
+$start_date = get_var("start_date","int",time()-86400*7);
 $end_date = get_var("end_date","int",time()+(86400*3));
 
 if (sizeof($columns) > 0)
@@ -41,14 +41,27 @@ if (sizeof($order) > 0)
 		}
 	}
 }
+$searchStr = "1";
 $orderStr = isset($orderArr) ? implode(", ", $orderArr) : "`wallet_transactions`.`timestamp` ASC";
 $timerange = sprintf(' AND (`timestamp` >= "%d" AND `timestamp` <= "%d")', $start_date, $end_date);
 
-$sql_main = "SELECT *
+
+$sql_main = "SELECT `wallet_transactions`.`transaction_id`,
+		`wallet_transactions`.`reference_id`,
+		`wallet_transactions`.`type`,
+		`wallet_transactions`.`amount`,
+		`wallet_transactions`.`timestamp`,
+		`wallet_transactions`.`descr`,
+		`project`.`title` as `project_title`,
+		`wallet_transactions`.`for_project_id`
 	FROM `wallet_transactions`
 	LEFT JOIN `project` ON `project`.`project_id` = `wallet_transactions`.`for_project_id`
-	WHERE 1 AND $searchStr $timerange AND `wallet_id` = (SELECT `wallet_id` FROM `user_wallets` WHERE `user_id` = '".$current_user->user_id."')
-	ORDER $orderStr
+	WHERE `wallet_id` = (
+			SELECT `wallet_id` 
+			FROM `user_wallets` 
+			WHERE `user_id` = '".$current_user->user_id."'
+		)
+	ORDER BY $orderStr
 	LIMIT $start, $length";
 // echo $sql_main;
 try {
@@ -62,7 +75,13 @@ try {
 $recordsTotal = 0;
 $recordsFiltered = 0;
 
-$sql = "SELECT COUNT(`transaction_id`) as recordsTotal FROM `wallet_transactions` WHERE `wallet_id` = (SELECT `wallet_id` FROM `user_wallets` WHERE `user_id` = '".$current_user->user_id."')";
+$sql = "SELECT COUNT(`transaction_id`) as recordsTotal 
+	FROM `wallet_transactions` 
+	WHERE `wallet_id` = (
+			SELECT `wallet_id` 
+			FROM `user_wallets` 
+			WHERE `user_id` = '".$current_user->user_id."'
+		)";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
@@ -74,7 +93,11 @@ try {
 
 $sql = "SELECT COUNT(`transaction_id`) as recordsFiltered 
 	FROM `wallet_transactions` 
-	WHERE $searchStr $timerange ";
+	WHERE `wallet_id` = (
+			SELECT `wallet_id` 
+			FROM `user_wallets` 
+			WHERE `user_id` = '".$current_user->user_id."'
+		)";
 try {
 	$tdr = $db->queryRow($sql);
 	$recordsFiltered = $tdr->recordsFiltered;
@@ -85,55 +108,32 @@ try {
 
 if ( sizeof ($aaData) )
 {
-	$idx = 0;
 	foreach ( $aaData as $row )
 	{
-		$row->DT_RowId = $row->project_id;
-		$row->DT_RowClass = "project-entry";
-		$project = new Project($row->project_id);
-		if ( $project->error ) {
-			// echo $project->error;
-			unset($aaData[$idx]);
-			$recordsFiltered--;
-			$recordsTotal--;
-			continue;
-		}
-		$project->cost = number_format($project->cost,0,","," ");
-		$row->user = new User($project->user_id);
-		// $title_tr = strtolower(r2t($project->title));
-		if ( $project->vip == 1 ) $row->DT_RowClass .= " vip";
-		if ( $current_user->user_id == $user_id )
+		$row->DT_RowId = $row->transaction_id;
+		$row->DT_RowClass = "pointer";
+		switch ( $row->type )
 		{
-			$row->DT_RowClass .= " no-pointer";
-			$row->performer_id = $row->performer_name;
-			$row->performer_name = User::get_real_user_name($row->performer_id);
-			if ( is_array($row->performer_name) ) $row->performer_name = '<small class="text-muted">Не выбран</small>';
+			case "WITHDRAWAL":
+				$row->type = sprintf('<text class="text-danger">%s</text>','Списание');
+				break;
+			case "HOLD":
+				$row->type = sprintf('<text class="text-warning">%s</text>','Удержание');
+				break;
+			case "PAYMENT":
+				$row->type = sprintf('<text class="text-success">%s</text>','Пополнение');
+				break;
 		}
-		switch ( $project->status_id )
+		if ( $row->for_project_id > 0 )
 		{
-			case 1:
-				$status_class = "text-success";
-				break;
-			case 2:
-				$status_class = "text-info";
-				break;
-			case 3:
-				$status_class = "text-purple";
-				break;
-			case 4:
-				$status_class = "text-warning";
-				break;
-			case 5:
-				$status_class = "text-danger";
-				break;
-			default:
-				$status_class = "text-muted";
-				break;
+			$project = new Project($row->for_project_id);
+			$row->project_link = $project->project_link;
 		}
-		$project->status_name = sprintf('<text class="%s">%s</text>',$status_class,$project->status_name);
-		if ( $row->bids_new > 0 ) $row->bids .= ' <text class="text-purple">(+'.$row->bids_new.')</text>';
-		$row->project = $project;
-		$idx++;
+		else
+		{
+			$row->project_title = "";
+			$row->project_link = "";
+		}
 	}
 }
 

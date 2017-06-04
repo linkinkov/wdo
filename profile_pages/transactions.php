@@ -1,4 +1,4 @@
-<table class="table table-striped" id="transactions-table">
+<table class="table table-striped table-hovered" id="transactions-table">
 	<thead>
 		<th>Дата</th>
 		<th>Тип</th>
@@ -23,7 +23,7 @@ $(function(){
 		},
 		"bStateSave": false,
 		"columns": [
-			{"data": "timestamp"},
+			{"data": "timestamp","class": "timestamp"},
 			{"data": "type"},
 			{"data": "descr"},
 		],
@@ -31,6 +31,19 @@ $(function(){
 		"initComplete": function(table,data) {
 		},
 		"createdRow": function ( row, data, index ) {
+			$(".timestamp", row).html(moment.unix(data.timestamp).format("LLL")).attr("title",moment.unix(data.timestamp).format("YYYY-MM-DD H:m:s"));
+			$(row).on("click",function(){
+				var tr = $(this).closest('tr');
+				var row = transactionsTable.row( tr );
+				if ( row.child.isShown() ) {
+					row.child.hide();
+					tr.removeClass('shown');
+				}
+				else {
+					row.child( app.formatter.format_transaction_info(row.data()) ).show();
+					tr.addClass('shown');
+				}
+			});
 		},
 		"drawCallback": function( settings ) {
 			$(".paginate_button > a").on("focus", function() {

@@ -14,7 +14,19 @@ if ( !$job ) echo "no data";
 
 $user = new User($user_id);
 
-$pp = Array("profile","projects","project-responds","messages","portfolio","portfolio-add","portfolio-edit","user-responds","scenarios","transactions");
+$pp = Array("profile",
+	"projects",
+	"project-responds",
+	"messages",
+	"portfolio",
+	"portfolio-add",
+	"portfolio-edit",
+	"user-responds",
+	"scenarios",
+	"transactions",
+	"wallet_refill",
+	"wallet_withdrawn"
+);
 
 if ( in_array($job,$pp) )
 {

@@ -69,8 +69,8 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 						<div class="col account-management">
 							<h6 class="strong">Баланс: <text class="text-purple-dark"><i class="fa fa-rouble"></i> <?php echo number_format($current_user->wallet->balance,0,","," ");?></text></h6>
 							<div style="text-align: center; margin-top: 35px;">
-								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">Пополнить баланс</a></h6>
-								<h6 style="line-height: 1.6rem;"><a class="wdo-link" href="#">Вывести средства</a></h6>
+								<h6 style="line-height: 1.6rem;"><a class="wdo-link" data-toggle="custom-tab" data-target="#wallet_refill" role="tab">Пополнить баланс</a></h6>
+								<h6 style="line-height: 1.6rem;"><a class="wdo-link" data-toggle="custom-tab" data-target="#wallet_withdrawn" role="tab">Вывести средства</a></h6>
 								<h6 style="line-height: 1.6rem;"><a class="wdo-link" data-toggle="custom-tab" data-target="#transactions" role="tab">История транзакций</a></h6>
 							</div>
 						</div>
@@ -90,6 +90,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							<p><span class="pull-right"><i title="Город" class="text-purple fa fa-map-marker fa-lg fa-fw"></i></span><?php echo $user->city_name;?></p>
 							<p><span class="pull-right"><i title="Телефон" class="text-purple fa fa-mobile-phone fa-lg fa-fw"></i></span><?php echo ($user->phone) ? $user->phone : "Не указан";?></p>
 							<p><span class="pull-right"><i title="Skype" class="text-purple fa fa-skype fa-lg fa-fw"></i></span><?php echo ($user->skype) ? $user->skype : "Не указан";?></p>
+							<p><span class="pull-right"><i title="Сайт" class="text-purple fa fa-globe fa-lg fa-fw"></i></span><?php echo ($user->site) ? $user->site : "Не указан";?></p>
 						</div>
 					</div>
 					<?php
@@ -203,66 +204,99 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							{
 								$active = "profile";
 								$tabs = Array(
-									"profile" => "Профиль",
-									"projects" => "Мои проекты",
-									"project-responds" => "Мои заявки",
-									"portfolio" => "Портфолио",
-									"messages" => "Сообщения",
-									"user-responds" => "Отзывы"
+									"profile" => Array(
+										"title" => "Профиль",
+										"class" => "active"
+									),
+									"projects" => Array(
+										"title" => "Мои проекты",
+										"class" => ""
+									),
+									"project-responds" => Array(
+										"title" => "Мои заявки",
+										"class" => ""
+									),
+									"portfolio" => Array(
+										"title" => "Портфолио",
+										"class" => ""
+									),
+									"messages" => Array(
+										"title" => "Сообщения",
+										"class" => ""
+									),
+									"user-responds" => Array(
+										"title" => "Отзывы",
+										"class" => ""
+									),
+									// custom hidden tabs
+									"portfolio-add" => Array(
+										"title" => "Добавить портфолио",
+										"class" => "hidden"
+									),
+									"portfolio-edit" => Array(
+										"title" => "Редактировать портфолио",
+										"class" => "hidden"
+									),
+									"scenarios" => Array(
+										"title" => "Мастер праздников",
+										"class" => "hidden"
+									),
+									"transactions" => Array(
+										"title" => "Транзакции",
+										"class" => "hidden"
+									),
+									"wallet_refill" => Array(
+										"title" => "Пополнить баланс",
+										"class" => "hidden"
+									),
+									"wallet_withdrawn" => Array(
+										"title" => "Вывести средства",
+										"class" => "hidden"
+									),
 								);
 							}
 							else
 							{
 								$active = "projects";
 								$tabs = Array(
-									"projects" => "Проекты",
-									"portfolio" => "Портфолио",
-									"user-responds" => "Отзывы"
+									"projects" => Array(
+										"title" =>"Проекты",
+										"class" => "active"
+									),
+									"portfolio" => Array(
+										"title" =>"Портфолио",
+										"class" => ""
+									),
+									"user-responds" => Array(
+										"title" =>"Отзывы",
+										"class" => ""
+									),
 								);
 							}
-							foreach ( $tabs as $id=>$tab_name )
+							foreach ( $tabs as $id=>$prop )
 							{
 								if ( $user->as_performer == 0 && in_array($id,Array("project-responds","portfolio")) ) continue;
-								$class = ( $tab_name == $active ) ? "active" : "";
 								echo sprintf('
-								<li class="nav-item">
-									<a class="nav-link %s text-muted pointer" data-toggle="tab" data-target="#%s" role="tab">%s</a>
-								</li>',$class,$id,$tab_name);
+								<li class="nav-item %s">
+									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#%s" role="tab">%s</a>
+								</li>',$prop["class"],$id,$prop["title"]);
 							}
 							?>
-
-								<li class="nav-item" style="display: none;">
-									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-add" role="tab">Добавить портфолио</a>
-								</li>
-								<li class="nav-item" style="display: none;">
-									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#portfolio-edit" role="tab">Редактировать портфолио</a>
-								</li>
-								<li class="nav-item" style="display: none;">
-									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#scenarios" role="tab">Мастер праздников</a>
-								</li>
-								<li class="nav-item" style="display: none;">
-									<a class="nav-link text-muted pointer" data-toggle="tab" data-target="#transactions" role="tab">Транзакции</a>
-								</li>
-
 							</ul>
 							<!-- Tab panes -->
 							<div class="tab-content">
 							<?php
-							foreach ( $tabs as $id=>$tab_name )
+							foreach ( $tabs as $id=>$prop )
 							{
 								if ( $user->as_performer == 0 && $id == "portfolio" ) continue;
-								$class = ($id == $active) ? "active" : "";
-								$content = ($class == "active") ? '<div class="loader text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>' : '';
+								$content = ($prop["class"] == "active") ? '<div class="loader text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>' : '';
 								echo sprintf('
-								<div class="tab-pane %s" id="%s" role="tabpanel">%s</div>',$class,$id,$content);
+								<div class="tab-pane %s" id="%s" role="tabpanel">
+									<div class="loader text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>
+								</div>',$prop["class"],$id);
 							}
 							?>
-								<div class="tab-pane" id="portfolio-add" role="tabpanel"></div>
-								<div class="tab-pane" id="portfolio-edit" role="tabpanel"></div>
-								<div class="tab-pane" id="scenarios" role="tabpanel"></div>
-								<div class="tab-pane" id="transactions" role="tabpanel"></div>
 							</div>
-
 						</div>
 					</div>
 				</div><!-- /.wdo-main-right -->
@@ -298,13 +332,13 @@ $(function(){
 	var hash = window.location.hash;
 	if ( hash != "" )
 	{
-		$(document).scrollTop(0);
 		$('a[data-target="' + hash + '"]').tab('show');
+		$(document).scrollTop(0);
 	}
 	else
 	{
+		$('a[data-target="'+$(".nav-tabs").find(".nav-item.active").find("a").data("target")+'"]').tab('show');
 		$(document).scrollTop(0);
-		$('a[data-target="#<?php echo $active;?>"]').tab('show');
 	}
 	$(".calendar-view").multiDatesPicker({
 		disabled: true

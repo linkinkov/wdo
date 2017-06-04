@@ -245,7 +245,9 @@ $(document).on('shown.bs.tab','a[data-toggle="tab"]', function (e) {
 
 $(document).on("click",'a[data-toggle="custom-tab"]', function(e) {
 	var target = $(this).data('target');
+	$('a[data-toggle="custom-tab"]').removeClass("text-purple");
 	$('a[data-toggle="tab"][data-target="'+target+'"]').tab('show');
+	$(this).addClass("text-purple");
 })
 
 $(document).on('show.bs.tab','a[data-toggle="tab"]', function (e) {

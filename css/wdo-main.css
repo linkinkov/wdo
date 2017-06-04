@@ -141,6 +141,9 @@ body { padding-right: 0 !important }
 	background-color: #500a37;
 	color: white;
 }
+.hidden {
+	display: none;
+}
 .bg-purple-dark {
 	background-color: #4a0933 !important;
 	color: white;

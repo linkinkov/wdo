@@ -819,6 +819,33 @@ var app = {
 			+'	</div>'
 			+'</div>';
 			return html;
+		},
+		"format_transaction_info": function(data)
+		{
+			var child_row = ''
+			+'<table cellpadding="3" cellspacing="0" border="0" style="padding-left:50px; min-width: 100%;">'
+			+'	<tr>'
+			+'		<td>'
+			+'			Сумма:'
+			+'		</td>'
+			+'		<td>'
+			+'			<span class="pull-right">'+data.amount+'</span>'
+			+'		</td>'
+			+'	</tr>';
+			if ( data.project_title != "" )
+			{
+				child_row += ''
+				+'	<tr>'
+				+'		<td>'
+				+'			Проект:'
+				+'		</td>'
+				+'		<td>'
+				+'			<span class="pull-right"><a class="wdo-link underline" href="'+data.project_link+'" target="_blank">'+data.project_title+'</a></span>'
+				+'		</td>'
+				+'	</tr>';
+			}
+			child_row += '</table>';
+			return child_row;
 		}
 	}
 }

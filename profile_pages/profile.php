@@ -21,7 +21,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 <div class="row"><div class="col"><hr /></div></div>
 
 <div class="row">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+	<div class="col" style="max-width: 180px; align-self: center;">
 		<text class="text-muted">Учетная запись</text>
 	</div>
 	<div class="col type_id-container">
@@ -54,7 +54,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row real_user_name-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+	<div class="col" style="max-width: 180px; align-self: center;">
 		Имя
 	</div>
 	<div class="col">
@@ -64,7 +64,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row" style="align-items: center;">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px;">
+	<div class="col" style="max-width: 180px;">
 		Фото
 	</div>
 	<div class="col text-center">
@@ -84,7 +84,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row birthday-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+	<div class="col" style="max-width: 180px; align-self: center;">
 		Дата рождения
 	</div>
 	<div class="col">
@@ -94,7 +94,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row signature-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+	<div class="col" style="max-width: 180px; align-self: center;">
 		Подпись
 	</div>
 	<div class="col">
@@ -104,7 +104,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row country_id-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+	<div class="col" style="max-width: 180px; align-self: center;">
 		Страна
 	</div>
 	<div class="col">
@@ -121,7 +121,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row city_id-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+	<div class="col" style="max-width: 180px; align-self: center;">
 		Город
 	</div>
 	<div class="col">
@@ -138,7 +138,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row rezume-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
+	<div class="col" style="max-width: 180px; align-self: center;">
 		Резюме
 	</div>
 	<div class="col">
@@ -155,8 +155,8 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row phone-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
-		<i class="fa fa-mobile fa-fw"></i> Телефон
+	<div class="col" style="max-width: 180px; align-self: center;">
+		<i class="fa fa-mobile fa-lg fa-fw text-purple"></i> Телефон
 	</div>
 	<div class="col">
 		<input type="text" class="form-control profile-data" data-name="phone" placeholder="Телефон" />
@@ -165,8 +165,8 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row phone-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
-		<i class="fa fa-skype fa-fw"></i> Skype
+	<div class="col" style="max-width: 180px; align-self: center;">
+		<i class="fa fa-skype fa-lg fa-fw text-purple"></i> Skype
 	</div>
 	<div class="col">
 		<input type="text" class="form-control profile-data" data-name="skype" placeholder="Skype" />
@@ -175,8 +175,8 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row site-container">
-	<div class="col" style="flex: 0 0 180px; max-width: 180px; align-self: center;">
-		<i class="fa fa-home fa-fw"></i> Сайт
+	<div class="col" style="max-width: 180px; align-self: center;">
+		<i class="fa fa-globe fa-lg fa-fw text-purple"></i> Сайт
 	</div>
 	<div class="col">
 		<input type="text" class="form-control profile-data" data-name="site" placeholder="http://www.example.com/" />
