@@ -263,7 +263,7 @@ $(document).on('show.bs.tab','a[data-toggle="tab"]', function (e) {
 		window.location.hash = id;
 	}
 	$(".dialogs-container").html('');
-
+	$('a[data-toggle="custom-tab"]').removeClass("text-purple");
 	$(prev_tab).html('');
 	$(target_tab).html('');
 	$(target_tab).html('<div class="loader text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');

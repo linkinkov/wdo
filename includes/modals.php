@@ -243,3 +243,28 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+
+<!-- change_password-modal -->
+<div class="modal fade" id="change_password-modal" tabindex="-1" role="dialog" aria-labelledby="change_password-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="width: 600px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-roboto-cond" id="change_password-modal-label">Смена пароля</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row" style="justify-content: center;">
+					<div class="col text-center">
+						<br /><input type="password" class="form-control" placeholder="Введите пароль" name="password" />
+						<br /><input type="password" class="form-control" placeholder="Повторите пароль" name="password_2" />
+						<br /><div class="wdo-btn btn-sm bg-yellow strong" id="change_password_btn">Изменить</div>
+					</div>
+				</div>
+			</div><!-- /.modal-body -->
+			<div class="modal-footer" style="height: 55px; background: url(/images/ornament-3.png) repeat-x bottom 10px right;"></div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

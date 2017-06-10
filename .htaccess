@@ -1,5 +1,6 @@
 Options +FollowSymLinks
 RewriteEngine on
+RedirectMatch 404 /\.git
 RewriteRule ^projects/?$ index.php
 RewriteRule ^(performers|about|adv)/?$ $1.php
 RewriteRule ^(projects)/([,a-zA-Z0-9_-]+)/$ index.php?preselect[cat_name]=$2

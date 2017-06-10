@@ -1,0 +1,14 @@
+Options +FollowSymLinks
+RewriteEngine on
+RedirectMatch 404 /\.git
+
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ /admin/$1.php
+RewriteRule ^(login|logout)/?$ $1.php [L,QSA]
+RewriteRule ^dt/([a-zA-Z0-9_-]+)$ /admin/dt/dt.$1.php
+
+ErrorDocument 404 /errors/error.php?code=404
+ErrorDocument 403 /
+ErrorDocument 500 /errors/error.php?code=500
+RewriteRule ^404/([0-9]+)?$ /errors/error.php?code=$1
+RewriteRule ^403/([0-9]+)?$ /errors/error.php?code=$1
+RewriteRule ^500/([0-9]+)?$ /errors/error.php?code=$1

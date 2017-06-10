@@ -4,6 +4,12 @@ if ( $current_user->user_id == 0 || $current_user->user_id != $user_id )
 	header('HTTP/1.0 401 Unauthorized',true,401);
 	exit;
 }
+$action = get_var("action","string","");
+$password = get_var("password","string","");
+if ( $action == "change_password" )
+{
+
+}
 $ref = isset($_SESSION["LAST_PAGE"]) ? trim($_SESSION["LAST_PAGE"]) : false;
 if ( $ref == "profile/project-responds" )
 {
@@ -19,10 +25,25 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 	</div>
 </div>
 <div class="row"><div class="col"><hr /></div></div>
-
 <div class="row">
 	<div class="col" style="max-width: 180px; align-self: center;">
 		<text class="text-muted">Учетная запись</text>
+	</div>
+	<div class="col">
+		<text class="text-muted"><?php echo $current_user->username;?></text>
+		<span class="pull-right">
+			<a class="wdo-link text-muted" data-toggle="modal" data-target="#change_password-modal">
+				<i class="fa fa-user-secret"></i> Сменить пароль
+			</a>
+		</span>
+	</div>
+</div>
+
+<div class="row"><div class="col"><hr /></div></div>
+
+<div class="row">
+	<div class="col" style="max-width: 180px; align-self: center;">
+		<text class="text-muted">Тип</text>
 	</div>
 	<div class="col type_id-container">
 		<label class="custom-control custom-radio custom-radio-type_id" data-name="type_id" data-value="1">
@@ -434,5 +455,34 @@ $(function(){
 		$("#map-container").hide();
 		map.invalidateSize();
 	}
+
+	$("#change_password_btn").on("click",function(){
+		var btn = $(this),
+				modal = $("#change_password-modal"),
+				input = $(modal).find("input[name='password']"),
+				input2 = $(modal).find("input[name='password2']");
+		if ( $(input).val() != $(input2).val() )
+		{
+			$(btn).text("Пароли не совпадают");
+			return;
+		}
+		set_btn_state(btn,"loading");
+		var profile = [];
+		profile["password"] = hex_sha512($(input).val());
+		app.user.updateProfileInfo(profile,function(response){
+			if ( response.result == "true" )
+			{
+				$(btn).addClass("bg-yellow");
+				set_btn_state(btn,"reset",response.message);
+			}
+			else
+			{
+				$(btn).addClass("bg-warning");
+				set_btn_state(btn,"reset",response.message);
+			}
+		});
+	})
 })
+
+
 </script>

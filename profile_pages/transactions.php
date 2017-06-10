@@ -1,4 +1,4 @@
-<table class="table table-striped table-hovered" id="transactions-table">
+<table class="table table-striped table-hover" id="transactions-table">
 	<thead>
 		<th>Дата</th>
 		<th>Тип</th>
@@ -27,7 +27,7 @@ $(function(){
 			{"data": "type"},
 			{"data": "descr"},
 		],
-		"order": [[0, 'asc']],
+		"order": [[0, 'desc']],
 		"initComplete": function(table,data) {
 		},
 		"createdRow": function ( row, data, index ) {

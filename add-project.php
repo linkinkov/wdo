@@ -598,6 +598,10 @@ $(function(){
 				if ( response.message )
 				{
 					set_btn_state(btn,'reset',response.message);
+					if ( response.error )
+					{
+						showAlert("error",response.error);
+					}
 				}
 				else
 				{

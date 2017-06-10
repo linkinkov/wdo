@@ -16,7 +16,6 @@ $user = new User($current_user->user_id);
 // $current_user->wallet = new Wallet();
 // $current_user->wallet->get_transactions();
 $user->init_wallet();
-$user->wallet->get_transactions();
 
 echo '<pre>';
 print_r($user);

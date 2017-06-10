@@ -22,7 +22,6 @@ $.extend({
 });
 function formhash(form, password) {
 	var submit = $(form).find("button[type='submit']");
-	console.log(form,$(form).serialize());
 	if ( $(form).find("input[name='username']").val() == "" || $(form).find("input[name='password']").val() == "" )
 	{
 		$(submit).removeClass("bg-yellow").addClass("bg-warning").text("Введите email / пароль").blur();
@@ -66,7 +65,7 @@ function formhash(form, password) {
 function showAlert(type,message)
 {
 	var modal = $("#alert-modal");
-	$("#alert-modal-message").text(message);
+	$("#alert-modal-message").html(message);
 	$(modal).modal('show');
 }
 /*

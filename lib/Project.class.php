@@ -189,6 +189,7 @@ class Project
 			$data["vip"] = 1;
 			$status_id = 6;
 		}
+		$vip_cost = ( $data["vip"] == 1 ) ? $db->getValue("settings","param_value","value",Array("param_name"=>"vip_cost")) : 0;
 		try {
 			$db->autocommit(false);
 			$sql = sprintf("INSERT INTO `project` (`title`,`descr`,`cost`,`created`,`status_id`,`user_id`,`accept_till`,`start_date`,`end_date`,`cat_id`,`subcat_id`,`city_id`,`safe_deal`,`vip`,`views`,`for_user_id`,`for_event_id`)
@@ -214,6 +215,7 @@ class Project
 				$project_id = $db->insert_id;
 				if ( $data["safe_deal"] == 1 )
 				{
+					// HOLD for safe deal, amount = project cost
 					if ( intval($data["cost"]) <= 0 )
 					{
 						$response["message"] = "Укажите бюджет";
@@ -223,6 +225,7 @@ class Project
 					if ( intval($current_user->wallet->balance) < intval($data["cost"]) )
 					{
 						$response["message"] = "Недостаточно средств";
+						$response["error"] = "Ваш баланс: ".$current_user->wallet->balance." руб.<br />Требуется: ".(intval($vip_cost) + intval($data["cost"]))." руб.";
 						return $response;
 					}
 					else
@@ -240,6 +243,33 @@ class Project
 							$response["message"] = "Ошибка блокирования средств";
 							return $response;
 						}
+					}
+				}
+				// HOLD for VIP project, amount = settings.vip_cost
+				if ( $data["vip"] == 1 )
+				{
+					$vip_cost = $db->getValue("settings","param_value","value",Array("param_name"=>"vip_cost"));
+					$current_user->init_wallet();
+					if ( intval($current_user->wallet->balance) < intval($vip_cost) )
+					{
+						$total_cost = ($data["safe_deal"] == 1) ? (intval($vip_cost) + intval($data["cost"])) : intval($vip_cost);
+						$response["message"] = "Недостаточно средств";
+						$response["error"] = "Ваш баланс: ".$current_user->wallet->balance." руб.<br />Требуется: ".$total_cost." руб.";
+						return $response;
+					}
+
+					$new_transaction = Array (
+						"reference_id"=>"",
+						"type"=>"HOLD",
+						"amount"=>intval($vip_cost),
+						"descr"=>"Удержание средств за платный проект",
+						"for_project_id"=>$project_id,
+						"commit"=>false
+					);
+					if ( $current_user->wallet->create_transaction($new_transaction) !== true )
+					{
+						$response["message"] = "Ошибка блокирования средств за платный проект";
+						return $response;
 					}
 				}
 				if ( Attach::save_from_user_upload_dir('for_project_id',$project_id,$data["youtube_links"]) )

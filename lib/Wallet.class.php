@@ -62,63 +62,19 @@ class Wallet
 			return false;
 		}
 	}
-	
-	private function update_balance()
-	{
-		global $db;
-		global $current_user;
-		if ( $current_user->user_id <= 0 || $this->user_id <= 0 ) return false;
-		if ( strlen($this->wallet_id) != 32 ) return false;
-		if ( !is_array($this->transactions) ) $this->get_transactions();
-	}
-
-	public function get_transactions()
-	{
-		global $db;
-		global $current_user;
-		if ( $current_user->user_id <= 0 || $this->user_id <= 0 ) return false;
-		if ( strlen($this->wallet_id) != 32 ) return false;
-		$sql = sprintf("SELECT * FROM `wallet_transactions` WHERE `wallet_id` = '%s'",$this->wallet_id);
-		$this->transactions = Array(
-			"WITHDRAWAL" => Array(),
-			"HOLD" => Array(),
-			"PAYMENT" => Array()
-		);
-		$tmp_balance = 0;
-		try {
-			$rows = $db->queryRows($sql);
-			if ( sizeof($rows) )
-			{
-				foreach ( $rows as $transaction )
-				{
-					$this->transactions[$transaction->type][] = (object) Array(
-						"transaction_id"=>$transaction->transaction_id,
-						"reference_id"=>$transaction->reference_id,
-						"amount"=>$transaction->amount,
-						"timestamp"=>$transaction->timestamp,
-						"descr"=>$transaction->descr,
-						"for_project_id"=>$transaction->for_project_id
-					);
-				}
-			}
-		}
-		catch ( Exception $e )
-		{
-
-		}
-	}
 
 	public function create_transaction($transaction_data)
 	{
 		global $db;
 		global $current_user;
 		if ( $current_user->user_id <= 0 || $this->user_id <= 0 ) return false;
-		if ( strlen($this->wallet_id) != 32 ) return false;
 		if ( 
-			!in_array($transaction_data["type"],Array("PAYMENT","HOLD","WITHDRAWAL"))
-			|| intval($transaction_data["amount"] <= 0)
+			strlen($this->wallet_id) != 32
+			|| !in_array($transaction_data["type"],Array("PAYMENT","HOLD","WITHDRAWAL"))
+			|| (intval($transaction_data["amount"]) <= 0)
+			|| ($this->balance < intval($transaction_data["amount"]))
 		) return false;
-		$transaction_id = md5($this->user_id.$this->wallet_id.$transaction_data["type"].$transaction_data["amount"].$transaction_data["descr"]);
+		$transaction_id = md5($this->user_id.$this->wallet_id.$transaction_data["type"].$transaction_data["amount"].$transaction_data["descr"].time());
 		$sql = sprintf("INSERT INTO `wallet_transactions` (
 			`transaction_id`,
 			`wallet_id`,
@@ -137,8 +93,10 @@ class Wallet
 			trim($transaction_data["descr"]),
 			intval($transaction_data["for_project_id"])
 		);
+		// echo $sql;
 		$db->autocommit(false);
 		try {
+				// echo "success";
 			if ( $db->query($sql) && $db->affected_rows > 0 )
 			{
 				if ( $transaction_data["commit"] == true ) $db->commit();
@@ -152,40 +110,22 @@ class Wallet
 		return false;
 	}
 
-	private function get_transaction($transaction_id, $type)
+	public function find_transaction($transaction_data)
 	{
 		global $db;
 		global $current_user;
 		if ( $current_user->user_id <= 0 || $this->user_id <= 0 ) return false;
 		if ( strlen($this->wallet_id) != 32 ) return false;
-		if ( !in_array($type,Array("PAYMENT","HOLD","WITHDRAWAL")) ) return false;
-		if ( !is_array($this->transactions) ) $this->get_transactions();
-		foreach ( $this->transactions[$type] as $transaction )
+		if ( !in_array($transaction_data["type"],Array("PAYMENT","HOLD","WITHDRAWAL")) ) return false;
+		$where = Array();
+		foreach ( $transaction_data as $k=>$v )
 		{
-			if ( $transaction->transaction_id == $transaction_id )
-			{
-				return $transaction;
-			}
+			$where[] = sprintf("`%s` = '%s'",$k,$v);
 		}
-		return false;
-	}
-
-	public function find_transaction_for_project($for_project_id, $type)
-	{
-		global $db;
-		global $current_user;
-		if ( $current_user->user_id <= 0 || $this->user_id <= 0 ) return false;
-		if ( strlen($this->wallet_id) != 32 ) return false;
-		if ( !in_array($type,Array("PAYMENT","HOLD","WITHDRAWAL")) ) return false;
-		if ( !is_array($this->transactions) ) $this->get_transactions();
-		foreach ( $this->transactions[$type] as $transaction )
-		{
-			if ( $transaction->for_project_id == $for_project_id )
-			{
-				return $transaction;
-			}
-		}
-		return false;
+		$where = implode(" AND",$where);
+		// echo sprintf("SELECT * FROM `wallet_transactions` WHERE `wallet_id` = '%s' AND %s",$this->wallet_id,$where);
+		$transaction = $db->queryRow(sprintf("SELECT * FROM `wallet_transactions` WHERE `wallet_id` = '%s' AND %s",$this->wallet_id,$where));
+		return $transaction;
 	}
 
 	public function confirm_holded_transaction($transaction_data)
@@ -195,12 +135,6 @@ class Wallet
 		if ( $current_user->user_id <= 0 || $this->user_id <= 0 ) return false;
 		if ( strlen($this->wallet_id) != 32 ) return false;
 		if ( strlen($transaction_data["transaction_id"]) != 32 ) return false;
-		$transaction = $this->get_transaction($transaction_data["transaction_id"],"HOLD");
-		if ( $transaction == false )
-		{
-			// echo "Транзакция не найдена";
-			return false;
-		};
 		$db->autocommit(false);
 		$sql = sprintf("UPDATE `wallet_transactions` 
 			SET `type` = 'WITHDRAWAL',

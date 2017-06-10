@@ -208,7 +208,12 @@ class ProjectRespond
 			{
 				// check project author balance > respond cost
 				$current_user->init_wallet();
-				$transaction_hold = $current_user->wallet->find_transaction_for_project($this->for_project_id,"HOLD");
+				$find_transaction = Array (
+					"for_project_id" => $this->for_project_id,
+					"type" => "HOLD",
+					"descr" => "Удержание средств за безопасную сделку"
+				);
+				$transaction_hold = $current_user->wallet->find_transaction($find_transaction);
 				// $db->queryRow(sprintf("SELECT `transaction_id`,`amount` FROM `wallet_transactions` WHERE `wallet_id` = '%s' AND `for_project_id` = '%d'",$current_user->wallet->wallet_id,$this->for_project_id));
 				if ( !isset($transaction_hold->amount) || $transaction_hold->amount <= 0 )
 				{
@@ -218,8 +223,8 @@ class ProjectRespond
 				$more_to_withdrawal = (intval($this->cost) - intval($transaction_hold->amount));
 				if ( $current_user->wallet->balance < $more_to_withdrawal )
 				{
-					$response["_1"] = $current_user->wallet->balance;
-					$response["_2"] = $more_to_withdrawal;
+					// $response["_1"] = $current_user->wallet->balance;
+					// $response["_2"] = $more_to_withdrawal;
 					// author's balance less than holded amount + respond cost
 					$response["message"] = "Недостаточно средств для перевода исполнителю";
 					return $response;
