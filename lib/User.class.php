@@ -71,7 +71,7 @@ class User
 			"message" => "Ошибка"
 		);
 		if ( $this->user_id == 0 ) return $response;
-		$public_fields = Array("real_user_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds");
+		$public_fields = Array("password","real_user_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds");
 		$set = Array();
 		foreach ( $data as $key=>$value )
 		{
