@@ -7,7 +7,7 @@ require(PD.'/admin/check_admin.php');
 	<div class="col">
 		<div class="btn-group">
 
-			<div class="btn-group">
+			<div class="btn-group filter-group">
 				<button class="btn btn-secondary btn-md dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter="city_id" data-counter="0">
 					<i class="fa fa-map-marker"></i> Город <text class="filter-counter"></text>
 				</button>
@@ -26,7 +26,7 @@ require(PD.'/admin/check_admin.php');
 				</div>
 			</div>
 
-			<div class="btn-group">
+			<div class="btn-group filter-group">
 				<button class="btn btn-secondary btn-md dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter="category_id" data-filter2="subcategory_id" data-counter="0">
 					<i class="fa fa-group"></i> Категории <text class="filter-counter"></text>
 				</button>
@@ -50,7 +50,7 @@ require(PD.'/admin/check_admin.php');
 				</div>
 			</div>
 
-			<div class="btn-group">
+			<div class="btn-group filter-group">
 				<button class="btn btn-secondary btn-md dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter="status_id" data-counter="0">
 					<i class="fa fa-flag-checkered"></i> Статус <text class="filter-counter"></text>
 				</button>
@@ -69,7 +69,7 @@ require(PD.'/admin/check_admin.php');
 				</div>
 			</div>
 
-			<div class="btn-group">
+			<div class="btn-group filter-group">
 				<button class="btn btn-secondary btn-md dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter="safe_deal" data-filter2="vip" data-counter="0">
 					<i class="fa fa-shield"></i> Опции <text class="filter-counter"></text>
 				</button>
@@ -104,6 +104,16 @@ require(PD.'/admin/check_admin.php');
 
 
 <script>
+function highlight_filter_group()
+{
+	$.each($(".filter-group"),function(){
+		var $group = $(this),
+				$dropdown_btn = $group.find(".dropdown-toggle"),
+				$dropdown_menu = $group.find(".dropdown-menu"),
+				active_filters = $dropdown_menu.find(".filter-item.active");
+		( active_filters.length > 0 ) ? $dropdown_btn.addClass("active text-purple") : $dropdown_btn.removeClass("active text-purple");
+	})
+}
 function clear_filter(filter_type)
 {
 	$(".filter-item[data-filter='"+filter_type+"']").removeClass("active");
@@ -115,21 +125,7 @@ function get_filter_selected(filter_type)
 	$.each($(".filter-item.active[data-filter='"+filter_type+"']"), function(i,v){
 		arr.push($(v).data('value'));
 	})
-	var dropdown1 = $(".dropdown-toggle[data-filter='"+filter_type+"']") || false;
-	var dropdown2 = $(".dropdown-toggle[data-filter2='"+filter_type+"']") || false;
-	var counter1 = $(dropdown1).data('counter') || 0;
-	var counter2 = $(dropdown2).data('counter') || 0;
-	console.log(counter1,counter2);
-	if ( dropdown1 )
-	{
-		$(dropdown1).data('counter',counter1+counter2);
-		console.log("now counter1 of ",filter_type,": ",$(dropdown1).data('counter'));
-	}
-	else if ( dropdown2 )
-	{
-		$(dropdown2).data('counter',counter1+counter2);
-		console.log("now counter2 of ",filter_type,": ",$(dropdown2).data('counter'));
-	}
+	highlight_filter_group();
 	return arr.join(',');
 }
 $(function(){
@@ -152,7 +148,6 @@ $(function(){
 	} catch (error) {
 		console.log("error fetching filter",error);
 	}
-
 	conf.projects.table = $("#projectsTable").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"bProcessing": true,
@@ -196,7 +191,7 @@ $(function(){
 			{
 				$(flags).append(' <img height="20px" title="VIP проект" src="/images/advantage-vip.png" class="rounded" />');
 			}
-			$('td', row).eq(7).append(flags);
+			$('td', row).eq(6).append(flags);
 			$('td', row).eq(5).html(moment.unix($('td', row).eq(5).text()).format("LLL"));
 		},
 		"drawCallback": function( settings ) {

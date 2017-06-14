@@ -78,10 +78,22 @@ class User
 			if ( in_array($key,$public_fields) )
 			{
 				$value = filter_string($value,'in');
-				$set[] = sprintf('`%s` = "%s"',$key,$value);
 				if ( $key == "gps" )
 				{
+					$set[] = sprintf('`%s` = "%s"',$key,$value);
 					$set[] = sprintf("`gps_point` = GeomFromText('POINT(%s)',0)",str_replace(","," ",$value));
+				}
+				if ( $key == "password" )
+				{
+					$salt = $db->getValue("users","salt","salt",Array("user_id"=>$this->user_id));
+					$hashed = hash('sha512',$value.$salt);
+					$set[] = sprintf('`%s` = "%s"',$key,$hashed);
+					$user_browser = $_SERVER['HTTP_USER_AGENT'];
+					$_SESSION['login_string'] = hash('sha512',$hashed . $user_browser);
+				}
+				else
+				{
+					$set[] = sprintf('`%s` = "%s"',$key,$value);
 				}
 			}
 		}

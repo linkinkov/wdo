@@ -170,6 +170,7 @@ if ( sizeof ($aaData) )
 			$row->performer_name = User::get_real_user_name($row->performer_id);
 			if ( is_array($row->performer_name) ) $row->performer_name = '<small class="text-muted">Не выбран</small>';
 		}
+		$status_style = "";
 		switch ( $project->status_id )
 		{
 			case 1:
@@ -189,9 +190,10 @@ if ( sizeof ($aaData) )
 				break;
 			default:
 				$status_class = "text-muted";
+				$status_style = "font-size: 65%;";
 				break;
 		}
-		$project->status_name = sprintf('<text class="%s">%s</text>',$status_class,$project->status_name);
+		$project->status_name = sprintf('<text class="%s" style="%s">%s</text>',$status_class,$status_style,$project->status_name);
 		if ( $row->bids_new > 0 ) $row->bids .= ' <text class="text-purple">(+'.$row->bids_new.')</text>';
 		$row->project = $project;
 		$idx++;
