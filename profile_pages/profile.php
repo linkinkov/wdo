@@ -460,14 +460,14 @@ $(function(){
 		var btn = $(this),
 				modal = $("#change_password-modal"),
 				input = $(modal).find("input[name='password']"),
-				input2 = $(modal).find("input[name='password2']");
+				input2 = $(modal).find("input[name='password_2']");
 		if ( $(input).val() != $(input2).val() )
 		{
 			$(btn).text("Пароли не совпадают");
 			return;
 		}
 		set_btn_state(btn,"loading");
-		var profile = [];
+		var profile = {};
 		profile["password"] = hex_sha512($(input).val());
 		app.user.updateProfileInfo(profile,function(response){
 			if ( response.result == "true" )
