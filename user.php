@@ -13,6 +13,13 @@ if ( !$job ) die("no data");
 
 switch ( $job )
 {
+	case "register":
+		$username = get_var("username","string","");
+		$password = get_var("password","string","");
+		$response = User::register($username,$password);
+		header('Content-Type: application/json');
+		echo json_encode($response);
+		break;
 	case "getAvatar":
 		$user_id = get_var("user_id","int",0);
 		$w = get_var("w","int",35);

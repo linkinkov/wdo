@@ -117,7 +117,37 @@ var config = {
 
 var app = {
 	"user": {
-		"updateProfileCounters": function() {
+		"register": function (btn)
+		{
+			var modal = $("#register-modal"),
+					username = $(modal).find("input[name='username']").val(),
+					passw = $(modal).find("input[name='password']").val(),
+					passw_2 = $(modal).find("input[name='password_2']").val();
+			if ( !isValidEmail(username) )
+			{
+				$(btn).text("Некорректный email").removeClass("bg-yellow").addClass("bg-warning");
+				return;
+			}
+			if ( passw != passw_2 )
+			{
+				$(btn).text("Пароли не совпадают").removeClass("bg-yellow").addClass("bg-warning");
+				return;
+			}
+			$.ajax({
+				type: "POST",
+				url: "/user.register",
+				data: {
+					"username": username,
+					"password": hex_sha512(passw)
+				},
+				dataType: "JSON",
+				success: function (response) {
+					console.log("register: ",response);
+				}
+			})
+		},
+		"updateProfileCounters": function()
+		{
 			$.ajax({
 				type: "POST",
 				url: "/user.getProfileCounters",
@@ -146,7 +176,8 @@ var app = {
 				}
 			})
 		},
-		"getNote": function(user_id,callback) {
+		"getNote": function(user_id,callback)
+		{
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
@@ -160,7 +191,8 @@ var app = {
 				}
 			})
 		},
-		"saveNote": function(user_id,note_text,callback) {
+		"saveNote": function(user_id,note_text,callback)
+		{
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
@@ -175,7 +207,8 @@ var app = {
 				}
 			})
 		},
-		"getProfileInfo": function(user_id,callback) {
+		"getProfileInfo": function(user_id,callback)
+		{
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
@@ -189,7 +222,8 @@ var app = {
 				}
 			})
 		},
-		"updateProfileInfo": function(data,callback) {
+		"updateProfileInfo": function(data,callback)
+		{
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
@@ -203,7 +237,8 @@ var app = {
 				}
 			})
 		},
-		"getCalendar": function(user_id,callback) {
+		"getCalendar": function(user_id,callback)
+		{
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
@@ -215,7 +250,8 @@ var app = {
 				}
 			})
 		},
-		"saveCalendar": function(dates,callback) {
+		"saveCalendar": function(dates,callback)
+		{
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
@@ -229,7 +265,8 @@ var app = {
 		}
 	},
 	"project": {
-		"getAttachList": function(project_id,callback){
+		"getAttachList": function(project_id,callback)
+		{
 			if ( parseInt(project_id) <= 0 ) return false;
 			callback = callback || function(){};
 			$.ajax({
@@ -244,7 +281,8 @@ var app = {
 				}
 			})
 		},
-		"acceptRespond": function(respond_id,btn){
+		"acceptRespond": function(respond_id,btn)
+		{
 			var container = $(".project-respond-result-body[data-respond_id='"+respond_id+"']"),
 					grade_val = parseInt($(container).find(".rating-grade-value").text()),
 					respond_text = $(container).find(".respond-text").val();
@@ -276,7 +314,8 @@ var app = {
 			})
 		}
 	},
-	"getCityList": function(search,limit,callback,print_user_city){
+	"getCityList": function(search,limit,callback,print_user_city)
+	{
 		callback = callback || function(){};
 		print_user_city = print_user_city || "true";
 		limit = limit || 3;
@@ -294,7 +333,8 @@ var app = {
 			}
 		})
 	},
-	"getSubCategories": function(parent_id,callback){
+	"getSubCategories": function(parent_id,callback)
+	{
 		callback = callback || function(){};
 		$.ajax({
 			type: "POST",
@@ -313,7 +353,8 @@ var app = {
 		"poller": {
 			"poller_id_msg": null,
 			"poller_id_dlg": null,
-			"check_msgs": function(dialog_id,wait) {
+			"check_msgs": function(dialog_id,wait)
+			{
 				clearTimeout(app.im.poller.poller_id_msg);
 				var ms = 250;
 				app.im.poller.poller_id_msg = setTimeout(function(){
@@ -332,7 +373,8 @@ var app = {
 				},ms);
 			}
 		},
-		"getDialogId": function(recipient_id,callback) {
+		"getDialogId": function(recipient_id,callback)
+		{
 			callback = callback || function(){};
 			if ( !recipient_id ) return false;
 			$.ajax({
@@ -347,7 +389,8 @@ var app = {
 				}
 			})
 		},
-		"getDialogs": function(callback) {
+		"getDialogs": function(callback)
+		{
 			callback = callback || function(){};
 			$.ajax({
 				type: "POST",
@@ -359,7 +402,8 @@ var app = {
 			})
 		},
 		"getMessagesAjax": null,
-		"getMessages": function(dialog_id,start,limit,timestamp,wait,callback) {
+		"getMessages": function(dialog_id,start,limit,timestamp,wait,callback)
+		{
 			if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();
 			callback = callback || function(){};
 			// if ( timestamp < 1483228800 ) return;
@@ -383,7 +427,8 @@ var app = {
 				})
 			},250);
 		},
-		"sendMessage": function(dialog_id,message_text,callback) {
+		"sendMessage": function(dialog_id,message_text,callback)
+		{
 			callback = callback || function(){};
 			if ( dialog_id.length < 32 ) return;
 			if ( app.im.getMessagesAjax != null ) app.im.getMessagesAjax.abort();

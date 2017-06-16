@@ -101,7 +101,10 @@ function get_var($var_name = false, $type="string", $default = false, $method="R
 	}
 	return $var;
 }
-
+function isValidEmail($email) {
+	return filter_var($email, FILTER_VALIDATE_EMAIL) 
+		&& preg_match('/@.+\./', $email);
+}
 function filter_string($string,$dir='in')
 {
 	return ($dir == 'in')

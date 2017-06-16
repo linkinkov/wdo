@@ -20,9 +20,13 @@ $.extend({
 		$(".sound-player").remove();
 	}
 });
+function isValidEmail(email) {
+  var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+  return regex.test(email);
+}
 function formhash(form, password) {
 	var submit = $(form).find("button[type='submit']");
-	if ( $(form).find("input[name='username']").val() == "" || $(form).find("input[name='password']").val() == "" )
+	if ( !isValidEmail($(form).find("input[name='username']").val()) || $(form).find("input[name='password']").val() == "" )
 	{
 		$(submit).removeClass("bg-yellow").addClass("bg-warning").text("Введите email / пароль").blur();
 		return false;

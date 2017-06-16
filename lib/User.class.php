@@ -25,7 +25,7 @@ class User
 			return;
 		}
 		$where = (intval($id) > 0) ? sprintf("`user_id` = '%d'",$id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","status_id","rating","rezume","phone","skype","site","gps","signature");
+		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","status_id","rating","rezume","phone","skype","site","gps","signature","template_id");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` LEFT JOIN `cities` ON `cities`.`id` = `users`.`city_id` WHERE %s",implode(",",$public_fields),$where);
 		// echo $sql;
@@ -61,6 +61,17 @@ class User
 			// echo $e->getMessage();
 			return false;
 		}
+	}
+
+	public function register($username,$password)
+	{
+		global $db;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка"
+		);
+		if ( !isValidEmail($username) || strlen($password) < 128 ) return $response;
+		
 	}
 
 	public function update_profile_info($data)
