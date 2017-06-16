@@ -71,7 +71,7 @@ class User
 			"message" => "Ошибка"
 		);
 		if ( !isValidEmail($username) || strlen($password) < 128 ) return $response;
-		
+		$sql = sprintf("INSERT INTO `users` ";)
 	}
 
 	public function update_profile_info($data)
