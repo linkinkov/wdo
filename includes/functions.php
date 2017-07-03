@@ -238,6 +238,44 @@ function login($username, $password, $db)
 	}
 }
 
+function send_activation_key($email,$key)
+{
+	require_once PD.'/lib/SendMailSmtpClass.php';
+	$mailSMTP = new SendMailSmtpClass('fakke@yandex.ru', '4t8xMoSD', 'ssl://smtp.yandex.ru', 'Evgeniy', 465);
+	// $mailSMTP = new SendMailSmtpClass('логин', 'пароль', 'хост', 'имя отправителя');
+		
+	// заголовок письма
+	$headers= "MIME-Version: 1.0\r\n";
+	$headers .= "Content-type: text/html; charset=utf-8\r\n"; // кодировка письма
+	$headers .= "From: Evgeniy <fakke@yandex.ru>\r\n"; // от кого письмо
+	$body = "
+	<table border='0' width='100%'>
+		<tbody>
+			<tr><td>Регистрация на портале WeeDo.RU</td></tr>
+			<tr><td>
+			Здравствуйте!<br />
+			Вы получили это письмо, так как Ваш почтовый адрес был указан в качестве учетной записи на сайте http://weedo.ru<br /><br />
+			Что-бы продолжить регистрацию, пожалуйста, пройдите по ссылке:<br /><br />
+			<a href='".HOST."/?action=activate&activation_key=".$key."'>".HOST."/?action=activate&activation_key=".$key."</a>
+			</td></tr>
+		</tbody>
+	</table>
+	";
+	$result =  $mailSMTP->send($email, 'Активация аккаунта', $body, $headers); // отправляем письмо
+	// $result =  $mailSMTP->send('Кому письмо', 'Тема письма', 'Текст письма', 'Заголовки письма');
+	if($result === true)
+	{
+		// echo "Письмо успешно отправлено";
+		return true;
+	}
+	else
+	{
+		// echo "Письмо не отправлено. Ошибка: " . $result;
+		return false;
+	}
+	return false;
+}
+
 function replace_array(&$item, $key, $prefix)
 {
 	$item = preg_replace('/'.$prefix.'/','',$item);

@@ -121,6 +121,7 @@ var app = {
 		{
 			var modal = $("#register-modal"),
 					username = $(modal).find("input[name='username']").val(),
+					real_user_name = $(modal).find("input[name='real_user_name']").val(),
 					passw = $(modal).find("input[name='password']").val(),
 					passw_2 = $(modal).find("input[name='password_2']").val();
 			if ( !isValidEmail(username) )
@@ -133,16 +134,52 @@ var app = {
 				$(btn).text("Пароли не совпадают").removeClass("bg-yellow").addClass("bg-warning");
 				return;
 			}
+			if ( real_user_name == "" )
+			{
+				$(btn).text("Укажите имя").removeClass("bg-yellow").addClass("bg-warning");
+				return;
+			}
+			set_btn_state(btn,'loading');
 			$.ajax({
 				type: "POST",
 				url: "/user.register",
 				data: {
 					"username": username,
+					"real_user_name": real_user_name,
 					"password": hex_sha512(passw)
 				},
 				dataType: "JSON",
 				success: function (response) {
-					console.log("register: ",response);
+					if ( response.message )
+					{
+						if ( response.result == "true" )
+						{
+							$(modal).find("input[name='username']").val("");
+							$(modal).find("input[name='real_user_name']").val("");
+							$(modal).find("input[name='password']").val("");
+							$(modal).find("input[name='password_2']").val("");
+							$(modal).modal('hide');
+						}
+						showAlert("info",response.message);
+					}
+					set_btn_state(btn,'reset');
+				}
+			})
+		},
+		"activate": function(key)
+		{
+			$.ajax({
+				type: "POST",
+				url: "/user.activate",
+				dataType: "JSON",
+				data: {
+					"key": key
+				},
+				success: function (response) {
+					if ( response.message )
+					{
+						showAlert("info",response.message);
+					}
 				}
 			})
 		},
@@ -904,3 +941,5 @@ try {
 	config.projects.specs = specs;
 } catch (error) {}
 
+$(function(){
+})

@@ -15,6 +15,8 @@ if ( $ref == "profile/project-responds" )
 }
 $_SESSION["LAST_PAGE"] = "/projects";
 $preselect = get_var("preselect","array",Array());
+$action = get_var("action","string",false);
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -145,6 +147,15 @@ $(function(){
 	else
 	{
 		echo 'restoreSelectedSpecs();';
+	}
+
+	if ( $action == "activate" )
+	{
+		$key = get_var("activation_key","string","");
+		if ( strlen($key) == 32 )
+		{
+			echo sprintf("app.user.activate('%s');",$key);
+		}
 	}
 	?>
 	var opts = config.datePickerOptions;

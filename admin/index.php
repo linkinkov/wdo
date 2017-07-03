@@ -15,7 +15,6 @@ require(PD.'/admin/check_admin.php');
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>WEEDO | Admin</title>
-	<link rel="icon" type="image/png" href="/images/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="/admin/css/sidebar.css"/>
 	<link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css"/>
 	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
@@ -62,6 +61,8 @@ require(PD.'/admin/check_admin.php');
 </div><!-- End of #app -->
 <div class="alert-container"></div>
 
+
+<?php include('modals.php');?>
 
 <!-- The Gallery  -->
 <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">

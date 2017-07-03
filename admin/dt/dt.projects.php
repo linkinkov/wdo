@@ -170,7 +170,7 @@ if ( sizeof ($aaData) )
 	foreach ( $aaData as $row )
 	{
 		$row->DT_RowId = $row->project_id;
-		$row->DT_RowClass = "";
+		$row->DT_RowClass = "project";
 		$row->cost = number_format($row->cost,0,","," ");
 		switch ( $row->status_id )
 		{

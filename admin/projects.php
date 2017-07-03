@@ -1,7 +1,10 @@
 <?php
+opcache_reset();
 require_once('../_global.php');
 require_once('../_includes.php');
 require(PD.'/admin/check_admin.php');
+
+check_access($db,true);
 ?>
 <div class="row">
 	<div class="col">
@@ -200,6 +203,61 @@ $(function(){
 			});
 		}
 	})
+
+	$('#projectsTable tbody').on('click', 'tr.project', function () {
+		var tr = $(this).closest('tr'),
+				row = conf.projects.table.row( tr ),
+				project_id = $(tr).attr("id");
+		console.log(tr,row,project_id);
+		if ( row.child.isShown() ) 
+		{
+			childRow = $(tr).next();
+			$(childRow).find(".editable").each(function(i,v){
+				$(v).editable('destroy');
+			})
+			$('div.slider', row.child()).slideUp("fast", function () {
+				row.child.hide();
+				tr.removeClass('shown');
+				// icon.attr("class","fa fa-plus-square pointer");
+			});
+			return;
+		}
+		tr.addClass("childLoading");
+
+		$.ajax({
+			type: "POST",
+			url: "/admin/dt/projectInfo",
+			data: {
+				"project_id": project_id
+			},
+			xhrFields: {withCredentials: true},
+			dataType: "HTML",
+			timeout: 10000,
+			error: function(x, t, m) {
+				if(t==="timeout") {showAlert('danger','timeout');}
+			},
+			success: function (response) {
+				// icon.attr("class","fa fa-minus-square pointer");
+				row.child(response).show();
+				// tr.addClass("shown");
+				// tr.removeClass("childLoading");
+			}
+		}).done(function(){
+			childRow = $(tr).next();
+			$(childRow).find("td").addClass("shown");
+			tr.addClass("shown");
+			tr.removeClass("childLoading");
+			$('div.slider', row.child()).slideDown("fast");
+			$(childRow).find(".timestamp").each(function(){
+				var ts = $(this);
+				( $(ts).data('format') == "fromNow" )
+				? $(ts).html(moment.unix($(ts).data('timestamp')).fromNow(true)).attr("title",moment.unix($(ts).data('timestamp')).format("LLL"))
+				: $(ts).html(moment.unix($(ts).data('timestamp')).calendar()).attr("title",moment.unix($(ts).data('timestamp')).format("LLL"));
+			})
+		})
+
+	})
+
 
 	$(".filter-item").click(function(e){
 		e.stopPropagation();

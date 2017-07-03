@@ -6,8 +6,6 @@ ini_set("display_errors","1");
 require_once(PD.'/_version.php');
 require_once(PD.'/lib/mysqli.class.php');
 require_once(PD.'/includes/functions.php');
-$db = db::getInstance();
-session_name('wdo_session_id');
 
 define('HOST','https://'.$_SERVER["HTTP_HOST"]);
 $distribute_classes = Array(

@@ -95,3 +95,6 @@ html,body
 	border: none;
 	content: none;
 }
+div.slider {
+	display: none;
+}

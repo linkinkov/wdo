@@ -12,10 +12,11 @@
 			<div class="modal-body">
 				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
 					<div class="col text-center">
-						<br /><input type="text" class="form-control" placeholder="Введите e-mail" name="username" value="teterin@simicon.com" />
+						<br /><input type="text" class="form-control" placeholder="Ваш e-mail" name="username" value="teterin@simicon.com" />
+						<br /><input type="text" class="form-control" placeholder="Ваше имя" name="real_user_name" value="" />
 						<br /><input type="password" class="form-control" placeholder="Введите пароль" name="password" value="290233" />
 						<br /><input type="password" class="form-control" placeholder="Повторите пароль" name="password_2" value="290233" />
-						<br /><div class="wdo-btn btn-sm bg-yellow strong" onClick="app.user.register(this);">Отправить</div>
+						<br /><div class="wdo-btn btn-sm bg-yellow strong" onClick="app.user.register(this);" data-ot="Отправить" data-lt="Отправка">Отправить</div>
 						<br /><br /><br />
 					</div>
 				</div><!-- /.row -->

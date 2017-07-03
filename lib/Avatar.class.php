@@ -39,7 +39,7 @@ class Avatar
 		}
 	}
 
-	public static function getByUserID($user_id = false, $w=35, $h=35)
+	public static function getByUserID($user_id = false, $w=35, $h=35, $force_resize = "false", $method = "auto")
 	{
 		$requested = glob(PD."/users/avatars/$user_id.{jpg,png,jpeg,gif}", GLOB_BRACE);
 		if ( intval($user_id) == 0 || sizeof($requested) == 0 )
@@ -79,7 +79,7 @@ class Avatar
 		{
 			ob_clean();
 			$resizeObj = new resize($requested);
-			$resizeObj->resizeImage($w, $h, 'auto');
+			$resizeObj->resizeImage($w, $h, 'crop');
 			$resizeObj->saveImage($cached, 90);
 			header('Content-Type: '.$content_type);
 			header('Content-Length: ' . filesize($cached));

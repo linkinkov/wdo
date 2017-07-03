@@ -50,3 +50,24 @@ function loadPage(page,params,container)
 		$(document).attr("title", ' WAdmin | ' + $(li).text());
 	})
 }
+
+function set_btn_state(btn,state,message)
+{
+	state = state || false;
+	message = message || false;
+	if ( !state ) return;
+	if ( state == "loading" )
+	{
+		message = ( message != false ) ? message : $(btn).data('lt');
+		$(btn).addClass("disabled").html('<i class="fa fa-spinner fa-spin"></i> '+message);
+	}
+	else if ( state == "reset" )
+	{
+		message = ( message != false ) ? message : $(btn).data('ot');
+		$(btn).removeClass("disabled").html(message);
+	}
+}
+
+$(document).on("click",".wdo-btn",function(e){
+	if ( $(this).hasClass("disabled") ) return false;
+})

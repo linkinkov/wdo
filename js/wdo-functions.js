@@ -21,8 +21,8 @@ $.extend({
 	}
 });
 function isValidEmail(email) {
-  var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-  return regex.test(email);
+	var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	return regex.test(email);
 }
 function formhash(form, password) {
 	var submit = $(form).find("button[type='submit']");
@@ -46,7 +46,14 @@ function formhash(form, password) {
 		{
 			if ( response.result == true )
 			{
-				window.location.reload();
+				if ( $.urlParam('action',window.location) == 'activate' )
+				{
+					window.location = '/';
+				}
+				else
+				{
+					window.location.reload();
+				}
 				return;
 			}
 			else
@@ -375,6 +382,10 @@ $(function(){
 	$('#register-modal').on('show.bs.modal', function(e){
 		if ( $("#login-modal").hasClass('show') ) $("#login-modal").modal("hide");
 	})
+	$('#login-modal').on('show.bs.modal', function(e){
+		if ( $("#alert-modal").hasClass('show') ) $("#alert-modal").modal("hide");
+	})
+
 	$('#conversation-modal').on('show.bs.modal', function(e){
 		var related = e.relatedTarget,
 				recipient_id = $(related).data('recipient_id'),

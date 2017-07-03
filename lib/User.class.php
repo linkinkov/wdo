@@ -21,7 +21,7 @@ class User
 		if ( intval($id) == 0 && $username == false )
 		{
 			$this->user_id = 0;
-			$_SESSION["user_id"] = 0;
+			// $_SESSION["user_id"] = 0;
 			return;
 		}
 		$where = (intval($id) > 0) ? sprintf("`user_id` = '%d'",$id) : sprintf("`username` = '%s'",$username);
@@ -57,21 +57,102 @@ class User
 		catch (Exception $e)
 		{
 			$this->user_id = 0;
-			$_SESSION["user_id"] = 0;
+			// $_SESSION["user_id"] = 0;
 			// echo $e->getMessage();
 			return false;
 		}
 	}
 
-	public function register($username,$password)
+	public static function register($username,$real_user_name,$password)
+	{
+		global $db;
+		$response = Array(
+			"result" => "false",
+			"message" => "Проверьте данные"
+		);
+		if ( !isValidEmail($username) || strlen($password) < 128 || trim($real_user_name) == "" ) return $response;
+		$random_salt = hash('sha512', uniqid(openssl_random_pseudo_bytes(16), TRUE));
+		$password_hashed = hash('sha512', $password . $random_salt);
+		$city_id = (isset($_COOKIE["city_id"]) && intval($_COOKIE["city_id"]) > 0) ? intval($_COOKIE["city_id"]) : 1;
+
+		if (!empty($_SERVER['HTTP_CLIENT_IP']))
+		{
+			$user_ip = $_SERVER['HTTP_CLIENT_IP'];
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+			$user_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+			$user_ip = $_SERVER['REMOTE_ADDR'];
+		}
+		$_SESSION["user_ip"] = $user_ip;
+		$key = md5($username.$password_hashed.$random_salt);
+		$sql = sprintf("INSERT INTO `users` (`username`,`real_user_name`,`password`,`salt`,`city_id`,`last_ip`,`country_id`,`registered`,`type_id`,`status_id`,`template_id`)
+			VALUES ('%s','%s','%s','%s','%d','%s','1',UNIX_TIMESTAMP(),'2','2','1')",
+			$username,$real_user_name,$password_hashed,$random_salt,$city_id,$_SESSION["user_ip"]);
+		$db->autocommit(false);
+		try {
+			if ( $db->query($sql) )
+			{
+				if ( send_activation_key($username,$key) === true )
+				{
+					$response["result"] = "true";
+					$response["message"] = "Регистрация прошла успешно! Для активации аккаунта следуйте указаниям в письме.";
+					$db->commit();
+				}
+				else
+				{
+					$response["message"] = "Не удалось отправить письмо. Попробуйте позже.";
+				}
+			}
+			else
+			{
+				$response["message"] = "Не удалось пройти регистрацию. Попробуйте позже.";
+			}
+		}
+		catch ( Exception $e )
+		{
+			// $response["error"] = $e->getMessage();
+			$response["message"] = ( $e->getCode() == 1062 ) ? "Такой пользователь уже существует" : "Произошла ошибка";
+		}
+		return $response;
+	}
+
+	public static function activate($key)
 	{
 		global $db;
 		$response = Array(
 			"result" => "false",
 			"message" => "Ошибка"
 		);
-		if ( !isValidEmail($username) || strlen($password) < 128 ) return $response;
-		$sql = sprintf("INSERT INTO `users` ";)
+		if ( strlen($key) != 32 )
+		{
+			return $response;
+		}
+		$sql = sprintf("SELECT `username` FROM `users` WHERE MD5(CONCAT(`username`,`password`,`salt`)) = '%s'",$key);
+		try {
+			$info = $db->queryRow($sql);
+			if ( sizeof($info) > 0 && isset($info->username) )
+			{
+				$sql = sprintf("UPDATE `users` SET `status_id` = '1' WHERE `username` = '%s' AND `status_id` = '2'",$info->username);
+				if ( $db->query($sql) && $db->affected_rows > 0 )
+				{
+					$response["result"] = "true";
+					$response["message"] = 'Активация прошла успешно! <br /><br /><a href="#" class="wdo-link underline" data-toggle="modal" data-target="#login-modal">Авторизуйтесь</a> используя свои данные';
+				}
+				else
+				{
+					$response["message"] = "Учетная запись уже активирована";
+				}
+			}
+			else
+			{
+				$response["message"] = "Пользователь не найден";
+			}
+		}
+		catch ( Exception $e )
+		{
+
+		}
+		return $response;
 	}
 
 	public function update_profile_info($data)
@@ -449,7 +530,7 @@ class User
 			'min_height' => 150,
 			'max_width' => 1500,
 			'max_height' => 1500,
-			'correct_image_extensions' => true
+			'correct_image_extensions' => true,
 		);
 		$response = Array("result"=>"false");
 		$upload_handler = new UploadHandler($opts);

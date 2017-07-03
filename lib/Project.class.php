@@ -36,7 +36,8 @@ class Project
 			$filter = Array("title","descr","cost");
 			foreach ( $filter as $field )
 			{
-				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
+				// if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
+				if ( isset($this->$field) ) $this->$field = html_entity_decode($this->$field);
 			}
 			$this->continuous = 0;
 			$this->duration_ms = 86400;

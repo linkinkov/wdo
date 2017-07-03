@@ -16,7 +16,14 @@ switch ( $job )
 	case "register":
 		$username = get_var("username","string","");
 		$password = get_var("password","string","");
-		$response = User::register($username,$password);
+		$real_user_name = get_var("real_user_name","string","");
+		$response = User::register($username,$real_user_name,$password);
+		header('Content-Type: application/json');
+		echo json_encode($response);
+		break;
+	case "activate":
+		$key = get_var("key","string","");
+		$response = User::activate($key);
 		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;
@@ -24,7 +31,9 @@ switch ( $job )
 		$user_id = get_var("user_id","int",0);
 		$w = get_var("w","int",35);
 		$h = get_var("h","int",35);
-		Avatar::getByUserID($user_id,$w,$h);
+		$force_resize = get_var("force_resize","string","false");
+		$method = get_var("method","string","auto");
+		Avatar::getByUserID($user_id,$w,$h,$force_resize,$method);
 		break;
 	case "getNote":
 		$user_id = get_var("user_id","int",0);
