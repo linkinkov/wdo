@@ -97,7 +97,7 @@ var conf = {
 };
 
 var app = {
-	im: {
+	"im": {
 		"poller":
 		{
 			"poller_id_msg": null,
@@ -159,6 +159,27 @@ var app = {
 				})
 			},250)
 		},
+	},
+	"audit": {
+		"block": function(type,id,text,recipient_id,callback)
+		{
+			callback = callback || function(){};
+			if ( !recipient_id || !type || !id || !text ) return false;
+			$.ajax({
+				type: "POST",
+				url: "/audit.block",
+				dataType: "JSON",
+				data: {
+					"type": type,
+					"id": id,
+					"text": text,
+					"recipient_id": recipient_id
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
+		}
 	}
 }
 

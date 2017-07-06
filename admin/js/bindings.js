@@ -31,3 +31,31 @@ $(document).on("click","[data-trigger='send-message']", function(){
 		}
 	});
 })
+
+$(document).on("click","[data-trigger='send-warning']", function(){
+	var btn = this,
+			dialog_id = $(this).data('dialog_id'),
+			textarea = $("textarea[data-dialog_id='"+dialog_id+"']"),
+			message_text = $(textarea).val(),
+			block_type = $(this).data('block_type'),
+			recipient_id = $(this).data('recipient_id');
+	set_btn_state(btn,"loading");
+	app.
+	app.im.sendMessage(dialog_id,message_text,function(response){
+		if ( response.result == "true" )
+		{
+			app.im.lmts = response.timestamp;
+			$(textarea).val("");
+		}
+		if ( $(this).attr("modal") == "true" )
+		{
+			set_btn_state(btn,"reset",response.message);
+		}
+		else
+		{
+			set_btn_state(btn,"reset","Отправить");
+			app.im.append_messages(response.messages);
+			app.im.poller.check_msgs(dialog_id,5);
+		}
+	});
+})
