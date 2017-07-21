@@ -339,7 +339,18 @@ class User
 			}
 			$this->counters->responds->good = intval($db->getValue("user_responds","COUNT(`id`)","counter",Array("user_id"=>$this->user_id,"grade"=>">=5")));
 			$this->counters->responds->bad = intval($db->getValue("user_responds","COUNT(`id`)","counter",Array("user_id"=>$this->user_id,"grade"=>"<5")));
-			$this->counters->warnings = intval($db->getValue("user_warnings","COUNT(`warning_id`)","counter",Array("for_user_id"=>$this->user_id)));
+			$sql = sprintf("SELECT COUNT(`warning_id`) as counter 
+			FROM `warnings` 
+			WHERE `for_user_id` = '%d'
+				AND `warning_id` NOT IN (
+					SELECT `id` FROM `user_readed_log` WHERE `type` = 'warning' AND `user_id` = '%d'
+				)
+				",$this->user_id,$this->user_id);
+			$tmp = $db->queryRow($sql);
+			// $this->counters->warnings = intval($db->getValue("warnings","COUNT(`warning_id`)","counter",Array("for_user_id"=>$this->user_id)));
+			$this->counters->warnings = new stdClass();
+			$this->counters->warnings->unreaded = $tmp->counter;
+			$this->counters->warnings->total = intval($db->getValue("warnings","COUNT(`warning_id`)","counter",Array("for_user_id"=>$this->user_id)));
 			$this->counters->portfolio->created = intval($db->getValue("portfolio","COUNT(`portfolio_id`)","counter",Array("user_id"=>$this->user_id)));
 			$response["result"] = "true";
 			$response["counters"] = $this->counters;
@@ -440,8 +451,9 @@ class User
 		global $current_user;
 		$search = filter_string($search,'in');
 		$list = Array();
-		if ( !$city_id ) $city_id = $_COOKIE["city_id"];
-		$sql = sprintf("SELECT `user_id`,`real_user_name`,`rating` FROM `users` WHERE `city_id` = '%d' AND `user_id` > 0 AND `user_id` != '%d' AND `real_user_name` LIKE '%%%s%%' LIMIT %d",$city_id,$current_user->user_id,$search,$limit);
+		if ( !$city_id ) $city_id = intval($_COOKIE["city_id"]);
+		$where_city_id = ( $city_id != "%" ) ? sprintf("`city_id` = '%d' AND",$city_id) : "";
+		$sql = sprintf("SELECT `user_id`,`real_user_name`,`rating` FROM `users` WHERE %s `user_id` > 0 AND `user_id` != '%d' AND `real_user_name` LIKE '%%%s%%' LIMIT %d",$where_city_id,$current_user->user_id,$search,$limit);
 		try {
 			$rows = $db->queryRows($sql);
 			if ( $rows )
@@ -633,6 +645,56 @@ class User
 		{
 			$this->wallet = new Wallet($this->user_id);
 		}
+	}
+
+	public static function block($project_id,$recipient_id,$message)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Проверьте данные"
+		);
+		if ( $current_user->user_id <= 0 )
+		{
+			$response["message"] = "Доступ запрещен";
+			return $response;
+		}
+		$user_status = $db->getValue("users","status_id","status_id",Array("user_id"=>$recipient_id));
+		switch ( $user_status )
+		{
+			case "2":
+				$response["message"] = "Пользователь ещё не активирован";
+				return $response;
+			case "3":
+				$response["message"] = "Пользователь уже заблокирован";
+				return $response;
+			case "4":
+				$response["message"] = "Пользователь уже удалён";
+				return $response;
+		}
+		$db->autocommit(false);
+		try {
+			// update user's status
+			$sql = sprintf("UPDATE `users` SET `status_id` = '3' WHERE `user_id` = '%d' AND `status_id` = '1' AND `user_id` != ''",$recipient_id,$current_user->user_id);
+			if ( $db->query($sql) && $db->affected_rows > 0 )
+			{
+				// insert warning for user
+				$sql = sprintf("INSERT INTO `warnings` (`for_project_id`,`for_respond_id`,`for_user_id`,`message`,`user_id`,`timestamp`)
+				VALUES ('%d',0,'%d','%s','%d',UNIX_TIMESTAMP())",$project_id,$recipient_id,$message,$current_user->user_id);
+				if ( $db->query($sql) && $db->affected_rows > 0 )
+				{
+					$db->commit();
+					$response["message"] = "Пользователь заблокирован";
+					$response["result"] = "true";
+				}
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
+		}
+		return $response;
 	}
 }
 

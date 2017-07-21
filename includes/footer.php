@@ -1,21 +1,36 @@
-
+<?php
+if ( isset($_SESSION["LAST_PAGE"]) && $_SESSION["LAST_PAGE"] == "/about" )
+{
+	$wave_class["margins_left"] = "wave";
+	$wave_class["main-left"] = "wave";
+	$wave_class["main-right"] = "wave";
+	$wave_class["margins_right"] = "wave";
+}
+else
+{
+	$wave_class["margins_left"] = "wave";
+	$wave_class["main-left"] = "wave";
+	$wave_class["main-right"] = "wave grey";
+	$wave_class["margins_right"] = "wave grey";
+}
+?>
 <div class="container wave-container">
 	<div class="row">
 		<div class="col margins left" style="padding: 0;">
-			<div class="wave"></div>
+			<div class="<?php echo $wave_class["margins_left"];?>"></div>
 		</div>
 		<div class="col main">
 			<div class="row">
 				<div class="col wdo-main-left" style="padding:0;max-width: 240px;">
-					<div class="wave"></div>
+					<div class="<?php echo $wave_class["main-left"];?>"></div>
 				</div><!-- /.wdo-main-left -->
 				<div class="col" style="padding:0;">
-					<div class="wave grey"></div>
+					<div class="<?php echo $wave_class["main-right"];?>"></div>
 				</div>
 			</div>
 		</div><!-- /.main -->
 		<div class="col margins right" style="padding:0;">
-			<div class="wave grey"></div>
+			<div class="<?php echo $wave_class["margins_right"];?>"></div>
 		</div>
 	</div>
 </div>

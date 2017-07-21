@@ -160,19 +160,38 @@ var app = {
 			},250)
 		},
 	},
-	"audit": {
-		"block": function(type,id,text,recipient_id,callback)
+	"project": {
+		"getAttachList": function(project_id,callback)
 		{
+			if ( parseInt(project_id) <= 0 ) return false;
 			callback = callback || function(){};
-			if ( !recipient_id || !type || !id || !text ) return false;
 			$.ajax({
 				type: "POST",
-				url: "/audit.block",
+				url: "/get.AttachList",
+				data: {
+					"id": project_id
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+	},
+	"audit": {
+		"block": function(type,id,message_text,recipient_id,callback)
+		{
+			callback = callback || function(){};
+			console.log(type,id,message_text,recipient_id,callback);
+			if ( !recipient_id || !type || !id || !message_text ) return false;
+			$.ajax({
+				type: "POST",
+				url: "/admin/audit/block",
 				dataType: "JSON",
 				data: {
 					"type": type,
 					"id": id,
-					"text": text,
+					"message_text": message_text,
 					"recipient_id": recipient_id
 				},
 				success: function (response) {
@@ -180,6 +199,39 @@ var app = {
 				}
 			})
 		}
+	},
+	"formatter": {
+		"format_portfolio_attach": function(file,is_cover)
+		{
+			if ( file.error )
+			{
+				showAlert("error",file.error);
+				return;
+			}
+			// console.log("formatting:",file);
+			if ( file.attach_type == 'image' )
+			{
+				object = ''
+				+'<a class="wdo-link" href="/get.Attach?attach_id='+file.attach_id+'&w=800&h=800">'
+				+'	<img style="height: 100px; margin-bottom: 0.2rem;" class="img-thumbnail" src="/get.Attach?attach_id='+file.attach_id+'&w=150&h=150&force_resize=true" data-is_cover="'+is_cover+'" data-attach_id="'+file.attach_id+'"/>'
+				+'</a>'
+			}
+			else if ( file.attach_type == 'video' )
+			{
+				object = ''
+				+'<a class="wdo-link" href="'+file.url+'" title="" type="text/html" data-youtube="'+file.youtube_id+'" poster="http://img.youtube.com/vi/'+file.youtube_id+'/0.jpg">'
+				+'	<img style="height: 100px; margin-bottom: 0.2rem;" class="img-thumbnail" src="http://img.youtube.com/vi/'+file.youtube_id+'/0.jpg" data-attach_id="'+file.attach_id+'"/>'
+				+'</a>'
+			}
+			else if ( file.attach_type == 'document' )
+			{
+				object = ''
+				+'<a class="wdo-link download" href="/get.Attach?attach_id='+file.attach_id+'">'
+				+'	<img style="height: 50px; margin-bottom: 0.2rem;" class="img-thumbnail" src="/images/document.png" /> ' + file.file_title + '<br />'
+				+'</a>'
+			}
+			return object;
+		},
 	}
 }
 
@@ -221,6 +273,7 @@ $('#warn-user-modal').on('show.bs.modal', function(e){
 	$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+recipient_id+"&w=35&h=35");
 	$(modal).find("a[name='real_user_name']").attr("href","/profile/id"+recipient_id).text(real_user_name);
 	$(modal).find("text[name='project_title']").text(project_title);
+	$(modal).find("textarea[name='warning-text']").removeAttr("disabled");
 	( block_type == "project") ? $("#warn-user-modal-label").text("Заблокировать проект") : $("#warn-user-modal-label").text("Заблокировать пользователя");
 	
 })

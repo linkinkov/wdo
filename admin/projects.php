@@ -90,7 +90,7 @@ check_access($db,true);
 	</div>
 </div>
 <hr />
-<table class="table table-striped table-hover" id="projectsTable">
+<table class="table table-hover" id="projectsTable">
 	<thead>
 		<th>Наименование</th>
 		<th>Категория</th>
@@ -130,6 +130,51 @@ function get_filter_selected(filter_type)
 	})
 	highlight_filter_group();
 	return arr.join(',');
+}
+function get_project_attaches(project_id)
+{
+	app.project.getAttachList(project_id,function(response){
+		if ( response.length > 0 )
+		{
+			var att_p = 0,
+					att_v = 0,
+					att_d = 0;
+			$.each(response,function(){
+				var object = app.formatter.format_portfolio_attach(this);
+				if ( this.attach_type == 'image' )
+				{
+					$("#project-photos"+project_id).append(object);
+					att_p++;
+				}
+				else if ( this.attach_type == 'video' )
+				{
+					$("#project-videos"+project_id).append(object);
+					att_v++;
+				}
+				else if ( this.attach_type == 'document' )
+				{
+					$("#project-docs"+project_id).append(object);
+					att_d++;
+				}
+			});
+			if ( att_p > 0 ) $(".project-photos-container").show();
+			if ( att_v > 0 ) $(".project-videos-container").show();
+			if ( att_d > 0 ) $(".project-docs-container").show();
+		}
+	})
+	$(".gallery"+project_id).click(function (event) {
+		event = event || window.event;
+		var target = event.target || event.srcElement,
+				link = target.src ? target.parentNode : target,
+				options = {index: link, event: event,
+					onopen: function(){
+						$(".portfolio-image-action").hide();
+					}
+				},
+				links = $(this).find("a").not(".download");
+		blueimp.Gallery(links, options);
+	});
+
 }
 $(function(){
 	try {
@@ -239,6 +284,8 @@ $(function(){
 			success: function (response) {
 				// icon.attr("class","fa fa-minus-square pointer");
 				row.child(response).show();
+				get_project_attaches(project_id);
+
 				// tr.addClass("shown");
 				// tr.removeClass("childLoading");
 			}

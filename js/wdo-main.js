@@ -203,6 +203,10 @@ var app = {
 								{
 									updateProfileCounter('responds',value.unreaded);
 								}
+								else if ( key == 'warnings' )
+								{
+									updateProfileCounter('warnings',value.unreaded);
+								}
 							}
 							else
 							{
@@ -926,6 +930,21 @@ var app = {
 				+'		</td>'
 				+'	</tr>';
 			}
+			child_row += '</table>';
+			return child_row;
+		},
+		"format_warning_info": function(data)
+		{
+			var child_row = ''
+			+'<table cellpadding="2" cellspacing="0" border="0" style="padding-left:50px; min-width: 100%;">'
+			+'	<tr>'
+			+'		<td>'
+			+'			Проект:'
+			+'		</td>'
+			+'		<td>'
+			+'			<span class="pull-right"><a href="'+data.project_link+'">'+data.subject_title+'</a></span>'
+			+'		</td>'
+			+'	</tr>';
 			child_row += '</table>';
 			return child_row;
 		}

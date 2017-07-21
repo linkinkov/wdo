@@ -173,7 +173,7 @@ function login($username, $password, $db)
 {
 	$sql = "SELECT `username`, `password`, `salt`, `status_id`, `template_id`,`user_id`
 					FROM `users`
-					WHERE `username` = ?
+					WHERE `username` = ? AND `status_id` != 4
 					LIMIT 1";
 	if ($stmt = $db->prepare($sql)) 
 	{

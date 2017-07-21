@@ -25,7 +25,8 @@ $pp = Array("profile",
 	"scenarios",
 	"transactions",
 	"wallet_refill",
-	"wallet_withdrawn"
+	"wallet_withdrawn",
+	"warnings"
 );
 
 if ( in_array($job,$pp) )

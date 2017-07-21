@@ -170,6 +170,9 @@ body { padding-right: 0 !important }
 .text-purple-dark {
 	color: #500a37 !important;
 }
+.text-purple-dark2 {
+	color: #4e0534 !important;
+}
 .strong {
 	font-weight: 800;
 }
@@ -355,7 +358,7 @@ i.fa.active {
 .project-entry.no-pointer td, .project-respond-entry.no-pointer td {
 	cursor: default;
 }
-.project-respond-entry.unreaded td {
+tr.unreaded td {
 	background-color: #f1ebef;
 }
 .project-table-title a.wdo-link
@@ -919,4 +922,25 @@ ul.set-rating li.selected {
 }
 .event-projects-to-create .row {
 	line-height: 2rem;
+}
+
+.wdo-notice {
+	display: inline-block;
+	position: relative;
+	background-color: #fff;
+	border-color: #fff;
+	border-radius: 20px;
+	border-width: 1px;
+	border-style: solid;
+	color: #4e0534;
+	min-width: auto;
+	padding: 5px 12px;
+	font-size: .9rem;
+	font-weight: 400;
+	z-index: 5;
+}
+.wdo-notice.yellow {
+	background-color: #f6f6ef;
+	border-color: #dfdd90;
+	color: #a29b14;
 }

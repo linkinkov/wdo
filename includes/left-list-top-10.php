@@ -4,7 +4,8 @@
 		<h44 class="text-yellow text-roboto-cond-bold">ТОП 10 ИСПОЛНИТЕЛЕЙ</h44>
 		<ul class="list-group top-ten">
 			<?php
-			$users = User::get_list("",$_COOKIE["city_id"],10);
+			// $_COOKIE["city_id"]
+			$users = User::get_list("","%",10);
 			foreach ( $users as $r )
 			{
 				echo sprintf('<a href="%s" class="wdo-link list-group-item justify-content-between">

@@ -166,6 +166,11 @@ class Project
 			"result" => "false",
 			"message" => "Проверьте данные"
 		);
+		if ( $current_user->status_id != 1 )
+		{
+			$response["message"] = "Ваш аккаунт заблокирован";
+			return $response;
+		}
 		$all_fields = Array("title","descr","cost","accept_till","start_date","end_date","cat_id","subcat_id","safe_deal","vip","for_user_id","youtube_links","for_event_id");
 		$req_fields = Array("title","descr","accept_till","start_date","end_date","cat_id","subcat_id");
 		foreach ( $req_fields as $field )
@@ -293,6 +298,56 @@ class Project
 		catch ( Exception $e )
 		{
 			// $response["error"] = $e->getMessage();
+		}
+		return $response;
+	}
+
+	public static function block($project_id,$recipient_id,$message)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Проверьте данные"
+		);
+		if ( $current_user->user_id <= 0 )
+		{
+			$response["message"] = "Доступ запрещен";
+			return $response;
+		}
+		$project_status = $db->getValue("project","status_id","status_id",Array("project_id"=>$project_id,"user_id"=>$recipient_id));
+		switch ( $project_status )
+		{
+			case "3":
+				$response["message"] = "Проект уже выполнен";
+				return $response;
+			case "4":
+				$response["message"] = "Проект истёк";
+				return $response;
+			case "5":
+				$response["message"] = "Проект уже заблокирован";
+				return $response;
+		}
+		$db->autocommit(false);
+		try {
+			// update project status
+			$sql = sprintf("UPDATE `project` SET `status_id` = '5' WHERE `project_id` = '%d' AND `user_id` = '%d'",$project_id,$recipient_id);
+			if ( $db->query($sql) && $db->affected_rows > 0 )
+			{
+				// insert warning for project
+				$sql = sprintf("INSERT INTO `warnings` (`for_project_id`,`for_respond_id`,`for_user_id`,`message`,`user_id`,`timestamp`)
+				VALUES ('%d',0,'%d','%s','%d',UNIX_TIMESTAMP())",$project_id,$recipient_id,$message,$current_user->user_id);
+				if ( $db->query($sql) && $db->affected_rows > 0 )
+				{
+					$db->commit();
+					$response["message"] = "Предупреждение пользователю вынесено, проект заблокирован";
+					$response["result"] = "true";
+				}
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
 		}
 		return $response;
 	}
