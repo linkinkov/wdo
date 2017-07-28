@@ -33,6 +33,7 @@ require(PD.'/admin/check_admin.php');
 	<link rel="stylesheet" type="text/css" href="/js/leaflet/leaflet.css" />
 	<link rel="stylesheet" type="text/css" href="/js/leaflet/MarkerCluster.css" />
 	<link rel="stylesheet" type="text/css" href="/js/leaflet/MarkerCluster.Default.css" />
+	<link rel="stylesheet" type="text/css" href="/admin/css/bootstrap-editable.css"/>
 	<link rel="stylesheet" type="text/css" href="/css/wdo-main.css"/>
 	<link rel="stylesheet" type="text/css" href="/css/wdo-btn.css"/>
 	<link rel="stylesheet" type="text/css" href="/admin/css/admin.css"/>
@@ -50,6 +51,21 @@ require(PD.'/admin/check_admin.php');
 					</li>
 					<li class="menu-entry" data-page="#projects">
 						<i class=""></i> Проекты
+					</li>
+					<li class="menu-entry" data-page="#categories">
+						<i class=""></i> Категории
+					</li>
+					<li class="menu-entry" data-page="#users">
+						<i class=""></i> Пользователи
+					</li>
+					<li class="menu-entry" data-page="#scenarios">
+						<i class=""></i> Сценарии
+					</li>
+					<li class="menu-entry" data-page="#transactions">
+						<i class=""></i> Транзакции
+					</li>
+					<li class="menu-entry" data-page="#banners">
+						<i class=""></i> Баннеры
 					</li>
 				</ul>
 			</div> <!-- /.menu-list -->
@@ -125,6 +141,8 @@ require(PD.'/admin/check_admin.php');
 <script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/jquery.fileupload-process.js"></script>
 <script type="text/javascript" src="<?php echo HOST;?>/js/file-upload/jquery.fileupload-validate.js"></script>
 
+<script type="text/javascript" src="<?php echo HOST;?>/admin/js/bootstrap-tooltip-popover.js"></script>
+<script type="text/javascript" src="<?php echo HOST;?>/admin/js/bootstrap-editable.js"></script>
 
 
 </body>

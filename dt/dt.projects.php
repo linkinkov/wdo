@@ -108,7 +108,9 @@ $sql_main = "SELECT `project_id`,
 	$select_performer_name
 	FROM `project`
 	LEFT JOIN `project_statuses` ON `project_statuses`.`id` = `project`.`status_id`
-	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $author_id
+	LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
+	LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
+	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $author_id AND `cats`.`disabled` = 0 AND `subcats`.`disabled` = 0
 	ORDER BY `project`.`vip` DESC, $orderStr
 	LIMIT $start, $length";
 // echo $sql_main;
@@ -123,7 +125,11 @@ try {
 $recordsTotal = 0;
 $recordsFiltered = 0;
 
-$sql = "SELECT COUNT(`project_id`) as recordsTotal FROM `project` WHERE 1 $statusStr $cityStr $for_user_id $author_id";
+$sql = "SELECT COUNT(`project_id`) as recordsTotal
+FROM `project`
+LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
+LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
+WHERE 1 $statusStr $cityStr $for_user_id $author_id AND `cats`.`disabled` = 0 AND `subcats`.`disabled` = 0";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
@@ -134,8 +140,10 @@ try {
 
 
 $sql = "SELECT COUNT(`project_id`) as recordsFiltered 
-	FROM `project` 
-	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $author_id";
+FROM `project`
+LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
+LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
+WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $author_id AND `cats`.`disabled` = 0 AND `subcats`.`disabled` = 0";
 try {
 	$tdr = $db->queryRow($sql);
 	$recordsFiltered = $tdr->recordsFiltered;

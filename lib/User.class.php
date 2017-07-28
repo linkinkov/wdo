@@ -155,9 +155,62 @@ class User
 		return $response;
 	}
 
+
+	public function disable($id)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Доступ запрещён"
+		);
+		if ( $current_user->user_id <= 0 || $current_user->template_id != 2 ) return $response;
+		if ( !$id || intval($id) <= 0 ) return;
+		$sql = sprintf("UPDATE `users` SET `status_id` = '3' WHERE `user_id` = '%d'",$id);
+		try {
+			if ( $db->query($sql) )
+			{
+				$response["result"] = "true";
+				$response["message"] = "Пользователь заблокирован";
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
+		}
+		return $response;
+	}
+
+	public function enable($id)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Доступ запрещён"
+		);
+		if ( $current_user->user_id <= 0 || $current_user->template_id != 2 ) return $response;
+		if ( !$id || intval($id) <= 0 ) return;
+		$sql = sprintf("UPDATE `users` SET `status_id` = '1' WHERE `user_id` = '%d'",$id);
+		try {
+			if ( $db->query($sql) )
+			{
+				$response["result"] = "true";
+				$response["message"] = "Пользователь разблокирован";
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
+		}
+		return $response;
+	}
+
+
 	public function update_profile_info($data)
 	{
 		global $db;
+		global $current_user;
 		$response = Array(
 			"result" => "false",
 			"message" => "Ошибка"
@@ -184,6 +237,13 @@ class User
 					$_SESSION['login_string'] = hash('sha512',$hashed . $user_browser);
 				}
 				else
+				{
+					$set[] = sprintf('`%s` = "%s"',$key,$value);
+				}
+			}
+			else
+			{
+				if ( $key == "template_id" && $current_user->template_id == 2 )
 				{
 					$set[] = sprintf('`%s` = "%s"',$key,$value);
 				}

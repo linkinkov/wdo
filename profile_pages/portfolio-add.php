@@ -6,7 +6,7 @@
 		<div class="btn-group" style="width: 100%;">
 			<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-name="category" aria-haspopup="true" aria-expanded="false" style="width: 100%;">Категория</button>
 			<div class="dropdown-menu cat-list" style="width: 100%;">
-				<?php foreach ( Category::get_list() as $cat )
+				<?php foreach ( Category::get_list(false,Array("col"=>"sort","dir"=>"ASC")) as $cat )
 				{
 					echo sprintf('<a class="dropdown-item wdo-option" data-name="category" data-value="%d">%s</a>',$cat->id,$cat->cat_name);
 				}

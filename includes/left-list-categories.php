@@ -3,7 +3,7 @@
 		<h44 class="text-yellow text-roboto-cond-bold">ФИЛЬТР СПЕЦИАЛИЗАЦИЙ</h44>
 		<ul class="list-group categories">
 			<?php
-			$cats = Category::get_list();
+			$cats = Category::get_list(false,array("col"=>"sort","dir"=>"ASC"));
 			foreach ( $cats as $cat )
 			{
 				echo sprintf('<li class="list-group-item justify-content-between category" data-cat_id="%d">
@@ -14,7 +14,7 @@
 					</label>
 					<span class="pull-right"><i class="fa fa-chevron-left icon-rotate-90 toggle-category"></i></span>
 				</li>',$cat->id,$cat->id,$cat->cat_name);
-				$subcats = SubCategory::get_list($cat->id);
+				$subcats = SubCategory::get_list($cat->id,false,array("col"=>"sort","dir"=>"ASC"));
 				echo sprintf('<ul class="list-group subcategories" data-parent_cat_id="%d">',$cat->id);
 				foreach ( $subcats as $subcat )
 				{

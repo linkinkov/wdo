@@ -90,7 +90,18 @@ else
 										&nbsp;Мой кабинет<span data-type="total" class="badge badge-pill badge-info profile-counter" style="position: absolute; top: 0; right: -20px;">3</span>
 									</div>
 									<div class="dropdown-menu dropdown-menu-right profile-menu" style="width: 230px;">
-										<a class="wdo-link dropdown-item" href="/profile/#profile"><strong>Профиль</strong></a>
+										<a class="wdo-link dropdown-item" href="/profile/#profile"><strong>Профиль</strong>
+											<?php
+											if ( $current_user->status_id == 3 )
+											{
+											?>
+											<span class="pull-right">
+												<small class="text-purple-dark2">Заблокирован</small>
+											</span>
+											<?php
+											}
+											?>
+										</a>
 										<a class="wdo-link dropdown-item" href="/profile/#messages">
 											<span class="pull-right">
 												<span data-type="messages" class="badge badge-pill badge-info profile-counter"></span>

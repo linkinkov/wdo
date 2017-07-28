@@ -107,6 +107,11 @@ class ProjectRespond
 			"message" => "Ошибка"
 		);
 		if ( $current_user->user_id == 0 ) return $response;
+		if ( $current_user->status_id != 1 )
+		{
+			$response["message"] = "Ваш аккаунт заблокирован";
+			return $response;
+		}
 		$all_fields = Array("descr","cost","youtube_links","for_project_id");
 		$req_fields = Array("descr","for_project_id");
 		if ( intval($data["for_project_id"]) == 0 ) return $response;

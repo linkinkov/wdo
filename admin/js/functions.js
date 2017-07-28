@@ -57,6 +57,27 @@ function showAlert(type,message)
 	$(modal).modal('show');
 }
 
+function showAlertMini(type,message,title,timeout)
+{
+	title = (title) ? '<strong>'+title+'</strong><br />' : '';
+	timeout = timeout || 3000;
+	message = message || "?";
+	var alert_id = Math.random().toString(36).substring(7);
+	var html = ''
+	+'<div class="alert alert-'+type+' alert-dismissible fade in" role="alert" id="'+alert_id+'">'
+  +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+	+'	<span aria-hidden="true">&times;</span>'
+	+'</button>'
+	+'	'+title+''+message
+	+'</div>';
+	$(".alert-container").append(html);
+	setTimeout(function(){
+		$("#"+alert_id).fadeOut("normal", function() {
+			$(this).remove();
+		});
+	},timeout);
+}
+
 function set_btn_state(btn,state,message)
 {
 	state = state || false;

@@ -1,11 +1,16 @@
 <?php
-opcache_reset();
 require_once('../_global.php');
 require_once('../_includes.php');
 require(PD.'/admin/check_admin.php');
 
 check_access($db,true);
 ?>
+<div class="row">
+	<div class="col">
+		<h5>Проекты</h5>
+	</div>
+</div>
+<hr />
 <div class="row">
 	<div class="col">
 		<div class="btn-group">

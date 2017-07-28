@@ -37,7 +37,7 @@ switch ( $job )
 		break;
 	case "SubCatList":
 		$parent_id = get_var("parent_id","int",1);
-		$list = SubCategory::get_list($parent_id);
+		$list = SubCategory::get_list($parent_id,false,Array("col"=>"sort","dir"=>"ASC"));
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;

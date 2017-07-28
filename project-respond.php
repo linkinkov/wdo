@@ -189,7 +189,7 @@ $_SESSION["LAST_PAGE"] = "/add-project-respond";
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col text-center">
-							<div class="wdo-btn btn-sm bg-purple disabled" id="submit" data-lt="Загрузка" data-ot="Опубликовать проект">Опубликовать заявку</div>
+							<div class="wdo-btn btn-sm bg-purple disabled" id="submit" data-lt="Загрузка" data-ot="Опубликовать заявку">Опубликовать заявку</div>
 						</div>
 					</div>
 					<div class="row"><div class="col"><br /></div></div>
@@ -384,7 +384,6 @@ $(function(){
 				if ( response.message )
 				{
 					set_btn_state(btn,'reset',response.message);
-					$(btn).addClass("disabled");
 				}
 				else
 				{

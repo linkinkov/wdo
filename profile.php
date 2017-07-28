@@ -136,7 +136,20 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 							<p>Портфолио<span class="pull-right"><?php echo $user->counters->portfolio->created;?></span></p>
 							<p>Рейтинг<span class="pull-right"><?php echo $user->rating;?></span></p>
 							<p>В сервисе<span class="pull-right timestamp fromNow" data-timestamp="<?php echo $user->registered;?>"></span></p>
+							<?php
+							if ( $current_user->user_id == $user->user_id )
+							{
+							?>
 							<p><a class="text-muted pointer" data-toggle="custom-tab" data-target="#warnings">Предупреждений</a><span class="pull-right"><?php echo $user->counters->warnings->total;?></span></p>
+							<?php
+							}
+							else
+							{
+							?>
+							<p>Предупреждений<span class="pull-right"><?php echo $user->counters->warnings->total;?></span></p>
+							<?php
+							}
+							?>
 							<p>Был онлайн<span class="pull-right timestamp last_login" data-timestamp="<?php echo $user->last_login;?>"></span></p>
 						</div>
 					</div>

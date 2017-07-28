@@ -102,6 +102,92 @@ class Scenario
 		}
 	}
 
+	public function disable($id)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Доступ запрещён"
+		);
+		if ( $current_user->user_id <= 0 || $current_user->template_id != 2 ) return $response;
+		if ( !$id || intval($id) <= 0 ) return;
+		$sql = sprintf("UPDATE `scenario_templates` SET `disabled` = '1' WHERE `scenario_id` = '%d'",$id);
+		try {
+			if ( $db->query($sql) )
+			{
+				$response["result"] = "true";
+				$response["message"] = "Шаблон отключен";
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
+		}
+		return $response;
+	}
+
+	public function enable($id)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Доступ запрещён"
+		);
+		if ( $current_user->user_id <= 0 || $current_user->template_id != 2 ) return $response;
+		if ( !$id || intval($id) <= 0 ) return;
+		$sql = sprintf("UPDATE `scenario_templates` SET `disabled` = '0' WHERE `scenario_id` = '%d'",$id);
+		try {
+			if ( $db->query($sql) )
+			{
+				$response["result"] = "true";
+				$response["message"] = "Шаблон включен";
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
+		}
+		return $response;
+	}
+
+	public static function add($scenario_name)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Доступ запрещён"
+		);
+		if ( $current_user->user_id <= 0 || $current_user->template_id != 2 ) return $response;
+		if ( trim($scenario_name) == "" )
+		{
+			$response["message"] = "Введите имя";
+			return $response;
+		}
+		$exists = $db->getValue("scenario_templates","scenario_id","scenario_id",Array("disabled"=>0,"scenario_name"=>trim($scenario_name)));
+		if ( $exists && intval($exists) > 0 )
+		{
+			$response["message"] = "Такой сценарий уже существует";
+			return $response;
+		}
+		$sql = sprintf("INSERT INTO `scenario_templates` (`scenario_name`) VALUES ('%s')",$scenario_name);
+		try {
+			if ( $db->query($sql) )
+			{
+				$response["result"] = "true";
+				$response["message"] = "Шаблон сценария добавлен";
+				$response["cat_id"] = $db->insert_id;
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
+		}
+		return $response;
+	}
+
 	public static function create_event($title,$budget,$timestamp_start,$timestamp_end,$scenario_id,$subcats)
 	{
 		global $db;
@@ -201,12 +287,45 @@ class Scenario
 		return $response;
 	}
 
-	public static function get_templates()
+	public function delete($id)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Доступ запрещён"
+		);
+		if ( $current_user->user_id <= 0 || $current_user->template_id != 2 ) return $response;
+		if ( !$id || intval($id) <= 0 ) return;
+
+		$user_scenarios_counter = $db->getValue("user_scenarios","COUNT(`event_id`)","counter",array("scenario_id"=>$id));
+		if ( $user_scenarios_counter > 0 )
+		{
+			$response["message"] = "В данной категории есть проекты";
+			return $response;
+		}
+		$sql = sprintf("DELETE FROM `scenario_templates` WHERE `scenario_id` = '%d'",$id);
+		try {
+			if ( $db->query($sql) )
+			{
+				$response["result"] = "true";
+				$response["message"] = "Шаблон сценария удален";
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
+		}
+		return $response;
+	}
+
+	public static function get_templates($show_disabled = false)
 	{
 		global $db;
 		$list = Array();
+		$where = ($show_disabled == true) ? "" : "AND `disabled` = 0";
 		$sql = sprintf("SELECT `scenario_id`,`scenario_name`,`scenario_subcats`
-		FROM `scenario_templates`");
+		FROM `scenario_templates` WHERE 1 %s",$where);
 		try {
 			$list = $db->queryRows($sql);
 			if ( sizeof($list) )
@@ -237,5 +356,31 @@ class Scenario
 		if ( $current_user->user_id <= 0 ) return $response;
 		$list = $db->queryRows(sprintf("SELECT * FROM `user_scenarios` WHERE `archive` = '%d' AND `user_id` = '%d' ORDER BY `timestamp_start` ASC",$archive,$current_user->user_id));
 		return $list;
+	}
+
+	public static function update($id,$name,$value)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Доступ запрещён"
+		);
+		if ( $current_user->user_id <= 0 || $current_user->template_id != 2 ) return $response;
+		$value = ( in_array($name, Array("scenario_subcats")) ) ? implode(",",$value) : $value;
+		$sql = sprintf("UPDATE `scenario_templates` SET `%s` = '%s' WHERE `scenario_id` = '%d'",$name,$value,$id);
+		try {
+			if ( $db->query($sql) )
+			{
+				$response["_sql"] = $sql;
+				$response["result"] = "true";
+				$response["message"] = "Обновлено";
+			}
+		}
+		catch ( Exception $e )
+		{
+			$response["message"] = $e->getMessage();
+		}
+		return $response;
 	}
 }

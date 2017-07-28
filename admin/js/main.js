@@ -178,15 +178,14 @@ var app = {
 			})
 		},
 	},
-	"audit": {
+	"action": {
 		"block": function(type,id,message_text,recipient_id,callback)
 		{
 			callback = callback || function(){};
-			console.log(type,id,message_text,recipient_id,callback);
 			if ( !recipient_id || !type || !id || !message_text ) return false;
 			$.ajax({
 				type: "POST",
-				url: "/admin/audit/block",
+				url: "/admin/action/block",
 				dataType: "JSON",
 				data: {
 					"type": type,
@@ -198,6 +197,268 @@ var app = {
 					callback(response);
 				}
 			})
+		},
+		"add": 
+		{
+			"category": function(value,callback)
+			{
+				callback = callback || function(){};
+				if ( !value ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/add",
+					dataType: "JSON",
+					data: {
+						"type": "category",
+						"value": value
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"subcategory": function(parent_cat_id,value,callback)
+			{
+				callback = callback || function(){};
+				if ( !value || !parent_cat_id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/add",
+					dataType: "JSON",
+					data: {
+						"type": "subcategory",
+						"parent_cat_id": parent_cat_id,
+						"value": value
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"scenario": function(value,callback)
+			{
+				callback = callback || function(){};
+				if ( !value ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/add",
+					dataType: "JSON",
+					data: {
+						"type": "scenario",
+						"value": value
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+		},
+		"update": function(update_type,id,name,value,callback)
+		{
+			callback = callback || function(){};
+			console.log(update_type,id,name,value);
+			// return;
+			if ( !update_type || !id || !name || !value ) return false;
+			$.ajax({
+				type: "POST",
+				url: "/admin/action/update",
+				dataType: "JSON",
+				data: {
+					"pk": id,
+					"type": update_type,
+					"name": name,
+					"value": value
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"disable":
+		{
+			"category": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/disable",
+					dataType: "JSON",
+					data: {
+						"type": "category",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"subcategory": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/disable",
+					dataType: "JSON",
+					data: {
+						"type": "subcategory",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"user": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/disable",
+					dataType: "JSON",
+					data: {
+						"type": "user",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"scenario": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/disable",
+					dataType: "JSON",
+					data: {
+						"type": "scenario",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			}
+		},
+		"enable":
+		{
+			"category": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/enable",
+					dataType: "JSON",
+					data: {
+						"type": "category",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"subcategory": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/enable",
+					dataType: "JSON",
+					data: {
+						"type": "subcategory",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"user": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/enable",
+					dataType: "JSON",
+					data: {
+						"type": "user",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"scenario": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/enable",
+					dataType: "JSON",
+					data: {
+						"type": "scenario",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			}
+		},
+		"delete":
+		{
+			"category": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/delete",
+					dataType: "JSON",
+					data: {
+						"type": "category",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"subcategory": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/delete",
+					dataType: "JSON",
+					data: {
+						"type": "subcategory",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+			"scenario": function(id,callback)
+			{
+				if ( !id ) return false;
+				$.ajax({
+					type: "POST",
+					url: "/admin/action/delete",
+					dataType: "JSON",
+					data: {
+						"type": "scenario",
+						"id": id
+					},
+					success: function (response) {
+						callback(response);
+					}
+				})
+			},
+
 		}
 	},
 	"formatter": {

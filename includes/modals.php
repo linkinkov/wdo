@@ -68,7 +68,7 @@
 				<div class="row" style="justify-content: center;">
 					<div class="col text-center">
 						<form method="post" action="<?php echo HOST;?>/login/" onSubmit="formhash(this,this.password);return false;">
-							<br /><input type="text" class="form-control" placeholder="Введите e-mail" name="username" />
+							<br /><input type="email" class="form-control" placeholder="Введите e-mail" name="username" />
 							<br /><input type="password" class="form-control" placeholder="Введите пароль" name="password" />
 							<br /><button type="submit" class="wdo-btn btn-sm bg-yellow strong">Вход</button>
 						</form>
