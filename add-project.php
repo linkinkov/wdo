@@ -84,7 +84,7 @@ if ( strlen($event_id) == 32 )
 						</div>
 						<div class="col">
 							<div class="btn-group" style="width: 100%;">
-								<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-name="category" aria-haspopup="true" aria-expanded="false" style="width: 100%;">Категория</button>
+								<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-name="category" aria-haspopup="true" aria-expanded="false" style="width: 100%;">Раздел</button>
 								<div class="dropdown-menu cat-list" style="width: 100%;">
 									<?php
 									foreach ( Category::get_list() as $cat )
@@ -104,7 +104,7 @@ if ( strlen($event_id) == 32 )
 						</div>
 						<div class="col">
 							<div class="btn-group" style="width: 100%;">
-								<button type="button" class="btn btn-secondary dropdown-toggle disabled" data-toggle="dropdown" data-name="subcategory" aria-haspopup="true" aria-expanded="false" style="width: 100%;">Подкатегория</button>
+								<button type="button" class="btn btn-secondary dropdown-toggle disabled" data-toggle="dropdown" data-name="subcategory" aria-haspopup="true" aria-expanded="false" style="width: 100%;">Подраздел</button>
 								<div class="dropdown-menu subcat-list" style="width: 100%;">
 								</div>
 							</div>

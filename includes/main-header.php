@@ -18,17 +18,17 @@
 				</div><!-- /.wdo-main-left -->
 				<div class="col wdo-main-right">
 					<div class="row wdo-main-banners-container">
-<?php
-if ( $current_user->user_id > 0 ) // user authorized
-{
-?>
+						<?php
+						if ( $current_user->user_id > 0 ) // user authorized
+						{
+						?>
 						<div class="col top-banner"><img src="/banners/top-example1.jpg"/></div>
 						<div class="col top-banner"><img src="/banners/top-example2.jpg"/></div>
-<?php
-}
-else
-{
-?>
+						<?php
+						}
+						else
+						{
+						?>
 						<div class="col">
 							<div class="row" style="align-items: center;">
 								<div class="col" style="flex: 0 0 0;padding: 0 0 0 15px;">
@@ -59,9 +59,9 @@ else
 								</div>
 							</div>
 						</div>
-<?php
-}
-?>
+					<?php
+					}
+					?>
 					</div>
 					<hr style="margin: 0;padding: 0;margin-left: -15px;margin-right: -15px;">
 					<div class="row text-center" style="align-items: center;">

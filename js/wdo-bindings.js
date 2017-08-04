@@ -299,7 +299,7 @@ $(document).on("click",".performer_found",function(e){
 
 $(document).on("click",".wdo-option[data-name='category']", function(){
 	var cat_id = $(this).data('value');
-	$("button[data-name='subcategory']").text('Подкатегория');
+	$("button[data-name='subcategory']").text('Подраздел');
 	app.getSubCategories(cat_id,function(response){
 		if ( response )
 		{
