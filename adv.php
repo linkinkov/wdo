@@ -72,7 +72,7 @@ include_once('_includes.php');
 							<text class="text-muted">Заголовок<br /><small>(осталось символов: <label for="title">30</label>)</small></text>
 						</div>
 						<div class="col">
-							<input type="text" maxlength="30" class="form-control" data-trigger="update-view" data-name="title" placeholder="Заголовок объявления, например: Фотограф на свадьбу" />
+							<input type="text" maxlength="30" class="form-control" data-trigger="update-preview" data-name="title" placeholder="Заголовок объявления, например: Фотограф на свадьбу" />
 						</div>
 					</div>
 
@@ -82,7 +82,7 @@ include_once('_includes.php');
 							<text class="text-muted">Описание<br /><small>(осталось символов: <label for="descr">40</label>)</small></text>
 						</div>
 						<div class="col">
-							<textarea class="form-control" maxlength="40" rows="3" data-trigger="update-view" data-name="descr" placeholder="Пара слов о себе"></textarea>
+							<textarea class="form-control" maxlength="40" rows="3" data-trigger="update-preview" data-name="descr" placeholder="Пара слов о себе"></textarea>
 						</div>
 					</div>
 
@@ -113,11 +113,11 @@ include_once('_includes.php');
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: center;">
-							<text class="text-muted">Изображение</text>
+							<text class="text-muted">Предпросмотр</text>
 						</div>
 						<div class="col">
 							<div class="row">
-								<div class="col">
+								<div class="col hidden">
 									<div id="uploaded" style="display: none;">
 										<div class="attaches-container gallery text-center">
 											<!--<a href="/get.Attach?attach_id=1&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id=1&w=100&h=100" /></a>-->
@@ -133,29 +133,35 @@ include_once('_includes.php');
 									<div class="user-adv">
 										<div class="col">
 											<div class="top-block">
-												<div class="logo"><img class="rounded-circle shadow" width="80" src="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=80&h=80" /></div>
-												<div class="title word-break">Заголовок</div>
+												<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=80&h=80" src="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=80&h=80" /></div>
+												<div class="title word-break">Заголовок вашего объявления</div>
 											</div>
 											<div class="bottom-block">
-												<div class="descr word-break">Текст</div>
+												<div class="descr word-break">Здесь Ваш текст объявления</div>
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-							<label id="fileupload_label" for="fileupload" class="wdo-btn bg-yellow disabled" data-lt="Загрузка..." data-ot="Выберите изображение">Выберите изображение</label>
-							<input id="fileupload" type="file" name="adv_logo[]" style="display: none;" accept=".png,.jpg,.jpeg">
 						</div>
 					</div>
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: center;">
 						</div>
 						<div class="col">
-							<label class="custom-control custom-checkbox" style="padding-left: 2.5rem;">
-								<input type="checkbox" class="custom-control-input" checked="checked" data-name="use_avatar">
-								<span class="custom-control-indicator"></span>
-								<span class="custom-control-description" style="padding-top: 10px;"><h6 class="text-purple">Использовать аватар</h6></span>
-							</label>
+							<div class="row">
+								<div class="col">
+									<label class="custom-control custom-checkbox" style="padding-left: 2.5rem;">
+										<input type="checkbox" class="custom-control-input" checked="checked" data-name="use_avatar">
+										<span class="custom-control-indicator"></span>
+										<span class="custom-control-description" style="padding-top: 10px;"><h6 class="text-purple">Использовать аватар</h6></span>
+									</label>
+								</div>
+								<div class="col">
+									<label id="fileupload_label" for="fileupload" class="wdo-btn bg-yellow disabled" data-lt="Загрузка..." data-ot="Выберите изображение">Выберите изображение</label>
+									<input id="fileupload" type="file" name="adv_logo[]" style="display: none;" accept=".png,.jpg,.jpeg">
+								</div>
+							</div>
 						</div>
 					</div>
 
@@ -207,13 +213,9 @@ $(function(){
 		dataType: 'json',
 		url: '/upload/',
 		submit:  function (e, data) {
-			$("#uploaded").show();
-			$(".progress").show();
 			set_btn_state(upload_btn,"loading");
 		},
 		done: function (e, data) {
-			$("#uploaded").show();
-			$(".attaches-container").html('');
 			$.each(data.result.adv_logo, function (index, file) {
 				if ( file.error )
 				{
@@ -223,7 +225,7 @@ $(function(){
 				var is_image = /image/ig;
 				if ( is_image.test(file.type) )
 				{
-					$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a href="'+file.url+'"><img class="img-thumbnail" src="'+file.thumbnailUrl+'" /></a></div>');
+					$("#adv-logo").attr("src",file.thumbnailUrl).attr("uploaded_thumbnail",file.thumbnailUrl);
 				}
 				else
 				{
@@ -235,14 +237,6 @@ $(function(){
 		maxFileSize: 4000000,
 		stop: function(e, data) {
 			set_btn_state(upload_btn,"reset");
-			$(".progress").hide();
-		},
-		progressall: function (e, data) {
-			var progress = parseInt(data.loaded / data.total * 100, 10);
-			$('.progress .progress-bar').css(
-				'width',
-				progress + '%'
-			);
 		},
 		processfail: function(e,data) {
 			$.each(data.files, function (index, file) {
@@ -253,27 +247,10 @@ $(function(){
 			})
 		}
 	});
-	$(".gallery").click(function (event) {
-		event = event || window.event;
-		var target = event.target || event.srcElement,
-				link = target.src ? target.parentNode : target,
-				options = {index: link, event: event},
-				links = $(this).find("a").not(".download").not(".delete");
-		blueimp.Gallery(links, options);
-	});
-	var current_links = [];
-	$("input[type='checkbox']").on("change",function(e){
-		var name = $(this).data('name'),
-				value = $(this).prop('checked');
-		if ( name == "use_avatar" )
-		{
-			(value === false) ? $("#fileupload_label").removeClass("disabled") : $("#fileupload_label").addClass("disabled");
-		}
-	})
 	var fields_value = [];
 	fields_value["title"] = "";
 	fields_value["descr"] = "";
-	$("[data-trigger='update-view']").keyup(function(e){
+	$("[data-trigger='update-preview']").keyup(function(e){
 		var name = $(this).data("name"),
 				value = $(this).val(),
 				maxlength = $(this).attr("maxlength"),
@@ -284,6 +261,24 @@ $(function(){
 		$(".user-adv").find("."+name).html(value);
 	})
 
+	$("input[type='checkbox']").on("change",function(e){
+		var name = $(this).data('name'),
+				value = $(this).prop('checked');
+		if ( name == "use_avatar" )
+		{
+			if (value === false)
+			{
+				$("#fileupload_label").removeClass("disabled");
+				if ( $("#adv-logo").attr("uploaded_thumbnail") != "" )
+					$("#adv-logo").attr("src",$("#adv-logo").attr("uploaded_thumbnail"));
+			}
+			else
+			{
+				$("#fileupload_label").addClass("disabled");
+				$("#adv-logo").attr("src",$("#adv-logo").attr("avatar_path"));
+			}
+		}
+	})
 })
 </script>
 </body>

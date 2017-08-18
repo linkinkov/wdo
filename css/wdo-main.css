@@ -948,10 +948,12 @@ ul.set-rating li.selected {
 .user-adv {
 	display: flex;
 	flex-wrap: wrap;
-	margin: 10px;
+	margin: 10px auto;
+	padding: 10px;
 	width: 235px;
 	overflow: hidden;
-	max-height: 130px;
+	max-height: 140px;
+	background-color: antiquewhite;
 }
 .user-adv .top-block {
 	display: flex;
@@ -980,7 +982,7 @@ ul.set-rating li.selected {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
-	text-align: center;
+	text-align: left;
 	color: #000;
 	font-weight: 800;
 }

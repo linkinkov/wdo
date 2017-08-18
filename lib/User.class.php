@@ -756,6 +756,78 @@ class User
 		}
 		return $response;
 	}
+
+	public function update_adv_logo($adv_id = "")
+	{
+		global $current_user;
+		require_once(PD.'/upload/UploadHandler.php');
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа"
+		);
+		if ( $current_user->user_id == 0 ) return $response;
+		$upload_dir = sprintf(PD.'/upload/files/%s/',session_id());
+		delTree($upload_dir);
+/*
+		$opts["max_number_of_files"] = 2;
+		$opts["accept_file_types"] = '/\.(gif|jpe?g|png)$/i';
+		$opts["param_name"] = 'adv_logo';
+		$opts["image_versions"] = array(
+			'' => array(
+				'auto_orient' => true
+			),
+			'thumbnail' => array(
+				'max_width' => 180,
+				'max_height' => 180
+			)
+		);
+*/
+		$opts = array(
+			'user_dirs' => true,
+			'param_name' => 'adv_logo',
+			'access_control_allow_credentials' => true,
+			'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
+			'max_file_size' => 6000000,
+			'print_response' => false,
+			'min_width' => 150,
+			'min_height' => 150,
+			'max_width' => 1500,
+			'max_height' => 1500,
+			'correct_image_extensions' => true,
+		);
+		$response = Array("result"=>"false");
+		$upload_handler = new UploadHandler($opts);
+		if ( is_array($upload_handler->response) && sizeof($upload_handler->response["adv_logo"]) && !isset($upload_handler->response["adv_logo"][0]->error) )
+		{
+			$session = session_id();
+			$user_id = $current_user->user_id;
+			$filename = $upload_handler->response["adv_logo"][0]->name;
+			$file_path = PD.'/upload/files/'.$session.'/'.$filename;
+			$exten = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+			$adv_id = ( $adv_id == "" ) ? md5($filename.$user_id.time()) : $adv_id;
+			$target_path = PD.'/attaches/'.$user_id.'/'.$adv_id.'.'.$exten;
+			if ( @rename($file_path,$target_path) )
+			{
+				array_map('unlink', array_values( preg_grep( '/^((?!'.$exten.').)*$/', glob(PD."/attaches/$user_id.*",GLOB_BRACE) ) ));
+				array_map('unlink', glob(PD."/users/adv_logos/cache/$user_id-*.{jpg,jpeg,png,gif}",GLOB_BRACE));
+				$response = Array("result" => "true","logo_path"=>HOST.'/adv.getLogo?user_id='.$user_id.'&w=150&h=150&'.time());
+			}
+			else
+			{
+				$response["message"] = "Невозможно записать файл";
+			}
+			delTree(PD."/upload/files/$session");
+		}
+		else
+		{
+			if ( isset($upload_handler->response["avatar"][0]->error) )
+				$response["message"] = $upload_handler->response["avatar"][0]->error;
+			else
+				$response["message"] = "Непредвиденная ошибка";
+		}
+		return $response;
+	}
+
 }
 
 ?>

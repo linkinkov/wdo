@@ -43,6 +43,13 @@ $opts = array(
 // uploading advertisment logo
 if ( isset($_FILES["adv_logo"]) )
 {
+	$upload_dir = sprintf(PD.'/upload/files/%s/',session_id());
+	delTree($upload_dir);
+	$response = $current_user->update_adv_logo("");
+	header('Content-Type: application/json');
+	echo json_encode($response);
+	exit;
+
 	$opts["max_number_of_files"] = 2;
 	$opts["accept_file_types"] = '/\.(gif|jpe?g|png)$/i';
 	$opts["param_name"] = 'adv_logo';
@@ -55,8 +62,6 @@ if ( isset($_FILES["adv_logo"]) )
 			'max_height' => 180
 		)
 	);
-	$upload_dir = sprintf(PD.'/upload/files/%s/',session_id());
-	delTree($upload_dir);
 }
 
 // uploading attaches
