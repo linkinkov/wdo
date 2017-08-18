@@ -34,7 +34,7 @@ include_once('_includes.php');
 				<div class="col wdo-main-right">
 
 					<div class="row">
-						<div class="col" style="flex: 0 0 200px; max-width: 200px; align-self: center;">
+						<div class="col" style="max-width: 190px; align-self: center;">
 							<text class="text-muted">Выберите раздел</text>
 						</div>
 						<div class="col">
@@ -54,7 +54,7 @@ include_once('_includes.php');
 
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
-						<div class="col" style="flex: 0 0 200px; max-width: 200px; align-self: center;">
+						<div class="col" style="max-width: 190px; align-self: center;">
 							<text class="text-muted">Выберите подраздел</text>
 						</div>
 						<div class="col">
@@ -68,27 +68,27 @@ include_once('_includes.php');
 
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
-						<div class="col" style="flex: 0 0 200px; max-width: 200px; align-self: center;">
-							<text class="text-muted">Заголовок<br /><small>(до 50 символов)</small></text>
+						<div class="col" style="max-width: 190px; align-self: center;">
+							<text class="text-muted">Заголовок<br /><small>(осталось символов: <label for="title">30</label>)</small></text>
 						</div>
 						<div class="col">
-							<input type="text" maxlength="50" class="form-control" data-name="title" placeholder="Заголовок объявления, например: Фотограф на свадьбу" />
+							<input type="text" maxlength="30" class="form-control" data-trigger="update-view" data-name="title" placeholder="Заголовок объявления, например: Фотограф на свадьбу" />
 						</div>
 					</div>
 
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
-						<div class="col" style="flex: 0 0 200px; max-width: 200px; align-self: center;">
-							<text class="text-muted">Описание<br /><small>(до 60 символов)</small></text>
+						<div class="col" style="max-width: 190px; align-self: center;">
+							<text class="text-muted">Описание<br /><small>(осталось символов: <label for="descr">40</label>)</small></text>
 						</div>
 						<div class="col">
-							<textarea class="form-control" maxlength="60" rows="7" data-name="descr" placeholder="Детальное описание проекта"></textarea>
+							<textarea class="form-control" maxlength="40" rows="3" data-trigger="update-view" data-name="descr" placeholder="Пара слов о себе"></textarea>
 						</div>
 					</div>
 
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
-						<div class="col" style="flex: 0 0 200px; max-width: 200px; align-self: center;">
+						<div class="col" style="max-width: 190px; align-self: center;">
 							<text class="text-muted">Ссылка</text>
 						</div>
 						<div class="col">
@@ -112,37 +112,82 @@ include_once('_includes.php');
 
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
-						<div class="col" style="flex: 0 0 200px; max-width: 200px; align-self: center;">
+						<div class="col" style="max-width: 190px; align-self: center;">
 							<text class="text-muted">Изображение</text>
 						</div>
 						<div class="col">
-							<div id="uploaded" style="display: none;">
-								<div class="attaches-container gallery text-center">
-									<!--<a href="/get.Attach?attach_id=1&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id=1&w=100&h=100" /></a>-->
+							<div class="row">
+								<div class="col">
+									<div id="uploaded" style="display: none;">
+										<div class="attaches-container gallery text-center">
+											<!--<a href="/get.Attach?attach_id=1&w=500"><img class="img-thumbnail" src="/get.Attach?attach_id=1&w=100&h=100" /></a>-->
+										</div>
+										<hr />
+										<div class="progress">
+											<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+										</div>
+										<br />
+									</div>
 								</div>
-								<hr />
-								<div class="progress">
-									<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+								<div class="col">
+									<div class="user-adv">
+										<div class="col">
+											<div class="top-block">
+												<div class="logo"><img class="rounded-circle shadow" width="80" src="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=80&h=80" /></div>
+												<div class="title word-break">Заголовок</div>
+											</div>
+											<div class="bottom-block">
+												<div class="descr word-break">Текст</div>
+											</div>
+										</div>
+									</div>
 								</div>
-								<br />
 							</div>
-							<label for="fileupload" class="wdo-btn bg-purple" data-lt="Загрузка..." data-ot="Выберите файлы">Выберите файлы (<small>Не более 10</small>)</label>
-							<input id="fileupload" type="file" name="files[]" multiple style="display: none;" accept=".png,.jpg,.jpeg,.gif,.pdf,.xls,.xlsx,.doc,.docx">
+							<label id="fileupload_label" for="fileupload" class="wdo-btn bg-yellow disabled" data-lt="Загрузка..." data-ot="Выберите изображение">Выберите изображение</label>
+							<input id="fileupload" type="file" name="adv_logo[]" style="display: none;" accept=".png,.jpg,.jpeg">
 						</div>
 					</div>
 					<div class="row">
-						<div class="col" style="flex: 0 0 200px; max-width: 200px; align-self: center;">
+						<div class="col" style="max-width: 190px; align-self: center;">
 						</div>
 						<div class="col">
 							<label class="custom-control custom-checkbox" style="padding-left: 2.5rem;">
-								<input type="checkbox" class="custom-control-input">
+								<input type="checkbox" class="custom-control-input" checked="checked" data-name="use_avatar">
 								<span class="custom-control-indicator"></span>
 								<span class="custom-control-description" style="padding-top: 10px;"><h6 class="text-purple">Использовать аватар</h6></span>
 							</label>
 						</div>
 					</div>
 
-dfdf
+					<div class="row"><div class="col"><hr /></div></div>
+					<div class="row">
+						<div class="col" style="max-width: 190px; align-self: top;">
+							<text class="text-muted">Автоподнятие</text>
+						</div>
+						<div class="col">
+							<text class="text-purple">Лимит</text> <input type="number" value="0" class="form-control" style="display: inline-block; max-width: 100px;" min="0" max="10000" /> <text class="text-purple">руб.</text>
+							<span class="pull-right">
+								<text class="text-purple">Период</text> <input type="number" value="0" class="form-control" style="display: inline-block; max-width: 70px;" min="0" max="31" /> <text class="text-purple">дней</text>
+								<!-- <input type="number" class="form-control" style="display: inline-block; max-width: 100px;" min="0" max="24" /> <text class="text-purple">часов</text> -->
+							</span>
+							<br />
+							<small class="text-muted">
+								<br /><b>Лимит</b> - сумма, в пределах которой будет происходить автоподнятие (после каждого она уменьшается), если не указан, но есть период, то автоподнятие будет постоянным
+								<br /><b>Период</b> - период времени для автоподятия (например, поднимать каждые 5 дней)
+								<br /><i>Отсчёт периода ведется от момента последнего поднятия</i>
+							</small>
+						</div>
+					</div>
+
+					<div class="row"><div class="col"><hr /></div></div>
+					<div class="row">
+						<div class="col" style="max-width: 190px; align-self: center;"></div>
+						<div class="col">
+							<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="to_moderate">Отправить на модерацию</div>
+							<div class="wdo-btn btn-sm bg-yellow" data-toggle="adv_action" data-action="to_drafts">Сохранить черновик</div>
+						</div>
+					</div>
+
 
 <br /><br /><br />
 				</div><!-- /.wdo-main-right -->
@@ -156,6 +201,90 @@ dfdf
 <?php include(PD.'/includes/modals.php');?>
 <?php include(PD.'/includes/scripts.php');?>
 <script>
+$(function(){
+	var upload_btn = $("label[for='fileupload']");
+	$('#fileupload').fileupload({
+		dataType: 'json',
+		url: '/upload/',
+		submit:  function (e, data) {
+			$("#uploaded").show();
+			$(".progress").show();
+			set_btn_state(upload_btn,"loading");
+		},
+		done: function (e, data) {
+			$("#uploaded").show();
+			$(".attaches-container").html('');
+			$.each(data.result.adv_logo, function (index, file) {
+				if ( file.error )
+				{
+					showAlert("error",file.error);
+					return;
+				}
+				var is_image = /image/ig;
+				if ( is_image.test(file.type) )
+				{
+					$(".attaches-container").append('<div class="project-upload-attach" data-filename="'+file.name+'"><a href="'+file.url+'"><img class="img-thumbnail" src="'+file.thumbnailUrl+'" /></a></div>');
+				}
+				else
+				{
+					return false;
+				}
+			});
+		},
+		acceptFileTypes: /(\.|\/)(jpe?g|png)$/i,
+		maxFileSize: 4000000,
+		stop: function(e, data) {
+			set_btn_state(upload_btn,"reset");
+			$(".progress").hide();
+		},
+		progressall: function (e, data) {
+			var progress = parseInt(data.loaded / data.total * 100, 10);
+			$('.progress .progress-bar').css(
+				'width',
+				progress + '%'
+			);
+		},
+		processfail: function(e,data) {
+			$.each(data.files, function (index, file) {
+				if ( file.error )
+				{
+					showAlert("error","("+file.name+"):"+file.error);
+				}
+			})
+		}
+	});
+	$(".gallery").click(function (event) {
+		event = event || window.event;
+		var target = event.target || event.srcElement,
+				link = target.src ? target.parentNode : target,
+				options = {index: link, event: event},
+				links = $(this).find("a").not(".download").not(".delete");
+		blueimp.Gallery(links, options);
+	});
+	var current_links = [];
+	$("input[type='checkbox']").on("change",function(e){
+		var name = $(this).data('name'),
+				value = $(this).prop('checked');
+		if ( name == "use_avatar" )
+		{
+			(value === false) ? $("#fileupload_label").removeClass("disabled") : $("#fileupload_label").addClass("disabled");
+		}
+	})
+	var fields_value = [];
+	fields_value["title"] = "";
+	fields_value["descr"] = "";
+	$("[data-trigger='update-view']").keyup(function(e){
+		var name = $(this).data("name"),
+				value = $(this).val(),
+				maxlength = $(this).attr("maxlength"),
+				label = $("label[for='"+name+"']");
+		if ( value == fields_value[name] ) return;
+		fields_value[name] = value;
+		$(label).html((maxlength - fields_value[name].length));
+		$(".user-adv").find("."+name).html(value);
+	})
+
+})
 </script>
 </body>
 </html>

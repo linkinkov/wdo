@@ -137,7 +137,7 @@ body { padding-right: 0 !important }
 	border-radius: 5px;
 	/*background-color: rgba(0,0,0,0.05);*/
 }
-.logo {
+.wdo-main-left.logo {
 	background-color: #500a37;
 	color: white;
 }
@@ -943,4 +943,44 @@ ul.set-rating li.selected {
 	background-color: #f6f6ef;
 	border-color: #dfdd90;
 	color: #a29b14;
+}
+
+.user-adv {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 10px;
+	width: 235px;
+	overflow: hidden;
+	max-height: 130px;
+}
+.user-adv .top-block {
+	display: flex;
+	flex-direction: row;
+}
+.user-adv .top-block .logo {
+	display: flex;
+	flex-direction: column;
+	min-width: 80px;
+	max-width: 80px;
+	height: 80px;
+}
+.user-adv .top-block .title {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	color: #940a63;
+	font-weight: bolder;
+	padding-left: 5px;
+}
+.user-adv .bottom-block {
+	display: flex;
+	flex-direction: row;
+}
+.user-adv .bottom-block .descr {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	text-align: center;
+	color: #000;
+	font-weight: 800;
 }

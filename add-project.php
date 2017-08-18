@@ -331,7 +331,7 @@ if ( isset($event->event_id) ) // creating project for event
 ?>
 <script>
 $(function(){
-	$("button[data-name='subcategory']").text('Подкатегория');
+	// $("button[data-name='subcategory']").text('Подкатегория');
 	if ( preselected_title != "" )
 	{
 		$("input[data-name='title']").attr('placeholder','Название проекта, например: '+preselected_title);
