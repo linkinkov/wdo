@@ -168,3 +168,18 @@
 		<div class="col margins right"></div>
 	</div>
 </div>
+
+
+<div class="container header-container">
+	<div class="row shadow inset">
+		<div class="col margins left"></div>
+		<div class="col main">
+			<div class="row wdo-main-header">
+				<div class="col wdo-main-right" id="top-adv-container" style="display: flex;">
+					
+				</div><!-- /.wdo-main-right -->
+			</div><!-- /.wdo-main-header -->
+		</div><!-- /.main -->
+		<div class="col margins right"></div>
+	</div>
+</div>

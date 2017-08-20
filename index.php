@@ -262,6 +262,20 @@ $(function(){
 			return false;
 		}
 	})
+	app.adv.get_list(5,function(response){
+		if ( response.length > 0 )
+		{
+			$("#lab").append("<hr />");
+			$.each(response,function(i,v){
+				var item = app.formatter.format_adv(v);
+				$("#lab").append('<a href="'+v.link+'">'+item+'</a><hr />');
+				$("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
+			})
+			$("#top-adv-container").find(".user-adv").each(function(i,v){
+				$(v).css("margin",0);
+			})
+		}
+	});
 });
 </script>
 </body>

@@ -108,4 +108,10 @@ switch ( $job )
 		header('Content-Type: application/json');
 		echo json_encode($event);
 		break;
+	case "AdvList":
+		$limit = get_var("limit","int","");
+		$list = Adv::get_list();
+		header('Content-Type: application/json');
+		echo json_encode($list);
+		break;
 }

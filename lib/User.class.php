@@ -766,22 +766,9 @@ class User
 			"message" => "Ошибка доступа"
 		);
 		if ( $current_user->user_id == 0 ) return $response;
-		$upload_dir = sprintf(PD.'/upload/files/%s/',session_id());
+		$session = session_id();
+		$upload_dir = sprintf(PD.'/upload/files/%s/',$session);
 		delTree($upload_dir);
-/*
-		$opts["max_number_of_files"] = 2;
-		$opts["accept_file_types"] = '/\.(gif|jpe?g|png)$/i';
-		$opts["param_name"] = 'adv_logo';
-		$opts["image_versions"] = array(
-			'' => array(
-				'auto_orient' => true
-			),
-			'thumbnail' => array(
-				'max_width' => 180,
-				'max_height' => 180
-			)
-		);
-*/
 		$opts = array(
 			'user_dirs' => true,
 			'param_name' => 'adv_logo',
@@ -791,26 +778,44 @@ class User
 			'print_response' => false,
 			'min_width' => 150,
 			'min_height' => 150,
-			'max_width' => 1500,
-			'max_height' => 1500,
+			'max_width' => 1700,
+			'max_height' => 1700,
 			'correct_image_extensions' => true,
+			'image_versions' => Array(
+				'thumbnail' => Array(
+					'crop' => true
+				)
+			)
 		);
 		$response = Array("result"=>"false");
 		$upload_handler = new UploadHandler($opts);
 		if ( is_array($upload_handler->response) && sizeof($upload_handler->response["adv_logo"]) && !isset($upload_handler->response["adv_logo"][0]->error) )
 		{
-			$session = session_id();
 			$user_id = $current_user->user_id;
 			$filename = $upload_handler->response["adv_logo"][0]->name;
-			$file_path = PD.'/upload/files/'.$session.'/'.$filename;
+			$file_path = sprintf(PD.'/upload/files/%s/%s',$session,$filename);
 			$exten = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
-			$adv_id = ( $adv_id == "" ) ? md5($filename.$user_id.time()) : $adv_id;
-			$target_path = PD.'/attaches/'.$user_id.'/'.$adv_id.'.'.$exten;
+			$new_adv = false;
+			if ( $adv_id == "" )
+			{
+				$new_adv = true;
+				$adv_id = md5($filename.$user_id.time());
+			}
+			$target_path = sprintf(PD.'/attaches/%d/current_adv/%s',$user_id,$adv_id.".".$exten);
+			
 			if ( @rename($file_path,$target_path) )
 			{
-				array_map('unlink', array_values( preg_grep( '/^((?!'.$exten.').)*$/', glob(PD."/attaches/$user_id.*",GLOB_BRACE) ) ));
-				array_map('unlink', glob(PD."/users/adv_logos/cache/$user_id-*.{jpg,jpeg,png,gif}",GLOB_BRACE));
-				$response = Array("result" => "true","logo_path"=>HOST.'/adv.getLogo?user_id='.$user_id.'&w=150&h=150&'.time());
+				// array_map('unlink', array_values( preg_grep( '/^((?!'.$exten.').)*$/', glob(sprintf(PD.'/attaches/%d/current_adv/%s',$user_id,'*'),GLOB_BRACE) ) ));
+				// array_map('unlink', glob(PD."/attaches/$user_id/cache/$user_id-*.{jpg,jpeg,png,gif}",GLOB_BRACE));
+				// array_map('unlink', glob(sprintf(PD.'/attaches/%d/current_adv/%s')))
+				if ( $new_adv )
+				{
+					$response = Array("result" => "true","logo_path"=>HOST.sprintf('/attaches/%d/current_adv/%s&%d',$user_id,$adv_id.".".$exten,time()));
+				}
+				else
+				{
+					$response = Array("result" => "true","logo_path"=>HOST.'/get.advLogo?adv_id='.$adv_id.'&w=80&h=80&'.time());
+				}
 			}
 			else
 			{
@@ -820,8 +825,8 @@ class User
 		}
 		else
 		{
-			if ( isset($upload_handler->response["avatar"][0]->error) )
-				$response["message"] = $upload_handler->response["avatar"][0]->error;
+			if ( isset($upload_handler->response["adv_logo"][0]->error) )
+				$response["message"] = $upload_handler->response["adv_logo"][0]->error;
 			else
 				$response["message"] = "Непредвиденная ошибка";
 		}

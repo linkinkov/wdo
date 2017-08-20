@@ -949,12 +949,16 @@ ul.set-rating li.selected {
 	display: flex;
 	flex-wrap: wrap;
 	margin: 10px auto;
-	padding: 10px;
-	width: 235px;
+	padding: 10px 0;
+	width: 210px;
 	overflow: hidden;
 	max-height: 140px;
+	cursor: pointer;
+}
+.user-adv.preview {
 	background-color: antiquewhite;
 }
+
 .user-adv .top-block {
 	display: flex;
 	flex-direction: row;
@@ -985,4 +989,17 @@ ul.set-rating li.selected {
 	text-align: left;
 	color: #000;
 	font-weight: 800;
+}
+.adv-filter {
+	display: inline-block;
+	padding: 5px;
+	width: auto;
+}
+.adv-filter:hover {
+	cursor: pointer;
+	color: #4e0534;
+}
+.adv-filter.active {
+	font-weight: 800;
+	color: #4e0534;
 }

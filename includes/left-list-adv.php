@@ -3,7 +3,7 @@
 		<div class="wave" style="margin-left: -15px; margin-right: -15px;"></div>
 		<br /><h44 class="text-purple-dark text-roboto-cond-bold">ПРЕДЛОЖЕНИЯ КОМПАНИЙ</h44>
 		<div class="row">
-			<div class="col">
+			<div class="col" id="lab">
 			</div>
 		</div>
 	</div>

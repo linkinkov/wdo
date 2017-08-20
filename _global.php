@@ -21,6 +21,7 @@ $distribute_classes = Array(
 	"Resize",
 	"Avatar",
 	"Attach",
-	"Wallet"
+	"Wallet",
+	"Adv"
 
 );

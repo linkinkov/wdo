@@ -947,6 +947,55 @@ var app = {
 			+'	</tr>';
 			child_row += '</table>';
 			return child_row;
+		},
+		"format_adv": function(data)
+		{
+			var html = ''
+			+'<div class="user-adv" data-adv_id="'+data.adv_id+'">'
+			+'	<div class="col">'
+			+'		<div class="top-block">'
+			+'			<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id=1&w=80&h=80" src="/user.getAvatar?user_id=1&w=80&h=80" /></div>'
+			+'			<div class="title word-break">'+data.title+'</div>'
+			+'		</div>'
+			+'		<div class="bottom-block">'
+			+'			<div class="descr word-break">'+data.descr+'</div>'
+			+'		</div>'
+			+'	</div>'
+			+'</div>';
+			return html;
+		}
+	},
+	"adv": {
+		"action": function(action,data,callback)
+		{
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/ad."+action,
+				data: {
+					"data": data
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+		"get_list": function(limit,callback)
+		{
+			limit = limit || 5;
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/get.AdvList",
+				data: {
+					"limit": limit
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
 		}
 	}
 }

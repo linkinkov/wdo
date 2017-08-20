@@ -8,6 +8,12 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 require_once('_global.php');
 include_once('_includes.php');
 
+$counters["1"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>1));
+$counters["2"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>2));
+$counters["3"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>3));
+$counters["4"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>4));
+$counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>5));
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -31,8 +37,8 @@ include_once('_includes.php');
 						</div>
 					</div>
 				</div><!-- /.wdo-main-left -->
-				<div class="col wdo-main-right">
-
+				<div class="col wdo-main-right" id="wdo-main-right">
+					<input type="hidden" id="adv_id" data-adv_id="" />
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: center;">
 							<text class="text-muted">Выберите раздел</text>
@@ -93,15 +99,15 @@ include_once('_includes.php');
 						</div>
 						<div class="col">
 							<div class="btn-group" style="width: 100%;">
-								<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-name="adv-link-to" aria-haspopup="true" aria-expanded="false" style="width: 100%;">Мой профиль</button>
-								<div class="dropdown-menu adv-link-to-list" style="width: 100%;">
-									<a class="dropdown-item wdo-option active" data-name="adv-link-to" data-value="profile">Мой профиль</a>
+								<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-name="portfolio_id" aria-haspopup="true" aria-expanded="false" style="width: 100%;">Мой профиль</button>
+								<div class="dropdown-menu portfolio_id_list" style="width: 100%;">
+									<a class="dropdown-item wdo-option active" data-name="portfolio_id" data-value="0">Мой профиль</a>
 									<div class="dropdown-divider"></div>
 									<h6 class="dropdown-header">Портфолио</h6>
 									<?php
 									foreach ( Portfolio::get_list($current_user->user_id) as  $pf )
 									{
-										echo sprintf('<a class="dropdown-item wdo-option" data-name="adv-link-to" data-value="%d">%s</a>',$pf->portfolio_id,$pf->title);
+										echo sprintf('<a class="dropdown-item wdo-option" data-name="portfolio_id" data-value="%d">%s</a>',$pf->portfolio_id,$pf->title);
 									}
 									?>
 								</div>
@@ -130,7 +136,7 @@ include_once('_includes.php');
 									</div>
 								</div>
 								<div class="col">
-									<div class="user-adv">
+									<div class="user-adv preview">
 										<div class="col">
 											<div class="top-block">
 												<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=80&h=80" src="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=80&h=80" /></div>
@@ -171,9 +177,9 @@ include_once('_includes.php');
 							<text class="text-muted">Автоподнятие</text>
 						</div>
 						<div class="col">
-							<text class="text-purple">Лимит</text> <input type="number" value="0" class="form-control" style="display: inline-block; max-width: 100px;" min="0" max="10000" /> <text class="text-purple">руб.</text>
+							<text class="text-purple">Лимит</text> <input type="number" data-name="prolong_limit" value="0" class="form-control" style="display: inline-block; max-width: 100px;" min="0" max="10000" /> <text class="text-purple">руб.</text>
 							<span class="pull-right">
-								<text class="text-purple">Период</text> <input type="number" value="0" class="form-control" style="display: inline-block; max-width: 70px;" min="0" max="31" /> <text class="text-purple">дней</text>
+								<text class="text-purple">Период</text> <input type="number" data-name="prolong_days" value="0" class="form-control" style="display: inline-block; max-width: 70px;" min="0" max="31" /> <text class="text-purple">дней</text>
 								<!-- <input type="number" class="form-control" style="display: inline-block; max-width: 100px;" min="0" max="24" /> <text class="text-purple">часов</text> -->
 							</span>
 							<br />
@@ -189,8 +195,30 @@ include_once('_includes.php');
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: center;"></div>
 						<div class="col">
-							<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="to_moderate">Отправить на модерацию</div>
-							<div class="wdo-btn btn-sm bg-yellow" data-toggle="adv_action" data-action="to_drafts">Сохранить черновик</div>
+							<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="create" data-draft="0">Отправить на модерацию</div>
+							<div class="wdo-btn btn-sm bg-yellow" data-toggle="adv_action" data-action="create" data-draft="1">Сохранить черновик</div>
+						</div>
+					</div>
+
+					<div class="row"><div class="col"><hr /></div></div>
+					<div class="row">
+						<div class="col">
+							<h4 class="text-purple text-roboto-cond-bold">МОИ ОБЪЯВЛЕНИЯ</h4>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="adv-filter active" data-toggle="filter_status" data-value="1">Активные (<?php echo $counters["1"];?>)</div>
+							<div class="adv-filter" data-toggle="filter_status" data-value="2">На модерации (<?php echo $counters["2"];?>)</div>
+							<div class="adv-filter" data-toggle="filter_status" data-value="3">Черновики (<?php echo $counters["3"];?>)</div>
+							<div class="adv-filter" data-toggle="filter_status" data-value="4">Архив (<?php echo $counters["4"];?>)</div>
+							<div class="adv-filter" data-toggle="filter_status" data-value="5">Отклоненные (<?php echo $counters["5"];?>)</div>
+						</div>
+					</div>
+					<div class="row"><div class="col"><hr /></div></div>
+					<div class="row">
+						<div class="col">
+							<div id="user_advs" style="display: flex;flex-wrap: wrap;"></div>
 						</div>
 					</div>
 
@@ -207,6 +235,64 @@ include_once('_includes.php');
 <?php include(PD.'/includes/modals.php');?>
 <?php include(PD.'/includes/scripts.php');?>
 <script>
+
+function load_my_advs(status_id)
+{
+	var data = {
+		"status_id": status_id
+	};
+	$("#user_advs").html('');
+	$("[data-toggle='filter_status']").removeClass("active");
+	$("[data-toggle='filter_status'][data-value='"+status_id+"']").addClass("active");
+	app.adv.action("load_user_advs",status_id,function(response)
+	{
+		if ( response.length > 0 && !typeof response.result !== 'undefined' )
+		{
+			$.each(response,function(i,v){
+				var item = app.formatter.format_adv(v);
+				$("#user_advs").append(item);
+			})
+		}
+		$("#user_advs").find(".user-adv").each(function(i,v){
+			$(v).click(function(){
+				load_single_adv($(this).data());
+				$("html, body").animate({ scrollTop: $('#wdo-main-right').offset().top }, 500);
+			}).addClass("preview");
+		})
+	})
+}
+
+function load_single_adv(adv_id)
+{
+	app.adv.action("load",adv_id,function(response){
+		$(".wdo-option[data-name='category']").removeClass("active");
+		$(".wdo-option[data-name='category'][data-value='"+response.cat_id+"']").addClass("active");
+		$("button[data-name='category']").text($(".wdo-option[data-name='category'][data-value='"+response.cat_id+"']").text());
+		app.getSubCategories(response.cat_id,function(subresponse){
+			if ( subresponse )
+			{
+				$(".subcat-list").html('');
+				$.each(subresponse,function(){
+					$(".subcat-list").append($.sprintf('<a class="dropdown-item wdo-option" data-name="subcategory" data-value="%d" data-parentid="%d">%s</a>',this.id,this.parent_cat_id,this.subcat_name));
+				})
+				$(".dropdown-toggle[data-name='subcategory']").removeClass("disabled");
+				$(".wdo-option[data-name='subcategory'][data-value='"+response.subcat_id+"']").click();
+			}
+		})
+		$(".wdo-option[data-name='portfolio_id']").removeClass("active");
+		$(".wdo-option[data-name='portfolio_id'][data-value='"+response.portfolio_id+"']").addClass("active");
+		$("button[data-name='portfolio_id']").text($(".wdo-option[data-name='portfolio_id'][data-value='"+response.portfolio_id+"']").text());
+		$("input[data-name='title']").val(response.title);
+		$("textarea[data-name='descr']").val(response.descr);
+		$("#adv_id").attr("adv_id",response.adv_id).data('adv_id',response.adv_id);
+		$("input[data-name='prolong_limit']").val(response.prolong_limit);
+		$("input[data-name='prolong_days']").val(response.prolong_days);
+		$(".user-adv.preview").find(".title").html(response.title);
+		$(".user-adv.preview").find(".descr").html(response.descr);
+		$("[data-trigger='update-preview']").trigger("keyup");
+	})
+}
+
 $(function(){
 	var upload_btn = $("label[for='fileupload']");
 	$('#fileupload').fileupload({
@@ -279,6 +365,36 @@ $(function(){
 			}
 		}
 	})
+	$("[data-toggle='adv_action']").click(function(){
+		var action = $(this).data("action");
+		var data = {
+			"cat_id": $(".wdo-option.active[data-name='category']").data('value'),
+			"subcat_id": $(".wdo-option.active[data-name='subcategory']").data('value'),
+			"portfolio_id": $(".wdo-option.active[data-name='portfolio_id']").data('value'),
+			"title": $("input[data-name='title']").val(),
+			"descr": $("textarea[data-name='descr']").val(),
+			"adv_id": $("#adv_id").data('adv_id'),
+			"prolong_limit": $("input[data-name='prolong_limit']").val(),
+			"prolong_days": $("input[data-name='prolong_days']").val(),
+			"as_draft": $(this).data("draft")
+		}
+		app.adv.action(action,data,function(response)
+		{
+			if ( response.result == "false" )
+			{
+				showAlert("error",response.message);
+				return;
+			}
+			// window.location.reload();
+			showAlert("info",response.message);
+		})
+	})
+	$("[data-toggle='filter_status']").click(function(){
+		var data = $(this).data();
+		load_my_advs(data.value);
+	})
+	load_my_advs(1);
+	
 })
 </script>
 </body>
