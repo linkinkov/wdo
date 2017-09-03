@@ -161,3 +161,14 @@ if ( $job == "delete" )
 			break;
 	}
 }
+
+if ( $job == "change_adv_status" )
+{
+	$adv_id = get_var("adv_id","string");
+	$status_id = get_var("status_id","int",0);
+	$adv = new Adv($adv_id);
+	$response = $adv->update(Array("status_id"=>$status_id));
+	header('Content-Type: application/json');
+	echo json_encode($response);
+	exit;
+}

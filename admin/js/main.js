@@ -458,7 +458,22 @@ var app = {
 					}
 				})
 			},
-
+		},
+		"change_adv_status": function(adv_id,status_id,callback)
+		{
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/admin/action/change_adv_status",
+				dataType: "JSON",
+				data: {
+					"adv_id": adv_id,
+					"status_id": status_id
+				},
+				success: function (response) {
+					callback(response);
+				}
+			})
 		}
 	},
 	"formatter": {

@@ -77,6 +77,7 @@
 						foreach ( $pages as $page=>$name)
 						{
 							$class = ('/'.$page.'/' == $current_page) ? "main-nav active" : "main-nav";
+							$class = (preg_match("/$page/",$current_page)) ? "main-nav active" : "main-nav";
 							echo sprintf('<a class="col %s text-roboto-cond" title="%s" href="/%s/" data-page="/%s/">%s</a>',$class,$name,$page,$page,$name);
 						}
 						if ( $current_user->user_id > 0 ) // user authorized
@@ -144,6 +145,7 @@
 											</span>
 											Предупреждения
 										</a>
+										<a class="wdo-link dropdown-item" href="/my_adv">Объявления</a>
 										<div class="dropdown-divider"></div>
 										<a class="wdo-link dropdown-item" href="/logout/">Выход</a>
 									</div>

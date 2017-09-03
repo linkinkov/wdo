@@ -55,7 +55,7 @@ class SubCategory
 			$response["message"] = "Такая категория уже существует";
 			return $response;
 		}
-		$subcat_name_translated = strtolower(r2t($subcat_name));
+		$subcat_name_translated = addslashes(strtolower(r2t($subcat_name)));
 		$sql = sprintf("INSERT INTO `subcats` (`parent_cat_id`,`subcat_name`,`translated`) VALUES ('%d','%s','%s')",intval($parent_cat_id),$subcat_name,$subcat_name_translated);
 		try {
 			if ( $db->query($sql) )

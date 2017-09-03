@@ -64,6 +64,9 @@ require(PD.'/admin/check_admin.php');
 					<li class="menu-entry" data-page="#transactions">
 						<i class=""></i> Транзакции
 					</li>
+					<li class="menu-entry" data-page="#adv">
+						<i class=""></i> Реклама
+					</li>
 					<li class="menu-entry" data-page="#banners">
 						<i class=""></i> Баннеры
 					</li>

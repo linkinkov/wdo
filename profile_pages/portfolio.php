@@ -152,20 +152,9 @@ if ( $current_user->user_id == $user->user_id )
 
 	</div>
 </div>
-<?php
-print_r($_GET);
-?>
 <script>
-var preselected_pfid = 0;
-<?php
-$preselected_pfid = get_var("pfid","int");
-if ( $preselected_pfid > 0 )
-{
-	echo sprintf('preselected_pfid = "%d";',$preselected_pfid);
-}
-?>
 $(function(){
-	console.log("Got preselected_pfid: ",preselected_pfid);
+	preselected_pfid = document.preselected_pfid;
 	app.portfolio.getList(function(response){
 		if ( response.length > 0 )
 		{

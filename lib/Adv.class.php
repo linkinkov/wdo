@@ -93,11 +93,26 @@ class Adv
 			}
 			$str[] = sprintf("`%s` = '%s'",$f,$v);
 		}
-		$sql = sprintf("UPDATE `adv` SET %s WHERE `adv_id` = '%s' AND `user_id` = '%d'",implode(",",$str),$this->adv_id,$current_user->user_id);
+		if ( $current_user->template_id != 2 && in_array($data["status_id"], Array("1","5"))  )
+		{
+			return $response;
+		}
+		$sql = sprintf("UPDATE `adv` SET %s WHERE `adv_id` = '%s' AND `user_id` = '%d'",implode(",",$str),$this->adv_id,$this->user_id);
 		try {
 			$db->query($sql);
-			$response["result"] = "true";
-			$response["message"] = "Обновлено";
+			if ( $data["status_id"] == "1" )
+			{
+				$sql = sprintf("UPDATE `adv` SET `accepted` = UNIX_TIMESTAMP() WHERE `adv_id` = '%s' AND `user_id` = '%d'",$this->adv_id,$this->user_id);
+				if ( $db->query($sql) )
+				{
+					$response["result"] = "true";
+					$response["message"] = "Обновлено";
+				}
+				else
+				{
+					$response["message"] = "Не удалось обновить дату одобрения";
+				}
+			}
 		}
 		catch ( Exception $e )
 		{
@@ -128,16 +143,16 @@ class Adv
 		return $response;
 	}
 
-	public static function get_list($limit = 3)
+	public static function get_list($limit = 3, $status_id = 1, $order = "last_prolong", $dir = "DESC")
 	{
 		global $db;
-		$sql = "SELECT * FROM `adv` WHERE `status_id` = '1'";
+		$sql = sprintf("SELECT * FROM `adv` WHERE `status_id` = '%d' ORDER BY `%s` %s LIMIT 0,%d",$status_id,$order,$dir,$limit);
 		$list = Array();
 		try {
 			$list = $db->queryRows($sql);
 			foreach ( $list as $adv )
 			{
-				$adv->link = ( $adv->portfolio_id == 0 ) ? sprintf(HOST.'/profile/id%d',$adv->user_id) : sprintf('/profile/id%d?pfid=%d#portfolio',$adv->user_id,$adv->portfolio_id);
+				$adv->link = ( $adv->portfolio_id == 0 ) ? sprintf(HOST.'/profile/id%d',$adv->user_id) : sprintf('/profile/id%d#portfolio%d',$adv->user_id,$adv->portfolio_id);
 			}
 		}
 		catch ( Exception $e )

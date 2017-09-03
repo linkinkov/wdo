@@ -349,6 +349,11 @@ $(function(){
 	var hash = window.location.hash;
 	if ( hash != "" )
 	{
+		if ( new RegExp('portfolio([0-9]+)').test(hash) )
+		{
+			document.preselected_pfid = hash.match(/[0-9]+/g);
+			hash = "#portfolio";
+		}
 		$('a[data-target="' + hash + '"]').tab('show');
 		$(document).scrollTop(0);
 	}

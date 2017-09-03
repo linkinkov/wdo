@@ -1,4 +1,18 @@
 <?php
+/*
+$field = "password";
+$value = "1234567";
+$random_salt = hash('sha512', uniqid(openssl_random_pseudo_bytes(16), TRUE));
+$value = hash('sha512', hash('sha512',$value) . $random_salt);
+$sql = sprintf("UPDATE `users` SET `%s` = '%s', `salt` = '%s' WHERE `user_id` = '%d'",$field,$value,$random_salt,15);
+echo $sql;
+exit;
+
+*/
+
+
+
+
 require_once('_global.php');
 include_once('_includes.php');
 require_once(PD.'/lib/Resize.class.php');

@@ -81,7 +81,7 @@ $action = get_var("action","string",false);
 									<div class="btn-group">
 										<button type="button" class="btn btn-secondary calendar"><i class="fa fa-calendar"></i></button>
 										<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											<i class="fa fa-cogs"></i> Фильтр
+											<i class="fa fa-filter"></i> Фильтр
 										</button>
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item wdo-link project-extra-filter" for="safe_deal">Только безопасные сделки</a>
@@ -268,7 +268,7 @@ $(function(){
 			$("#lab").append("<hr />");
 			$.each(response,function(i,v){
 				var item = app.formatter.format_adv(v);
-				$("#lab").append('<a href="'+v.link+'">'+item+'</a><hr />');
+				$("#lab").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a><hr />');
 				$("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
 			})
 			$("#top-adv-container").find(".user-adv").each(function(i,v){

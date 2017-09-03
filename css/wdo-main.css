@@ -55,7 +55,7 @@ body { padding-right: 0 !important }
 	width: 100% !important;	flex-direction: column !important;
 }
 .container.header-container {
-	z-index: 10;
+	/* z-index: -1; */
 }
 .container.banner-container {
 	background: url('/images/banners/banner-main.gif') no-repeat center;

@@ -221,7 +221,7 @@ class Category
 				$response["message"] = "Такая категория уже существует";
 				return $response;
 			}
-			$cat_name_translated = sprintf(", `translated` = '%s'",strtolower(r2t($value)));
+			$cat_name_translated = sprintf(", `translated` = '%s'",addslashes(strtolower(r2t($value))));
 		}
 		$sql = sprintf("UPDATE `cats` SET `%s` = '%s' %s WHERE `id` = '%d'",$name,$value,$cat_name_translated,$this->id);
 		try {

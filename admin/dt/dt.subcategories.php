@@ -80,7 +80,7 @@ $sql_main = "SELECT
 	) as `portfolio_counter`
 	FROM `subcats`
 	WHERE $searchStr $parent_cat_id
-	ORDER BY $orderStr
+	ORDER BY $orderStr, subcat_id asc
 	LIMIT $start, $length";
 // echo $sql_main;
 try {
