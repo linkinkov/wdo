@@ -76,7 +76,7 @@ if ( $job == "getUsers" )
 <?php include(PD.'/includes/main-header.php');?>
 
 <div class="container main-container" id="projects">
-	<div class="row bottom-shadow">
+	<div class="row main-container-shadow">
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row">
@@ -256,10 +256,23 @@ $(function(){
 	initmap(config.profile.placeCoords);
 	map.on('moveend', onMapMove);
 	onMapMove();
+	app.adv.get_list(5,function(response){
+		if ( response.length > 0 )
+		{
+			$("#lab").append("<hr />");
+			$.each(response,function(i,v){
+				var item = app.formatter.format_adv(v);
+				$("#lab").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a><hr />');
+				$("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
+			})
+			$("#top-adv-container").find(".user-adv").each(function(i,v){
+				$(v).css("margin",0);
+			})
+		}
+	});
 
 });
 config.profile.placeCoords = '<?php echo isset($current_user->gps) ? str_replace(" ",",",$current_user->gps) : "";?>';
-console.log("config.profile.placeCoords:",config.profile.placeCoords);
 </script>
 </body>
 </html>

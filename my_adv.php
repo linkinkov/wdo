@@ -172,10 +172,10 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 										<div class="col">
 											<div class="top-block">
 												<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=80&h=80" src="/user.getAvatar?user_id=<?php echo $current_user->user_id;?>&w=80&h=80" /></div>
-												<div class="title word-break">Заголовок вашего объявления</div>
+												<div class="title">Заголовок вашего объявления</div>
 											</div>
 											<div class="bottom-block">
-												<div class="descr word-break">Здесь Ваш текст объявления</div>
+												<div class="descr">Здесь Ваш текст объявления</div>
 											</div>
 										</div>
 									</div>

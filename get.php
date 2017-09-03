@@ -110,7 +110,8 @@ switch ( $job )
 		break;
 	case "AdvList":
 		$limit = get_var("limit","int","");
-		$list = Adv::get_list();
+		$cats = get_var("cats","string","");
+		$list = Adv::get_list($limit,1,"last_prolong","DESC",$cats);
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;

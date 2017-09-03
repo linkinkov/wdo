@@ -143,10 +143,16 @@ class Adv
 		return $response;
 	}
 
-	public static function get_list($limit = 3, $status_id = 1, $order = "last_prolong", $dir = "DESC")
+	public static function get_list($limit = 3, $status_id = 1, $order = "last_prolong", $dir = "DESC", $cats = "")
 	{
 		global $db;
-		$sql = sprintf("SELECT * FROM `adv` WHERE `status_id` = '%d' ORDER BY `%s` %s LIMIT 0,%d",$status_id,$order,$dir,$limit);
+		$catsSql = "";
+		if ( $cats != "" )
+		{
+			$cats = explode(",",$cats);
+			$catsSql = sprintf(" AND `cat_id` IN ('%s')",implode("','",$cats));
+		}
+		$sql = sprintf("SELECT * FROM `adv` WHERE `status_id` = '%d' %s ORDER BY `%s` %s LIMIT 0,%d",$status_id,$catsSql,$order,$dir,$limit);
 		$list = Array();
 		try {
 			$list = $db->queryRows($sql);

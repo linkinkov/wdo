@@ -28,7 +28,7 @@ $action = get_var("action","string",false);
 <?php include(PD.'/includes/main-header.php');?>
 
 <div class="container banner-container">
-	<div class="row shadow inset">
+	<div class="row">
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row">
@@ -41,7 +41,7 @@ $action = get_var("action","string",false);
 					</div>
 					<div class="row">
 						<div class="col">
-							<div class="wdo-btn bg-purple learnMore">Узнать больше</div>
+							<a class="wdo-btn bg-purple learnMore" href="/about/">Узнать больше</a>
 						</div>
 					</div>
 				</div><!-- /.wdo-main-left -->
@@ -63,7 +63,7 @@ $action = get_var("action","string",false);
 </div>
 
 <div class="container main-container" id="projects">
-	<div class="row bottom-shadow">
+	<div class="row main-container-shadow">
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row">
@@ -86,7 +86,7 @@ $action = get_var("action","string",false);
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item wdo-link project-extra-filter" for="safe_deal">Только безопасные сделки</a>
 											<a class="dropdown-item wdo-link project-extra-filter" for="vip">Только VIP</a>
-											<a class="dropdown-item wdo-link project-extra-filter" onClick="event.preventDefault();event.stopPropagation();">
+											<!-- <a class="dropdown-item wdo-link project-extra-filter" onClick="event.preventDefault();event.stopPropagation();">
 												<div class="dataTables_length">
 													<select class="form-control" id="projects-table_length" name="length" data-param="length" aria-controls="deviceListTable" style="width: 100%;">
 														<option value="10">по 10 записей</option>
@@ -95,7 +95,7 @@ $action = get_var("action","string",false);
 														<option value="100">по 100 записей</option>
 													</select>
 												</div>
-											</a>
+											</a> -->
 										</div>
 									</div>
 								</div>
@@ -180,7 +180,8 @@ $(function(){
 			"url": "/dt/projects",
 			"type": "POST",
 			"data": function( d ) {
-				d.length = function() {return parseInt(config.projects.table.length);};
+				// d.length = function() {return parseInt(config.projects.table.length);};
+				d.length = 20;
 				d.showParams = config.projects.table;
 				d.selected = function() {return config.projects.specs;};
 				d.start_date = function() {return $(config.projects.calendar).data('daterangepicker').startDate.format("X");};
@@ -197,7 +198,7 @@ $(function(){
 		"stateLoadCallback": function (settings) {
 			return config.projects.table.state;
 		},
-		"iDisplayLength": parseInt(config.projects.table.length),
+		"iDisplayLength": 20,
 		"columns": [
 			{"data": "project.title","class":"project-table-title","width":"300px"},
 			{"data": "project.start_date","class":"project-table-created"},
@@ -208,7 +209,7 @@ $(function(){
 		"initComplete": function(table,data) {
 			$("#dt_filter").val(config.projects.table.state.search.search);
 			$("#projects-table").find("th:eq(1)").css('min-width','100px');
-			$("#projects-table_length").val(config.projects.table.length);
+			// $("#projects-table_length").val(config.projects.table.length);
 		},
 		"createdRow": function ( row, data, index ) {
 			var title = $.sprintf('<a class="wdo-link word-break" href="%s">%s</a>',data.project.project_link,data.project.title);
@@ -269,13 +270,13 @@ $(function(){
 			$.each(response,function(i,v){
 				var item = app.formatter.format_adv(v);
 				$("#lab").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a><hr />');
-				$("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
+				// $("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
 			})
-			$("#top-adv-container").find(".user-adv").each(function(i,v){
-				$(v).css("margin",0);
-			})
+			// $("#top-adv-container").find(".user-adv").each(function(i,v){
+			// 	$(v).css("margin",0);
+			// })
 		}
-	});
+	},function() {return config.projects.specs;});
 });
 </script>
 </body>

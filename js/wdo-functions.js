@@ -181,6 +181,22 @@ function showScenarioDetails(item)
 function reloadTable()
 {
 	( /performers/.test(window.location.pathname) ) ? config.performers.dt.ajax.reload() : config.projects.dt.ajax.reload();
+	app.adv.get_list(5,function(response){
+		$("#lab").html("");
+		if ( response.length > 0 )
+		{
+			$("#lab").append("<hr />");
+			$.each(response,function(i,v){
+				var item = app.formatter.format_adv(v);
+				$("#lab").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a><hr />');
+				// $("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
+			})
+			// $("#top-adv-container").find(".user-adv").each(function(i,v){
+			// 	$(v).css("margin",0);
+			// })
+		}
+	},function() {return config.projects.specs;});
+
 }
 function set_btn_state(btn,state,message)
 {

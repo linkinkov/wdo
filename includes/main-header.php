@@ -1,6 +1,6 @@
 
 <div class="container header-container">
-	<div class="row shadow">
+	<div class="row header-container-shadow">
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row wdo-main-header">
@@ -103,6 +103,12 @@
 											}
 											?>
 										</a>
+										<a class="wdo-link dropdown-item" href="/profile/#projects">
+											<span class="pull-right">
+												<span data-type="projects" class="badge badge-pill badge-info profile-counter"></span>
+											</span>
+											Проекты
+										</a>
 										<a class="wdo-link dropdown-item" href="/profile/#messages">
 											<span class="pull-right">
 												<span data-type="messages" class="badge badge-pill badge-info profile-counter"></span>
@@ -171,9 +177,12 @@
 	</div>
 </div>
 
-
+<?php
+if ( $_SESSION["LAST_PAGE"] != "/projects" )
+{
+?>
 <div class="container header-container">
-	<div class="row shadow inset">
+	<div class="row">
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row wdo-main-header">
@@ -185,3 +194,5 @@
 		<div class="col margins right"></div>
 	</div>
 </div>
+<?php
+}

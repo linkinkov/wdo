@@ -73,7 +73,7 @@ var config = {
 			]
 		},
 		"startDate": moment().startOf("day").format("YYYY-MM-DD"),
-		"endDate": moment().add(6,"days").format("YYYY-MM-DD"),
+		"endDate": moment().add(6,"month").format("YYYY-MM-DD"),
 		"alwaysShowCalendars": true,
 		"showCustomRangeLabel": false
 	},
@@ -954,11 +954,11 @@ var app = {
 			+'<div class="user-adv" data-adv_id="'+data.adv_id+'">'
 			+'	<div class="col">'
 			+'		<div class="top-block">'
-			+'			<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id=1&w=80&h=80" src="/user.getAvatar?user_id=1&w=80&h=80" /></div>'
-			+'			<div class="title word-break">'+data.title+'</div>'
+			+'			<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" src="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" /></div>'
+			+'			<div class="title">'+data.title+'</div>'
 			+'		</div>'
 			+'		<div class="bottom-block">'
-			+'			<div class="descr word-break">'+data.descr+'</div>'
+			+'			<div class="descr">'+data.descr+'</div>'
 			+'		</div>'
 			+'	</div>'
 			+'</div>';
@@ -981,7 +981,7 @@ var app = {
 				}
 			})
 		},
-		"get_list": function(limit,callback)
+		"get_list": function(limit,callback,cats)
 		{
 			limit = limit || 5;
 			callback = callback || function(){};
@@ -989,7 +989,8 @@ var app = {
 				type: "POST",
 				url: "/get.AdvList",
 				data: {
-					"limit": limit
+					"limit": limit,
+					"cats": cats 
 				},
 				dataType: "JSON",
 				success: function (response) {

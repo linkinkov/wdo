@@ -44,9 +44,16 @@ else
 }
 
 $sql_main = "SELECT `user_id`,`real_user_name`,
-	(SELECT COUNT(`id`) FROM `user_responds` WHERE `user_id` = `users`.`user_id`) as `user_responds`
+	(SELECT COUNT(`id`) FROM `user_responds` WHERE `user_id` = `users`.`user_id`) as `user_responds`,
+	(SELECT COUNT(`portfolio_id`) FROM `portfolio` WHERE `user_id` = `users`.`user_id` $selectedStr) as `portfolio_cnt`
 	FROM `users`
 	WHERE `status_id` = 1 AND `as_performer` = 1 $cityStr
+";
+if ( $selectedStr != "" )
+{
+	$sql_main .= " HAVING `portfolio_cnt` > 0";
+}
+$sql_main .= "
 	ORDER BY $orderStr
 	LIMIT $start, $length";
 // echo $sql_main;
