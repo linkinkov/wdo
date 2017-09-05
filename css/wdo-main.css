@@ -685,6 +685,11 @@ th.project-table-cost {
 	-ms-hyphens: auto;
 	hyphens: auto;
 }
+.profile-menu {
+	right: -35px;
+	left: auto;
+	top: 32px;
+}
 .profile-menu .dropdown-item.active,.profile-menu .dropdown-item:active {
 	background-color: #fff !important;
 }
@@ -960,7 +965,7 @@ ul.set-rating li.selected {
 	display: flex;
 	flex-wrap: wrap;
 	margin: 10px auto;
-	padding: 10px 0;
+	/* padding: 10px 0; */
 	width: 210px;
 	overflow: hidden;
 	max-height: 140px;
@@ -973,6 +978,7 @@ ul.set-rating li.selected {
 .user-adv .top-block {
 	display: flex;
 	flex-direction: row;
+	padding-top: 10px;
 }
 .user-adv .top-block .logo {
 	display: flex;
@@ -987,7 +993,8 @@ ul.set-rating li.selected {
 	flex-grow: 1;
 	color: #940a63;
 	font-weight: bolder;
-	padding-left: 5px;
+	justify-content: center;
+	text-align: center;
 }
 .user-adv .bottom-block {
 	display: flex;
@@ -1002,6 +1009,8 @@ ul.set-rating li.selected {
 	font-weight: 800;
 	font-size: 0.67rem;
 	line-height: 1.2rem;
+	text-align: center;
+	padding-top: 10px;
 }
 .adv-filter {
 	display: inline-block;
@@ -1015,4 +1024,10 @@ ul.set-rating li.selected {
 .adv-filter.active {
 	font-weight: 800;
 	color: #4e0534;
+}
+.adv-bordered {
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin: 5px;
+	background-color: #fff;
 }

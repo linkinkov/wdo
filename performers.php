@@ -256,20 +256,20 @@ $(function(){
 	initmap(config.profile.placeCoords);
 	map.on('moveend', onMapMove);
 	onMapMove();
-	app.adv.get_list(5,function(response){
+	app.adv.get_list(8,function(response){
+		$("#lab").html("<hr />");
+		$("#top-adv-container").html("");
 		if ( response.length > 0 )
 		{
-			$("#lab").append("<hr />");
 			$.each(response,function(i,v){
+				var target = (i>3 && response.length > 8) ? $("#top-adv-container") : $("#lab");
+				// console.log("i:",i,", length:",response.length,", target:",target);
 				var item = app.formatter.format_adv(v);
-				$("#lab").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a><hr />');
-				$("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
+				target.append(app.formatter.format_adv(v)+'<hr />');
 			})
-			$("#top-adv-container").find(".user-adv").each(function(i,v){
-				$(v).css("margin",0);
-			})
+			$("#lab").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
 		}
-	});
+	},function() {return config.projects.specs;}, true);
 
 });
 config.profile.placeCoords = '<?php echo isset($current_user->gps) ? str_replace(" ",",",$current_user->gps) : "";?>';

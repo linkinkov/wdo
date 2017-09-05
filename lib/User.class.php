@@ -25,14 +25,14 @@ class User
 			return;
 		}
 		$where = (intval($id) > 0) ? sprintf("`user_id` = '%d'",$id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","status_id","rating","rezume","phone","skype","site","gps","signature","template_id");
+		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","status_id","rating","rezume","phone","telegram","site","gps","signature","template_id");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` LEFT JOIN `cities` ON `cities`.`id` = `users`.`city_id` WHERE %s",implode(",",$public_fields),$where);
 		// echo $sql;
 		try {
 			$info = $db->queryRow($sql);
 			if ( sizeof($info) ) foreach ( $info as $p => $v ) $this->$p = htmlentities($v); else $this->error = true;
-			$filter = Array("username","phone","skype","signature","rezume");
+			$filter = Array("username","phone","telegram","signature","rezume");
 			foreach ( $filter as $field )
 			{
 				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
@@ -44,7 +44,7 @@ class User
 			if ( $login == false && (!isset($_SESSION["user_id"]) || $_SESSION["user_id"] == 0) )
 			{
 				$this->phone = "Скрыт";
-				$this->skype = "Скрыт";
+				$this->telegram = "Скрыт";
 			}
 			if ( $login == true )
 			{
@@ -216,7 +216,7 @@ class User
 			"message" => "Ошибка"
 		);
 		if ( $this->user_id == 0 ) return $response;
-		$public_fields = Array("password","real_user_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds");
+		$public_fields = Array("password","real_user_name","type_id","country_id","city_id","as_performer","phone","telegram","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds");
 		$set = Array();
 		foreach ( $data as $key=>$value )
 		{
@@ -272,7 +272,7 @@ class User
 		);
 		if ( !$user_id ) return $response;
 		if ( $current_user->user_id != $user_id ) return $response;
-		$public_fields = Array("user_id","real_user_name","type_id","country_id","city_id","as_performer","phone","skype","site","gps","signature","rezume","birthday");
+		$public_fields = Array("user_id","real_user_name","type_id","country_id","city_id","as_performer","phone","telegram","site","gps","signature","rezume","birthday");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE `user_id` = '%d'",implode(",",$public_fields),$user_id);
 		try {

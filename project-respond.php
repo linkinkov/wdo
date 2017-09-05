@@ -110,7 +110,7 @@ $_SESSION["LAST_PAGE"] = "/add-project-respond";
 						<div class="col">
 							<?php
 							echo sprintf('
-							<a class="wdo-link" href="%s"><h5 style="font-weight: 800;">%s</h5></a>
+							<h5 style="font-weight: 800;"><a class="wdo-link" href="%s">%s</a></h5>
 							<a class="wdo-link text-purple" href="%s">%s</a> / <a class="wdo-link text-purple" href="%s">%s</a>',
 							parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH),
 							$project->title,

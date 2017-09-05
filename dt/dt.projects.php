@@ -2,7 +2,7 @@
 require_once('../_global.php');
 require_once('../_includes.php');
 check_access($db,false);
-
+opcache_reset();
 $current_user = new User($_SESSION["user_id"]);
 
 header('Content-Type: application/json');
@@ -21,7 +21,7 @@ $script_start = microtime(true);
 
 $sEcho = get_var("draw","int",0);
 $start = get_var("start","int",0);
-$length = get_var("length","int",10);
+$length = get_var("length","int",20);
 $search = isset($_REQUEST["search"]["value"]) ? htmlspecialchars($_REQUEST["search"]["value"]) : "";
 $order = get_var("order","array",Array());
 $columns = get_var("columns","array",Array());
@@ -34,7 +34,7 @@ $only_vip = get_var("vip","string",false);
 $only_safe = get_var("safe_deal","string",false);
 $user_id = get_var("user_id","int",0);
 // $for_profile = get_var("for_profile","string",false);
-
+// $length = $length - 3;
 if (sizeof($columns) > 0)
 {
 	foreach($columns as $idx=>$col)
@@ -55,9 +55,9 @@ if (sizeof($order) > 0)
 $orderStr = isset($orderArr) ? implode(", ", $orderArr) : "`project`.`project_id` ASC";
 $searchStr = ( $search ) ? '(
 		`title` LIKE "%'.$search.'%"
-		OR FROM_UNIXTIME(`start_date`,"%d.%m.%Y") LIKE "%'.$search.'%"
 		OR cost LIKE "%'.$search.'%"
 		)' : '1' ;
+		// OR FROM_UNIXTIME(`start_date`,"%d.%m.%Y") LIKE "%'.$search.'%"
 $cityStr = ( isset($_COOKIE["city_id"]) && intval($_COOKIE["city_id"]) > 0 ) ? sprintf(" AND `city_id` = '%d'",intval($_COOKIE["city_id"])) : sprintf(" AND `city_id` = '%d'",1);
 $statusStr = ( $status_id > 0 ) ? sprintf(' AND `status_id` = "%d"',$status_id) : '';
 $selectedStr = ( $selected != "" ) ? sprintf(' AND `subcat_id` IN (%s)',$selected) : '';
@@ -95,6 +95,10 @@ else if ( $only_vip == "true" )
 {
 	$safe_vip = sprintf(' AND `vip` = 1');
 }
+else
+{
+	$safe_vip = " AND `project`.`vip` = 0";
+}
 
 $select_new_bids = ( $current_user->user_id > 0 )
 	? ", (SELECT COUNT(`respond_id`) FROM `project_responds` WHERE `for_project_id` = `project_id` AND `respond_id` NOT IN (SELECT `id` FROM `user_readed_log` WHERE `type`='project_respond' AND `user_id` = '".$current_user->user_id."')) as bids_new"
@@ -111,7 +115,7 @@ $sql_main = "SELECT `project_id`,
 	LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
 	LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
 	WHERE $searchStr $statusStr $cityStr $selectedStr $timerange $for_user_id $safe_vip $author_id AND `cats`.`disabled` = 0 AND `subcats`.`disabled` = 0
-	ORDER BY `project`.`vip` DESC, $orderStr
+	ORDER BY $orderStr
 	LIMIT $start, $length";
 // echo $sql_main;
 try {
@@ -129,7 +133,7 @@ $sql = "SELECT COUNT(`project_id`) as recordsTotal
 FROM `project`
 LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
 LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
-WHERE 1 $statusStr $cityStr $for_user_id $author_id AND `cats`.`disabled` = 0 AND `subcats`.`disabled` = 0";
+WHERE 1 $safe_vip $statusStr $cityStr $for_user_id $author_id AND `cats`.`disabled` = 0 AND `subcats`.`disabled` = 0";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
@@ -152,6 +156,42 @@ try {
 	exit();
 }
 
+/*         SELECT VIP PROJECTS         */
+if ( $safe_vip == " AND `project`.`vip` = 0" || $safe_vip == ' AND `safe_deal` = 1' )
+{
+	$vip_start = ( $start == 0 ) ? 0 : ($start / 20)*4;
+
+	$sql_main = "SELECT `project_id`,
+		(SELECT COUNT(`respond_id`) FROM `project_responds` WHERE `for_project_id` = `project_id`) as bids
+		$select_new_bids
+		FROM `project`
+		LEFT JOIN `project_statuses` ON `project_statuses`.`id` = `project`.`status_id`
+		LEFT JOIN `cats` ON `cats`.`id` = `project`.`cat_id`
+		LEFT JOIN `subcats` ON `subcats`.`id` = `project`.`subcat_id`
+		WHERE `status_id` = 1 AND `project`.`vip` = 1 $cityStr $selectedStr $for_user_id $author_id AND `cats`.`disabled` = 0 AND `subcats`.`disabled` = 0
+		ORDER BY `project`.`last_prolong` DESC
+		LIMIT $vip_start, 4";
+	// echo $sql_main;
+	try {
+		$vip_projects = $db->queryRows($sql_main);
+		$aaData = array_merge($vip_projects,$aaData);
+		// $recordsFiltered = $recordsFiltered+sizeof($vip_projects);
+		// $recordsTotal = $recordsTotal+sizeof($vip_projects);
+	} catch (Exception $e) {
+		// $response["error"] = $e->getMessage();
+		// echo $sql_main;
+		// echo json_encode($response);
+		// exit();
+	}
+}
+
+
+
+
+/*         SELECT VIP PROJECTS         */
+
+
+
 if ( sizeof ($aaData) )
 {
 	$idx = 0;
@@ -171,7 +211,7 @@ if ( sizeof ($aaData) )
 		$row->user = new User($project->user_id);
 		// $title_tr = strtolower(r2t($project->title));
 		if ( $project->vip == 1 ) $row->DT_RowClass .= " vip";
-		if ( $current_user->user_id == $user_id )
+		if ( $current_user->user_id == $user_id && $current_user->user_id != 0 )
 		{
 			$row->DT_RowClass .= " no-pointer";
 			$row->performer_id = $row->performer_name;

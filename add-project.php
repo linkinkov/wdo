@@ -8,7 +8,7 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 }
 require_once('_global.php');
 include_once('_includes.php');
-$db = db::getInstance();
+// $db = db::getInstance();
 check_access($db,false);
 $current_user = new User($_SESSION["user_id"]);
 if ( $current_user->user_id <= 0 )

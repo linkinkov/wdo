@@ -7,6 +7,14 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 }
 require_once('_global.php');
 include_once('_includes.php');
+check_access($db,false);
+$current_user = new User($_SESSION["user_id"]);
+if ( $current_user->user_id <= 0 )
+{
+	$error = 401;
+	include(PD.'/errors/error.php');
+	exit;
+}
 
 $counters["1"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>1));
 $counters["2"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>2));
@@ -248,12 +256,22 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 
 function load_my_advs(status_id)
 {
+	$("#adv_id").data("adv_id","").attr("adv_id","");
 	var data = {
 		"status_id": status_id
 	};
 	$("#user_advs").html('');
 	$("[data-toggle='filter_status']").removeClass("active");
 	$("[data-toggle='filter_status'][data-value='"+status_id+"']").addClass("active");
+	$(".wdo-option[data-name='category']").removeClass("active");
+	$(".dropdown-toggle[data-name='category']").text('Раздел');
+
+	$(".wdo-option[data-name='subcategory']").removeClass("active");
+	$(".dropdown-toggle[data-name='subcategory']").text('Подраздел');
+
+	$("[data-name='title']").val("").trigger('keyup');
+	$("[data-name='descr']").val("").trigger('keyup');
+
 	app.adv.action("load_user_advs",status_id,function(response)
 	{
 		if ( response.length > 0 && !typeof response.result !== 'undefined' )
@@ -275,10 +293,9 @@ function load_my_advs(status_id)
 function load_single_adv(adv_id)
 {
 	app.adv.action("load",adv_id,function(response){
-		console.log("click, loaded");
 		$(".wdo-option[data-name='category']").removeClass("active");
 		$(".wdo-option[data-name='category'][data-value='"+response.cat_id+"']").addClass("active");
-		$("button[data-name='category']").text($(".wdo-option[data-name='category'][data-value='"+response.cat_id+"']").text());
+		$(".dropdown-toggle[data-name='category']").text($(".wdo-option[data-name='category'][data-value='"+response.cat_id+"']").text());
 		app.getSubCategories(response.cat_id,function(subresponse){
 			if ( subresponse )
 			{
@@ -389,6 +406,7 @@ $(function(){
 			"prolong_days": $("input[data-name='prolong_days']").val(),
 			"as_draft": $(this).data("draft")
 		}
+		response = "";
 		app.adv.action(action,data,function(response)
 		{
 			if ( response.result == "false" )

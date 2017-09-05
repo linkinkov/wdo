@@ -48,9 +48,19 @@ $action = get_var("action","string",false);
 				<div class="col wdo-main-right" style="display: flex; align-items: flex-end; padding-bottom: 15px;">
 					<div style="z-index: 1;">
 						<div class="row" style="align-items: center;">
-							<div class="col" style="min-width: 571px; padding-right: 0;">Добавить проект может любой пользователь. Если у вас нет аккаунта, то сперва зарегистрируйтесь, а затем Вы сможете создавать новые проекты</div>
+							<div class="col" style="min-width: 615px; padding-right: 0;">Добавить проект может любой пользователь. Если у вас нет аккаунта, то сперва зарегистрируйтесь, а затем Вы сможете создавать новые проекты</div>
 							<div class="col text-right" style="padding-left: 0;">
-								<a href="<?php echo HOST.'/project/add/';?>" class="wdo-btn bg-purple btn-sm"><i class="fa fa-plus"></i> Добавить проект</a>
+								<?php
+								if ( isset($current_user->user_id) && $current_user->user_id > 0 )
+								{
+									// echo '<a href="'.HOST.'/project/add/'.'" class="wdo-btn bg-purple btn-sm"><i class="fa fa-plus"></i> Добавить</a>';
+									echo '<a href="#" data-toggle="modal" data-target="#apm-modal" class="wdo-btn bg-purple btn-sm"><i class="fa fa-plus"></i> Добавить</a>';
+								}
+								else
+								{
+									echo '<a href="#login" data-toggle="modal" data-target="#login-modal" class="wdo-btn bg-purple btn-sm"><i class="fa fa-plus"></i> Добавить</a>';
+								}
+								?>
 							</div>
 						</div>
 					</div>
@@ -164,12 +174,12 @@ $(function(){
 	$('.calendar').on('apply.daterangepicker', function(ev, picker) {
 		reloadTable();
 	});
-	$("#projects-table_length").on("change",function(){
-		config.projects.table.length = this.value;
-		config.projects.dt.page.len( config.projects.table.length );
-		setCookie("config.projects.table",JSON.stringify(config.projects.table));
-		config.projects.dt.ajax.reload();
-	})
+	// $("#projects-table_length").on("change",function(){
+	// 	config.projects.table.length = this.value;
+	// 	config.projects.dt.page.len( config.projects.table.length );
+	// 	setCookie("config.projects.table",JSON.stringify(config.projects.table));
+	// 	config.projects.dt.ajax.reload();
+	// })
 	config.projects.dt = $("#projects-table").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"dom": 'tr<"row"<"col"p>><"row"<"col"i>>',
@@ -181,8 +191,8 @@ $(function(){
 			"type": "POST",
 			"data": function( d ) {
 				// d.length = function() {return parseInt(config.projects.table.length);};
-				d.length = 20;
-				d.showParams = config.projects.table;
+				// d.length = 20;
+				// d.showParams = config.projects.table;
 				d.selected = function() {return config.projects.specs;};
 				d.start_date = function() {return $(config.projects.calendar).data('daterangepicker').startDate.format("X");};
 				d.end_date = function() {return $(config.projects.calendar).data('daterangepicker').endDate.format("X");};
@@ -192,11 +202,12 @@ $(function(){
 		},
 		"bStateSave": true,
 		"stateSaveCallback": function(settings, data) {
-			config.projects.table.state = data;
-			setCookie("config.projects.table",JSON.stringify(config.projects.table));
+			// config.projects.table.state = data;
+			// setCookie("config.projects.table",JSON.stringify(config.projects.table));
 		},
 		"stateLoadCallback": function (settings) {
-			return config.projects.table.state;
+			// return config.projects.table.state;
+			return settings;
 		},
 		"iDisplayLength": 20,
 		"columns": [
@@ -207,7 +218,7 @@ $(function(){
 		],
 		"order": [[0, 'asc']],
 		"initComplete": function(table,data) {
-			$("#dt_filter").val(config.projects.table.state.search.search);
+			// $("#dt_filter").val(config.projects.table.state.search.search);
 			$("#projects-table").find("th:eq(1)").css('min-width','100px');
 			// $("#projects-table_length").val(config.projects.table.length);
 		},
@@ -269,12 +280,9 @@ $(function(){
 			$("#lab").append("<hr />");
 			$.each(response,function(i,v){
 				var item = app.formatter.format_adv(v);
-				$("#lab").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a><hr />');
-				// $("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
+				$("#lab").append(app.formatter.format_adv(v)+'<hr />');
 			})
-			// $("#top-adv-container").find(".user-adv").each(function(i,v){
-			// 	$(v).css("margin",0);
-			// })
+			$("#lab").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
 		}
 	},function() {return config.projects.specs;});
 });

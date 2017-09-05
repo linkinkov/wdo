@@ -17,7 +17,7 @@ var config = {
 	{
 		"dt": null,
 		"table": {
-			"length": 10,
+			"length": 20,
 			"state": {},
 		},
 		"calendar": null,
@@ -948,21 +948,42 @@ var app = {
 			child_row += '</table>';
 			return child_row;
 		},
-		"format_adv": function(data)
+		"format_adv": function(data,print_footer)
 		{
-			var html = ''
-			+'<div class="user-adv" data-adv_id="'+data.adv_id+'">'
-			+'	<div class="col">'
-			+'		<div class="top-block">'
-			+'			<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" src="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" /></div>'
-			+'			<div class="title">'+data.title+'</div>'
-			+'		</div>'
-			+'		<div class="bottom-block">'
-			+'			<div class="descr">'+data.descr+'</div>'
-			+'		</div>'
-			+'	</div>'
+			print_footer = print_footer || "true";
+			// var html = ''
+			// +'<div class="user-adv" data-adv_id="'+data.adv_id+'">'
+			// +'	<div class="col">'
+			// +'		<div class="top-block">'
+			// +'			<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" src="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" /></div>'
+			// +'			<div class="title">'+data.title+'</div>'
+			// +'		</div>'
+			// +'		<div class="bottom-block">'
+			// +'			<div class="descr">'+data.descr+'</div>'
+			// +'		</div>'
+			// +'	</div>'
+			// +'</div>';
+			// return html;
+			var card = ''
+			+'<div class="card" style="max-width: 240px;">'
+			+'	<div class="card-block">'
+			+'		<h5 class="card-title text-center">'
+			+'			<a class="wdo-link" href="'+data.link+'">'
+			+'				<img class="rounded-circle shadow" src="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" alt="'+data.title+'">'
+			+'			</a><hr />'
+			+'			<a class="wdo-link text-purple" href="'+data.link+'">'+data.title+'</a>'
+			+'		</h5>'
+			+'	</div>';
+			if ( print_footer == "true" )
+			{
+				card += ''
+				+'	<div class="card-footer text-center">'
+				+'		'+data.descr+''
+				+'	</div>';
+			}
+			card += ''
 			+'</div>';
-			return html;
+			return card;
 		}
 	},
 	"adv": {
@@ -981,8 +1002,9 @@ var app = {
 				}
 			})
 		},
-		"get_list": function(limit,callback,cats)
+		"get_list": function(limit,callback,subcats,random)
 		{
+			random = random || false;
 			limit = limit || 5;
 			callback = callback || function(){};
 			$.ajax({
@@ -990,7 +1012,8 @@ var app = {
 				url: "/get.AdvList",
 				data: {
 					"limit": limit,
-					"cats": cats 
+					"subcats": subcats,
+					"random": random
 				},
 				dataType: "JSON",
 				success: function (response) {

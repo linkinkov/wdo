@@ -21,5 +21,5 @@ if (isset($_POST['username'], $_POST['p'])) {
 	// The correct POST variables were not sent to this page.
 	$response["message"] = "Invalid data";
 }
-
+ob_clean();
 echo json_encode($response);

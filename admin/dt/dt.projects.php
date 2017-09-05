@@ -200,7 +200,7 @@ if ( sizeof ($aaData) )
 			"safe_deal" => $row->safe_deal,
 			"vip" => $row->vip
 		);
-		$row->status_name = sprintf('<text class="%s">%s</text>',$status_class,$row->status_name);
+		$row->status_name = sprintf('<text class="%s project_status">%s</text>',$status_class,$row->status_name);
 		if ( $row->bids_new > 0 ) $row->bids .= ' <text class="text-purple">(+'.$row->bids_new.')</text>';
 		$title_tr = strtolower(r2t($row->title));
 		$row->project_link = HOST.'/project/'.$row->cat_name_translated.'/'.$row->subcat_name_translated.'/p'.$row->project_id.'/'.$title_tr.'.html';

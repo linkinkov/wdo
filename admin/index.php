@@ -83,19 +83,6 @@ require(PD.'/admin/check_admin.php');
 
 <?php include('modals.php');?>
 
-<!-- The Gallery  -->
-<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
-	<div class="slides"></div>
-	<h3 class="title"></h3>
-	<a class="prev">‹</a>
-	<a class="next">›</a>
-	<a class="close">×</a>
-	<a class="play-pause"></a>
-	<a class="custom-control portfolio-image-action" data-action="change_cover" data-subact="" style="color: gold;" title="Установить как обложку"><i class="fa fa-star-o fa-3x"></i></a>
-	<a class="custom-control portfolio-image-action" data-action="delete_attach" style="color: grey;" title="Удалить фото"><i class="fa fa-trash fa-3x"></i></a>
-	<ol class="indicator"></ol>
-</div>
-
 <!-- JS Loading -->
 <script type="text/javascript" src="<?php echo HOST;?>/js/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo HOST;?>/js/sha512.js"></script>

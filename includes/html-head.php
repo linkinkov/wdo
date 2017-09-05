@@ -4,7 +4,8 @@ $title = ( isset($window_title) ) ? 'WeeDo | '.htmlspecialchars_decode($window_t
 ?>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+<!-- <meta name="viewport" content="width=device-width, target-densitydpi=device-dpi, initial-scale=0, maximum-scale=1, user-scalable=yes" /> -->
 <title><?php echo $title;?></title>
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
@@ -12,7 +13,6 @@ $title = ( isset($window_title) ) ? 'WeeDo | '.htmlspecialchars_decode($window_t
 <link rel="manifest" href="/favicons/manifest.json">
 <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5">
 <meta name="theme-color" content="#ffffff">
-
 <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css"/>
 <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
 <link rel="stylesheet" type="text/css" href="/css/daterangepicker.css" />

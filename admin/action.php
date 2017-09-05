@@ -80,6 +80,12 @@ if ( $job == "update" )
 			header('Content-Type: application/json');
 			echo json_encode($response);
 			break;
+		case "project":
+			$project = new Project($id);
+			$response = $project->update($name,$value);
+			header('Content-Type: application/json');
+			echo json_encode($response);
+			break;
 	}
 }
 

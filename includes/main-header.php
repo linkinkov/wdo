@@ -90,7 +90,7 @@
 									<div href="#" class="wdo-link dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="align-items: end-flex;">
 										&nbsp;Мой кабинет<span data-type="total" class="badge badge-pill badge-info profile-counter" style="position: absolute; top: 0; right: -20px;">3</span>
 									</div>
-									<div class="dropdown-menu dropdown-menu-right profile-menu" style="width: 230px;">
+									<div class="dropdown-menu profile-menu" style="width: 230px;">
 										<a class="wdo-link dropdown-item" href="/profile/#profile"><strong>Профиль</strong>
 											<?php
 											if ( $current_user->status_id == 3 )
@@ -151,7 +151,7 @@
 											</span>
 											Предупреждения
 										</a>
-										<a class="wdo-link dropdown-item" href="/my_adv">Объявления</a>
+										<a class="wdo-link dropdown-item" href="/my_adv/">Объявления</a>
 										<div class="dropdown-divider"></div>
 										<a class="wdo-link dropdown-item" href="/logout/">Выход</a>
 									</div>
@@ -186,8 +186,8 @@ if ( $_SESSION["LAST_PAGE"] != "/projects" )
 		<div class="col margins left"></div>
 		<div class="col main">
 			<div class="row wdo-main-header">
-				<div class="col wdo-main-right" id="top-adv-container" style="display: flex;">
-					
+				<div class="col" style="padding: 0;">
+					<div class="card-group" id="top-adv-container" style="justify-content: center;"></div>
 				</div><!-- /.wdo-main-right -->
 			</div><!-- /.wdo-main-header -->
 		</div><!-- /.main -->

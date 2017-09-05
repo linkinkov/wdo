@@ -180,22 +180,40 @@ function showScenarioDetails(item)
 }
 function reloadTable()
 {
-	( /performers/.test(window.location.pathname) ) ? config.performers.dt.ajax.reload() : config.projects.dt.ajax.reload();
-	app.adv.get_list(5,function(response){
-		$("#lab").html("");
-		if ( response.length > 0 )
-		{
-			$("#lab").append("<hr />");
-			$.each(response,function(i,v){
-				var item = app.formatter.format_adv(v);
-				$("#lab").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a><hr />');
-				// $("#top-adv-container").append('<a href="'+v.link+'" class="wdo-link">'+item+'</a>');
-			})
-			// $("#top-adv-container").find(".user-adv").each(function(i,v){
-			// 	$(v).css("margin",0);
-			// })
-		}
-	},function() {return config.projects.specs;});
+	if ( /performers/.test(window.location.pathname) )
+	{
+		config.performers.dt.ajax.reload();
+		app.adv.get_list(8,function(response){
+			$("#lab").html("<hr />");
+			$("#top-adv-container").html("");
+			if ( response.length > 0 )
+			{
+				$.each(response,function(i,v){
+					var target = (i>3 && response.length > 8) ? $("#top-adv-container") : $("#lab");
+					// console.log("i:",i,", length:",response.length,", target:",target);
+					var item = app.formatter.format_adv(v);
+					target.append(app.formatter.format_adv(v)+'<hr />');
+				})
+				$("#lab").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
+			}
+		},function() {return config.projects.specs;}, true);
+	}
+	else
+	{
+		config.projects.dt.ajax.reload();
+		app.adv.get_list(3,function(response){
+			$("#lab").html("");
+			if ( response.length > 0 )
+			{
+				$("#lab").append("<hr />");
+				$.each(response,function(i,v){
+					var item = app.formatter.format_adv(v);
+					$("#lab").append(app.formatter.format_adv(v)+'<hr />');
+				})
+				$("#lab").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
+			}
+		},function() {return config.projects.specs;}, true);
+	}
 
 }
 function set_btn_state(btn,state,message)
@@ -285,8 +303,9 @@ function process_show_portfolio(response)
 							index: link,
 							event: event,
 							onopen: function () {
-								$(".portfolio-image-action").show();
+								// $(".portfolio-image-action").show();
 								$(".portfolio-image-action[data-action='delete_attach']").data('portfolio_id',portfolio_id).data('attach_id',$(target).data('attach_id'));
+								( response.portfolio.is_owner != true ) ? $(".portfolio-image-action").hide() : $(".portfolio-image-action").show();
 							},
 							onclose: function() {
 								$("body").css("overflow","visible").attr("style","");
@@ -294,7 +313,7 @@ function process_show_portfolio(response)
 							onslide: function (index, slide) {
 								var img = $(slide).find("img"),
 										attach_id = $.urlParam('attach_id',$(img).attr('src'));
-								if ( attach_id.length == 32 )
+								if ( attach_id.length == 32 && response.portfolio.is_owner == true )
 								{
 									var real_image = $("img[data-attach_id='"+attach_id+"']"),
 											cover_btn = $(".portfolio-image-action[data-action='change_cover']"),

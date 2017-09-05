@@ -185,12 +185,12 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 </div>
 
 <div class="row"><div class="col"><hr /></div></div>
-<div class="row phone-container">
+<div class="row telegram-container">
 	<div class="col" style="max-width: 180px; align-self: center;">
-		<i class="fa fa-skype fa-lg fa-fw text-purple"></i> Skype
+		<i class="fa fa-telegram fa-lg fa-fw text-purple"></i> Telegram
 	</div>
 	<div class="col">
-		<input type="text" class="form-control profile-data" data-name="skype" placeholder="Skype" />
+		<input type="text" class="form-control profile-data" data-name="telegram" placeholder="t.me/profile_id" />
 	</div>
 </div>
 
@@ -482,6 +482,7 @@ $(function(){
 			}
 		});
 	})
+	$('[data-name="phone"]').mask('+7 (000) 0000000');
 })
 
 

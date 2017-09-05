@@ -10,8 +10,24 @@ if ( $user->user_id == $current_user->user_id )
 	}
 }
 $_SESSION["LAST_PAGE"] = "profile/projects";
+if ( $current_user->user_id > 0 )
+{
 ?>
-
+<span class="pull-right">
+	<?php
+	if ( $current_user->user_id == $user->user_id )
+	{
+		echo '<a class="wdo-btn btn-sm bg-purple" href="/project/add/"><i class="fa fa-plus"></i> Добавить</a>';
+	}
+	else
+	{
+		// echo '<a class="wdo-btn btn-sm bg-purple" href="'.HOST.'/project/add?for_performer='.$user->user_id.'"><i class="fa fa-plus"></i> Добавить</a>';
+	}
+	?>
+</span>
+<?php
+}
+?>
 <table class="table" id="projects-table">
 	<thead>
 		<th>Наименование</th>

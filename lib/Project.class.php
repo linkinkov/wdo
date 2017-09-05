@@ -147,13 +147,13 @@ class Project
 		try {
 			$db->query($sql);
 			$response["result"] = "true";
-			$response["message"] = $lang["saved"];
+			$response["message"] = "Обновлено";
 			$this->$field = $value;
 		}
 		catch (Exception $e)
 		{
 			$response["result"] = "false";
-			$response["message"] = ( $e->getCode() == 1062 ) ? "Такой пользователь уже существует" : $e->getMessage();
+			$response["message"] = ( $e->getCode() == 1062 ) ? "Такой проект уже существует" : $e->getMessage();
 		}
 		return $response;
 	}

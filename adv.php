@@ -32,10 +32,27 @@ include_once('_includes.php');
 					</div>
 				</div><!-- /.wdo-main-left -->
 				<div class="col wdo-main-right" id="wdo-main-right">
-
-			<div id="all_advs"></div>
-			<div class="pages"></div>
-<br /><br /><br />
+					<?php
+					if ( $current_user->user_id > 0 )
+					{
+					?>
+					<div class="row">
+						<div class="col">
+							<span class="pull-right">
+								<a class="wdo-btn btn-sm bg-yellow" href="/my_adv/"><i class="fa fa-plus"></i> Добавить</a>
+							</span>
+						</div>
+					</div>
+					<hr />
+					<?php
+					}
+					?>
+					<!-- <div id="all_advs" style="maring-left: 10px;"></div> -->
+					<div class="card-columns" id="all_advs">
+					<!-- Portfolio cards from JSON answer -->
+					</div>
+					<div class="pages"></div>
+					<br /><br /><br />
 				</div><!-- /.wdo-main-right -->
 			</div>
 		</div><!-- /.main -->
@@ -52,11 +69,21 @@ function load_advs(page)
 {
 	page = page || 0;
 	limit = ( page > 0 ) ? (page * 30) : 30;
-	app.adv.get_list(limit,function(response){
-		$.each(response,function(i,v){
-			$("#all_advs").append('<a href="'+v.link+'" class="wdo-link">'+app.formatter.format_adv(v)+'</a>');
-		})
-	})
+	$("#all_advs").html('');
+	var html = '';
+	app.adv.get_list(10,function(response){
+		$("#all_advs").html("");
+		if ( response.length > 0 )
+		{
+			// $("#all_advs").append("<hr />");
+			$.each(response,function(i,v){
+				var item = app.formatter.format_adv(v);
+				$("#all_advs").append(app.formatter.format_adv(v));
+			})
+			// $("#all_advs").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
+		}
+	},"", true);
+
 }
 
 $(function(){

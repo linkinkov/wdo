@@ -105,8 +105,8 @@ if ( sizeof ($aaData) )
 			continue;
 		};
 		$row->project->url = sprintf('
-			<a class="wdo-link text-purple" href="%s"><h6 style="font-weight: 800;">%s</h6></a>
-			<a class="wdo-link" href="%s"><small>%s</small></a> / <a class="wdo-link" href="%s"><small>%s</small></a> | <small class="text-muted timestamp" data-timestamp="%d"></small>
+			<h6 style="font-weight: 800;"><a class="wdo-link text-purple" href="%s">%s</a></h6>
+			<small><a class="wdo-link" href="%s">%s</a></small> / <small><a class="wdo-link" href="%s">%s</a></small> | <small class="text-muted timestamp" data-timestamp="%d"></small>
 			',
 			HOST.'/project/'.$row->project->cat_name_translated.'/'.$row->project->subcat_name_translated.'/p'.$row->project_id.'/'.strtolower(r2t($row->project->title)).'.html',$row->project->title, // project href link
 			HOST.'/projects/'.$row->project->cat_name_translated.'/',$row->project->cat_name, // category href link

@@ -55,7 +55,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 					<div class="row">
 						<div class="col">
 							<hr />
-							<a class="nav-link text-muted pointer" data-toggle="custom-tab" data-target="#scenarios">
+							<a class="nav-link text-muted pointer" style="padding-right: 0px;" data-toggle="custom-tab" data-target="#scenarios">
 								<span class="fa-stack text-purple">
 									<i class="fa fa-circle-o fa-stack-2x"></i>
 									<i class="fa fa-star fa-stack-1x"></i>
@@ -89,7 +89,7 @@ $user_link .= ($user->as_performer == 1) ? 'portfolio' : 'projects';
 						<div class="col">
 							<p><span class="pull-right"><i title="Город" class="text-purple fa fa-map-marker fa-lg fa-fw"></i></span><?php echo $user->city_name;?></p>
 							<p><span class="pull-right"><i title="Телефон" class="text-purple fa fa-mobile-phone fa-lg fa-fw"></i></span><?php echo ($user->phone) ? $user->phone : "Не указан";?></p>
-							<p><span class="pull-right"><i title="Skype" class="text-purple fa fa-skype fa-lg fa-fw"></i></span><?php echo ($user->skype) ? $user->skype : "Не указан";?></p>
+							<p><span class="pull-right"><i title="Telegram" class="text-purple fa fa-telegram fa-lg fa-fw"></i></span><?php echo ($user->telegram) ? $user->telegram : "Не указан";?></p>
 							<p><span class="pull-right"><i title="Сайт" class="text-purple fa fa-globe fa-lg fa-fw"></i></span><?php echo ($user->site) ? $user->site : "Не указан";?></p>
 						</div>
 					</div>

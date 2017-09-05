@@ -97,7 +97,7 @@ $pu = new User($project->user_id);
 						<div class="col" style="flex: 0 0 75%; max-width: 75%;">
 							<?php
 							echo sprintf('
-							<a class="wdo-link" href="%s"><h5 style="font-weight: 800;">%s</h5></a>
+							<h5 style="font-weight: 800;"><a class="wdo-link" href="%s">%s</a></h5>
 							<a class="wdo-link text-purple" href="%s">%s</a> / <a class="wdo-link text-purple" href="%s">%s</a> | <text class="timestamp" data-timestamp="%s"></text>',
 							HOST.$_SERVER['REQUEST_URI'],
 							$project->title,

@@ -269,3 +269,46 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+
+<!-- add project modal apm-modal -->
+<div class="modal fade" id="apm-modal" tabindex="-1" role="dialog" aria-labelledby="apm-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="width: 600px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-roboto-cond" id="apm-modal-label">Создать мероприятие</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row" style="justify-content: center;">
+					<div class="col text-center">
+						<div class="jumbotron">
+							<h4 class="text-purple">
+								<span class="fa-stack text-purple">
+									<i class="fa fa-circle-o fa-stack-2x"></i>
+									<i class="fa fa-star fa-stack-1x"></i>
+								</span>
+								Мастер праздников
+							</h4>
+							<p class="lead">Наш мастер поможет Вам создать проекты в необходимых разделах и организовать мероприятие на высоком уровне</p>
+							<hr class="my-4">
+							<!-- <p>It uses utility classes for typography and spacing to space content out within the larger container.</p> -->
+							<p class="lead">
+								<a class="btn btn-primary btn-lg" href="/profile/#scenarios" role="button">
+									Перейти в Мастер праздников
+								</a>
+							</p>
+							<p class="lead">или</p>
+							<a class="btn btn-primary btn-lg" href="/project/add/" role="button">
+								Создать проект
+							</a>
+						</div>
+				</div>
+				</div>
+			</div><!-- /.modal-body -->
+			<div class="modal-footer" style="height: 55px; background: url(/images/ornament-3.png) repeat-x bottom 10px right;"></div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

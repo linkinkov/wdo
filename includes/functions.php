@@ -33,7 +33,7 @@ function r2t($string) {
 		'с' => 's',   'т' => 't',   'у' => 'u',
 		'ф' => 'f',   'х' => 'h',   'ц' => 'c',
 		'ч' => 'ch',  'ш' => 'sh',  'щ' => 'sch',
-		'ь' => '\'',  'ы' => 'y',   'ъ' => '\'',
+		'ь' => 'j',  'ы' => 'y',   'ъ' => '',
 		'э' => 'ye',   'ю' => 'yu',  'я' => 'ya',
 		
 		'А' => 'A',   'Б' => 'B',   'В' => 'V',
@@ -45,7 +45,7 @@ function r2t($string) {
 		'С' => 'S',   'Т' => 'T',   'У' => 'U',
 		'Ф' => 'F',   'Х' => 'H',   'Ц' => 'C',
 		'Ч' => 'Ch',  'Ш' => 'Sh',  'Щ' => 'Sch',
-		'Ь' => '\'',  'Ы' => 'Y',   'Ъ' => '\'',
+		'Ь' => 'J',  'Ы' => 'Y',   'Ъ' => '',
 		'Э' => 'Ye',   'Ю' => 'Yu',  'Я' => 'Ya',
 		' ' => '_'
 	);
@@ -200,7 +200,11 @@ function login($username, $password, $db)
 			{
 				// Account is locked 
 				return false;
-			} 
+			}
+			else if ( $status_id == 3 )
+			{
+				return false;
+			}
 			else 
 			{
 				// Check if the password in the database matches

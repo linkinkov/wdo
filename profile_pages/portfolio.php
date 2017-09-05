@@ -164,7 +164,6 @@ $(function(){
 			})
 			if ( preselected_pfid > 0 )
 			{
-				console.log("Click on id: ",preselected_pfid);
 				$("#portfolio_list").find("[data-toggle='show-portfolio'][data-portfolio_id='"+preselected_pfid+"']").click();
 			}
 		}

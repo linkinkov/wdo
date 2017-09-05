@@ -309,12 +309,17 @@ $(document).on("click","[data-trigger='delete']", function(){
 
 $(document).on("click","[data-trigger='update']", function(){
 	var data = $(this).data();
+	console.log("click",data);
 	app.action.update(data.type,data.id,data.name,data.value,function(response){
 		if ( response.result == "true" )
 		{
 			if ( data.type == "user" )
 			{
 				conf.usersTable.ajax.reload();
+			}
+			if ( data.type == "project" )
+			{
+				conf.projects.table.ajax.reload(false,false);
 			}
 			showAlertMini('success',response.message);
 		}

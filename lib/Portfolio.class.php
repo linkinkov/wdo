@@ -34,6 +34,7 @@ class Portfolio
 	public static function get_portfolio($portfolio_id = 0)
 	{
 		global $db;
+		global $current_user;
 		if ( $portfolio_id == 0 ) return;
 		$response = Array(
 			"result" => "false",
@@ -59,6 +60,7 @@ class Portfolio
 			}
 			$response["result"] = "true";
 			unset($response["message"]);
+			$portfolio->is_owner = ( isset($current_user->user_id) && $current_user->user_id > 0 && $current_user->user_id == $portfolio->user_id ) ? true : false;
 			$response["portfolio"] = $portfolio;
 			if ( !in_array($portfolio->portfolio_id,$_SESSION["viewed_portfolio"]) )
 			{
