@@ -320,7 +320,17 @@ opcache_reset();
 
 <script>
 $(function(){
-
-
+	app.adv.get_list(10,function(response){
+		$("#lab").html("<hr />");
+		if ( response.length > 0 )
+		{
+			$.each(response,function(i,v){
+				var target = $("#lab");
+				var item = app.formatter.format_adv(v);
+				target.append(app.formatter.format_adv(v)+'<hr />');
+			})
+			$("#lab").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
+		}
+	},"", true);
 })
 </script>

@@ -211,12 +211,19 @@ if ( sizeof ($aaData) )
 		$row->user = new User($project->user_id);
 		// $title_tr = strtolower(r2t($project->title));
 		if ( $project->vip == 1 ) $row->DT_RowClass .= " vip";
-		if ( $current_user->user_id == $user_id && $current_user->user_id != 0 )
+		if ( $current_user->user_id == $user_id && $current_user->user_id > 0 )
 		{
 			$row->DT_RowClass .= " no-pointer";
-			$row->performer_id = $row->performer_name;
-			$row->performer_name = User::get_real_user_name($row->performer_id);
-			if ( is_array($row->performer_name) ) $row->performer_name = '<small class="text-muted">Не выбран</small>';
+			if ( isset($row->performer_name) && intval($row->performer_name) > 0 )
+			{
+				$row->performer_id = $row->performer_name;
+				$row->performer_name = User::get_real_user_name($row->performer_id);
+				if ( is_array($row->performer_name) ) $row->performer_name = '<small class="text-muted">Не выбран</small>';
+			}
+			else
+			{
+				$row->performer_name = '<small class="text-muted">Не выбран</small>';
+			}
 		}
 		$status_style = "";
 		switch ( $project->status_id )
