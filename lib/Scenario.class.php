@@ -197,7 +197,7 @@ class Scenario
 			"message" => "Ошибка доступа"
 		);
 		if ( $current_user->user_id <= 0 ) return $response;
-		if ( $title == "" || !is_timestamp("$timestamp_start") || !is_timestamp("$timestamp_end") || $scenario_id <= 0 || sizeof($subcats) == 0 )
+		if ( $title == "" || !is_timestamp(intval($timestamp_start)) || !is_timestamp(intval($timestamp_end)) || $scenario_id <= 0 || sizeof($subcats) == 0 )
 		{
 			$response["message"] = "Некорректные данные";
 			return $response;

@@ -320,7 +320,7 @@ opcache_reset();
 
 <script>
 $(function(){
-	app.adv.get_list(10,function(response){
+	app.adv.get_list(6,function(response){
 		$("#lab").html("<hr />");
 		if ( response.length > 0 )
 		{

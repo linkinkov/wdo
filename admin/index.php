@@ -46,7 +46,7 @@ require(PD.'/admin/check_admin.php');
 			<div class="brand" title="Weedo | Admin">WAdmin</div>
 			<div class="menu-list">
 				<ul id="menu-content" class="menu-content">
-					<li class="menu-entry" data-page="#main">
+					<li class="menu-entry">
 						<i class="fa fa-home"></i> <a href="/" target="_blank">Перейти на сайт</a>
 					</li>
 					<li class="menu-entry" data-page="#projects">

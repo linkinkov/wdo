@@ -19,7 +19,7 @@
 				<div class="col wdo-main-right">
 					<div class="row wdo-main-banners-container">
 						<?php
-						if ( $current_user->user_id > 0 ) // user authorized
+						if ( $current_user->user_id > 0 && rand(0,10)%3 == 0 ) // user authorized
 						{
 						?>
 						<div class="col top-banner"><img src="/banners/top-example1.jpg"/></div>

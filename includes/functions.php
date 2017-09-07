@@ -166,7 +166,7 @@ function delTree($dir)
 
 function is_timestamp($timestamp)
 {
-	return ((string) (int) $timestamp === $timestamp) && ($timestamp <= PHP_INT_MAX) && ($timestamp >= ~PHP_INT_MAX) && (!strtotime($timestamp)) && (strlen($timestamp) == 10);
+	return ($timestamp >= 1000000000) && (strlen($timestamp) == 10);
 }
 
 function login($username, $password, $db) 
