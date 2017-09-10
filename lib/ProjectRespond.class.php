@@ -33,7 +33,7 @@ class ProjectRespond
 			}
 			$this->attaches = Attach::get_by_for_type("for_respond_id",$id);
 			$project_author_id = $db->getValue("project","user_id","user_id",Array("project_id"=>$this->for_project_id));
-			if ( $current_user->user_id != $this->user_id && $current_user->user_id != $project_author_id )
+			if ( $current_user->user_id != $this->user_id && $current_user->user_id != $project_author_id && $current_user->template_id != 2 )
 			{
 				unset($this->cost);
 				unset($this->status_id);

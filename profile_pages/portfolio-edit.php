@@ -246,7 +246,7 @@ $(function(){
 				else
 				{
 					app.portfolio.deleteAttach(data.attach_id,data.attach_type,function(response){
-						if ( response.result == true )
+						if ( response.result == "true" )
 						{
 							$(obj).remove();
 							if ( data.attach_type == "video" )

@@ -505,7 +505,7 @@ class User
 		return $this->balance;
 	}
 
-	public static function get_list($search="",$city_id=false,$limit = 5)
+	public static function get_list($search="",$city_id=false,$limit = 5, $as_performer = "%")
 	{
 		global $db;
 		global $current_user;
@@ -513,7 +513,7 @@ class User
 		$list = Array();
 		if ( !$city_id ) $city_id = intval($_COOKIE["city_id"]);
 		$where_city_id = ( $city_id != "%" ) ? sprintf("`city_id` = '%d' AND",$city_id) : "";
-		$sql = sprintf("SELECT `user_id`,`real_user_name`,`rating` FROM `users` WHERE %s `user_id` > 0 AND `user_id` != '%d' AND `real_user_name` LIKE '%%%s%%' LIMIT %d",$where_city_id,$current_user->user_id,$search,$limit);
+		$sql = sprintf("SELECT `user_id`,`real_user_name`,`rating` FROM `users` WHERE %s `user_id` > 0 AND `user_id` != '%d' AND `real_user_name` LIKE '%%%s%%' AND `as_performer` LIKE '%s' LIMIT %d",$where_city_id,$current_user->user_id,$search,$as_performer,$limit);
 		try {
 			$rows = $db->queryRows($sql);
 			if ( $rows )

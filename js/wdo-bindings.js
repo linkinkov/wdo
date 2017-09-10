@@ -195,7 +195,8 @@ $(".portfolio-image-action").click(function(e){
 		var slide_img = $("img.slide-content[src*='"+data.attach_id+"']"),
 				li = $("ol.indicator").find("li[style*='"+data.attach_id+"']");
 		app.portfolio.deleteAttach(data.attach_id,"image",function(response){
-			if ( response == true )
+			console.log(response);
+			if ( response.result == true )
 			{
 				$(li).remove();
 				$(slide_img).remove();

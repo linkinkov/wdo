@@ -91,6 +91,12 @@
 										&nbsp;Мой кабинет<span data-type="total" class="badge badge-pill badge-info profile-counter" style="position: absolute; top: 0; right: -20px;">3</span>
 									</div>
 									<div class="dropdown-menu profile-menu" style="width: 230px;">
+										<?php
+											if ( $current_user->template_id == 2 )
+											{
+												echo '<a class="wdo-link dropdown-item text-purple" href="/admin/"><i>Админка</i></a>';
+											}
+										?>
 										<a class="wdo-link dropdown-item" href="/profile/#profile"><strong>Профиль</strong>
 											<?php
 											if ( $current_user->status_id == 3 )

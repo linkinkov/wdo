@@ -333,7 +333,15 @@ class Scenario
 				foreach ( $list as $row )
 				{
 					$subcat_ids = explode(",",$row->scenario_subcats);
-					$row->scenario_subcats = SubCategory::get_name($subcat_ids);
+					$filtered_ids = Array();
+					foreach ( $subcat_ids as $subcat_id )
+					{
+						if ( $db->getValue("subcats","disabled","disabled",Array("id"=>$subcat_id)) == "0" )
+						{
+							$filtered_ids[] = $subcat_id;
+						}
+					}
+					$row->scenario_subcats = SubCategory::get_name($filtered_ids);
 				}
 			}
 		}

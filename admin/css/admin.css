@@ -110,3 +110,6 @@ div.slider {
 tbody tr.selected {
 	background-color: rgba(206, 205, 72, .25);
 }
+tbody tr.selected:hover {
+	background-color: rgba(206, 205, 72, .20);
+}

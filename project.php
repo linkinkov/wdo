@@ -24,17 +24,20 @@ $_SESSION["LAST_PAGE"] = "/project";
 
 $project = new Project($id);
 
-if ( $project->error == true || ($project->status_id == 5 && $current_user->user_id != $project->user_id) )
+if ( $current_user->template_id != 2 )
 {
-	$error = 404;
-	include(PD.'/errors/error.php');
-	exit;
-}
-if ( $project->for_user_id > 0 && $current_user->user_id != $project->for_user_id && $current_user->user_id != $project->user_id )
-{
-	$error = 404;
-	include(PD.'/errors/error.php');
-	exit;
+	if ( $project->error == true || ($project->status_id == 5 && $current_user->user_id != $project->user_id) )
+	{
+		$error = 404;
+		include(PD.'/errors/error.php');
+		exit;
+	}
+	if ( $project->for_user_id > 0 && $current_user->user_id != $project->for_user_id && $current_user->user_id != $project->user_id )
+	{
+		$error = 404;
+		include(PD.'/errors/error.php');
+		exit;
+	}
 }
 
 if ( isset($_GET["add_respond"]) )

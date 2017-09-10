@@ -188,6 +188,11 @@ class Project
 				$data[$field] = "";
 			}
 		}
+		if ( $data["accept_till"] > $data["start_date"] )
+		{
+			$response["field"] = $data["accept_till"];
+			return $response;
+		}
 		$status_id = 1;
 		if ( $data["safe_deal"] == "true" ) $data["safe_deal"] = 1;
 		if ( $data["vip"] == "true" )

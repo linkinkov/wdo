@@ -230,7 +230,7 @@ $(function(){
 			if ( data.project.continuous == 1 )
 			{
 				var m1 = moment.unix(data.project.start_date);
-				var m2 = moment.unix(data.project.end_date);
+				var m2 = moment.unix(parseInt(data.project.end_date) + 1);
 				duration = '<span class="pull-right"><i class="fa fa-clock-o" title="Мероприятие продлится '+moment.preciseDiff(m1, m2)+'"></i></span>';
 			}
 			var cost = data.project.cost + ' <i class="fa fa-rouble"></i>';

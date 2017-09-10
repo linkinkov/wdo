@@ -501,14 +501,14 @@ $(function(){
 	$('input[data-name="accept_till"]').daterangepicker(accept_till_opts);
 	$('input[data-name="accept_till"]').on('hide.daterangepicker',function(ev,picker){
 		$(this).data('timestamp',picker.startDate.format("X"));
-		var new_date = picker.startDate,
-				drp = $('input[data-name="start_end"]').data('daterangepicker');
-		start_end_opts.startDate = new_date;
-		start_end_opts.endDate = new_date;
-		start_end_opts.minDate = new_date;
-		$('input[data-name="start_end"]').daterangepicker(start_end_opts);
-		$('input[data-name="start_end"]').data('timestamp_start',new_date.format("X"));
-		$('input[data-name="start_end"]').data('timestamp_end',new_date.format("X"));
+		// var new_date = picker.startDate,
+		// 		drp = $('input[data-name="start_end"]').data('daterangepicker');
+		// start_end_opts.startDate = new_date;
+		// start_end_opts.endDate = new_date;
+		// start_end_opts.minDate = new_date;
+		// $('input[data-name="start_end"]').daterangepicker(start_end_opts);
+		// $('input[data-name="start_end"]').data('timestamp_start',new_date.format("X"));
+		// $('input[data-name="start_end"]').data('timestamp_end',new_date.format("X"));
 	})
 	$('input[data-name="accept_till"]').data('timestamp',accept_till_opts.startDate.format("X"));
 
@@ -581,6 +581,12 @@ $(function(){
 		if ( data.start_date <= 0 || data.start_date === undefined || data.end_date <= 0 || data.end_date === undefined ) {
 			$("[data-name='start_end']").addClass("warning");
 			text = 'Укажите дату мероприятия';
+			error++;
+		}
+		if ( data.accept_till > data.start_date )
+		{
+			$("[data-name='accept_till']").addClass("warning");
+			text = 'Дата окончания приёма заявок позже, чем дата начала мероприятия';
 			error++;
 		}
 		if ( error > 0 ) {
