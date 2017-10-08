@@ -34,7 +34,7 @@ if ( $job == "upload" )
 		}
 	
 		// You should also check filesize here. 
-		if ($_FILES['upfile']['size'] > 1000000)
+		if ($_FILES['upfile']['size'] > 4000000)
 		{
 			throw new RuntimeException('Exceeded filesize limit.');
 		}
@@ -69,7 +69,7 @@ if ( $job == "upload" )
 		}
 		$sql = sprintf("INSERT INTO `banners` (`id`,`type`,`timestamp`,`active`) VALUES ('%s','%s',UNIX_TIMESTAMP(),0)",$banner_id,$type);
 		$db->query($sql);
-		echo 'File is uploaded successfully.';
+		// echo 'File is uploaded successfully.';
 	}
 	catch (RuntimeException $e)
 	{
@@ -317,7 +317,8 @@ $(function(){
 			data: formData,
 			async: false,
 			success: function (data) {
-				alert(data)
+				if ( data.length > 3 ) alert(data);
+				else getBanners()
 			},
 			cache: false,
 			contentType: false,
@@ -335,7 +336,8 @@ $(function(){
 			data: formData,
 			async: false,
 			success: function (data) {
-				alert(data)
+				if ( data.length > 3 ) alert(data);
+				else getBanners()
 			},
 			cache: false,
 			contentType: false,
