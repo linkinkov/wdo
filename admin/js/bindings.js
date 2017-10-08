@@ -329,3 +329,31 @@ $(document).on("click","[data-trigger='update']", function(){
 		}
 	})
 })
+
+
+$(document).on("click","[data-trigger='save-link']", function(){
+	var data = $(this).data();
+	var input = $("#change-banner-link-modal").find("input[name='banner_link']");
+	console.log(input.val());
+	$.ajax({
+		"dataType": "JSON",
+		"url": "/admin/banners",
+		"data": {
+			"job": "change_banner_link",
+			"banner_id": data.id,
+			"value": $(input).val()
+		},
+		"success": function(response){
+			if ( response.result == "true" )
+			{
+				showAlertMini('success',response.message);
+				$("#change-banner-link-modal").modal("hide");
+				getBanners();
+			}
+			else
+			{
+				showAlertMini('danger',response.message);
+			}
+		}
+	})
+})

@@ -19,11 +19,21 @@
 				<div class="col wdo-main-right">
 					<div class="row wdo-main-banners-container">
 						<?php
-						if ( $current_user->user_id > 0 && rand(0,10)%3 == 0 ) // user authorized
+						$banners = $db->queryRows(sprintf("SELECT * FROM `banners` WHERE type = '%s' AND `active` = 1","top_banners"));
+						if ( $current_user->user_id > 0 && rand(0,10)%3 == 0 && sizeof($banners) > 0 ) // user authorized
 						{
+							$files = Array();
+							foreach ( $banners as $banner )
+							{
+								$files = array_merge($files,glob(sprintf("%s/images/banners/top/%s.{jpg,png,jpeg,gif}",PD,$banner->id),GLOB_BRACE));
+							}
+							foreach ( $files as $file )
+							{
+								echo sprintf("<div class='col top-banner'><img src='%s'/></div>",str_replace(PD,"",$file));
+							}
 						?>
-						<div class="col top-banner"><img src="/banners/top-example1.jpg"/></div>
-						<div class="col top-banner"><img src="/banners/top-example2.jpg"/></div>
+						<!-- <div class="col top-banner"><img src="/banners/top-example1.jpg"/></div> -->
+						<!-- <div class="col top-banner"><img src="/banners/top-example2.jpg"/></div> -->
 						<?php
 						}
 						else

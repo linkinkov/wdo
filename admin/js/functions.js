@@ -132,3 +132,15 @@ $('#warn-user-modal').on('hidden.bs.modal', function(e){
 	var modal = modal = e.delegateTarget;
 	$(modal).find("textarea").data('dialog_id',0).attr('data-dialog_id',0);
 })
+
+
+$('#change-banner-link-modal').on('show.bs.modal', function(e){
+	var related = e.relatedTarget,
+			banner_id = $(related).data('id'),
+			banner_link = $(related).data('link'),
+			modal = e.delegateTarget,
+			submit_btn = $(modal).find("[data-trigger='save-link']"),
+			input = $(modal).find("input[name='banner_link']");
+	$(input).val(banner_link);
+	$(submit_btn).data('id',banner_id);
+})

@@ -18,7 +18,7 @@ $preselect = get_var("preselect","array",Array());
 $action = get_var("action","string",false);
 $banner_id = $db->getValue("banners","id","id",Array("type"=>"main_banners","active"=>1));
 $files = glob(sprintf("%s/images/banners/%s.{jpg,png,jpeg,gif}",PD,$banner_id),GLOB_BRACE);
-if ( isset($files[0]) ) $banner_location = str_replace(PD,'',$files[0]);
+$banner_location = ( isset($files[0]) ) ? str_replace(PD,'',$files[0]) : '/images/banners/default-main-banner.gif';
 ?>
 <!DOCTYPE html>
 <html lang="ru">

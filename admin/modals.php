@@ -155,3 +155,31 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+
+<!-- add-scenario-modal -->
+<div class="modal fade" id="change-banner-link-modal" tabindex="-1" role="dialog" aria-labelledby="change-banner-link-modal" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-roboto-cond" id="change-banner-link-modal-label">Указать ссылку</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col">
+						<input class="form-control" placeholder="Ссылка" name="banner_link" />
+					</div>
+				</div>
+				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
+					<div class="col text-center">
+						<br /><div class="wdo-btn btn-sm bg-yellow strong" modal="true" data-trigger="save-link" data-ot="Сохранить" data-lt="Сохранение"><i class="fa"></i>Сохранить</div>
+						<br /><br /><br />
+					</div>
+				</div><!-- /.row -->
+			</div><!-- /.modal-body -->
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
