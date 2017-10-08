@@ -25,11 +25,18 @@
 							$files = Array();
 							foreach ( $banners as $banner )
 							{
-								$files = array_merge($files,glob(sprintf("%s/images/banners/top/%s.{jpg,png,jpeg,gif}",PD,$banner->id),GLOB_BRACE));
-							}
-							foreach ( $files as $file )
-							{
-								echo sprintf("<div class='col top-banner'><img src='%s'/></div>",str_replace(PD,"",$file));
+								$files = glob(sprintf("%s/images/banners/top/%s.{jpg,png,jpeg,gif}",PD,$banner->id),GLOB_BRACE);
+								foreach ( $files as $file )
+								{
+									if ( $banner->link != '' )
+									{
+										echo sprintf("<div class='col top-banner'><a href='%s' target='_blank'><img src='%s'/></a></div>",$banner->link,str_replace(PD,"",$file));
+									}
+									else
+									{
+										echo sprintf("<div class='col top-banner'><img src='%s'/></div>",str_replace(PD,"",$file));
+									}
+								}
 							}
 						?>
 						<!-- <div class="col top-banner"><img src="/banners/top-example1.jpg"/></div> -->
