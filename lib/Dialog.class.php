@@ -41,7 +41,8 @@ class Dialog
 		);
 		if ( $current_user->user_id == 0 || $recipient_id == 0 ) return $response;
 		try {
-			$sql = sprintf("SELECT `dialog_id` FROM `dialogs` WHERE `dialog_users` = '%d,%d' OR `dialog_users` = '%d,%d'",$current_user->user_id,$recipient_id,$recipient_id,$current_user->user_id);
+			$sql = sprintf("SELECT `dialog_id` FROM `dialogs` WHERE `dialog_users` = '%d,%d' OR `dialog_users` = '%d,%d' AND `for_event_id` = ''",$current_user->user_id,$recipient_id,$recipient_id,$current_user->user_id);
+			// echo $sql;
 			$res = $db->queryRow($sql);
 			if ( isset($res->dialog_id) && strlen($res->dialog_id) == 32 )
 			{
@@ -52,6 +53,7 @@ class Dialog
 			else
 			{
 				$users = Array($current_user->user_id,$recipient_id);
+				// echo "New with: ".implode(",",$users);
 				if ( $new_dialog_id = Dialog::create_dialog($users) )
 				{
 					$response["result"] = "true";
@@ -73,6 +75,7 @@ class Dialog
 		if ( !is_array($users) || sizeof($users) < 2 ) return false;
 		$dialog_id = md5(json_encode($users));
 		$sql = sprintf("INSERT INTO `dialogs` (`dialog_id`,`dialog_users`) VALUES ('%s','%s')",$dialog_id,implode(",",$users));
+		// echo $sql;
 		try {
 			if ( $db->query($sql) && $db->affected_rows == 1 )
 			{
@@ -81,6 +84,20 @@ class Dialog
 		}
 		catch ( Exception $e )
 		{
+			if ( $e->getCode() == 1062 )
+			{
+				$sql = sprintf("UPDATE `dialogs` SET `dialog_users` = '%s' WHERE `dialog_id` = '%s'",implode(",",$users),$dialog_id);
+				try {
+					if ( $db->query($sql) && $db->affected_rows == 1 )
+					{
+						return $dialog_id;
+					}
+				}
+				catch ( Exception $ee )
+				{
+					
+				}
+			}
 			// return $e->getMessage();
 		}
 		return false;
@@ -128,7 +145,10 @@ class Dialog
 		$sql = sprintf("SELECT `dialogs`.`dialog_id`, COUNT(`message_id`) as `total_messages`, `dialogs`.`for_event_id`
 		FROM `dialogs`
 		LEFT JOIN `messages` ON `messages`.`dialog_id` = `dialogs`.`dialog_id`
-		WHERE find_in_set('%d',`dialog_users`) <> 0 GROUP BY `dialogs`.`dialog_id` HAVING `total_messages` > 0 ORDER BY `messages`.`timestamp` DESC",$current_user->user_id);
+		WHERE find_in_set('%d',`dialog_users`) <> 0
+		GROUP BY `dialogs`.`dialog_id`
+		HAVING `total_messages` > 0
+		ORDER BY MAX(`messages`.`timestamp`) DESC",$current_user->user_id);
 		try {
 			$rows = $db->queryRows($sql);
 			if ( sizeof($rows) )
@@ -137,21 +157,31 @@ class Dialog
 				{
 					$users_in_dialog = Dialog::get_dialog_users($r->dialog_id);
 					if ( !is_array($users_in_dialog) || sizeof($users_in_dialog) == 0 ) continue;
-					if ( sizeof($users_in_dialog) > 1 )
+					if ( sizeof($users_in_dialog) > 0 || (strlen($r->for_event_id) == 32) )
 					{
-						unset($users_in_dialog[$current_user->user_id]);
-						$recipient_id = array_keys($users_in_dialog);
 						if ( strlen($r->for_event_id) == 32 ) // for event
 						{
 							$dialog_title = $db->getValue("user_scenarios","title","title",Array("event_id"=>$r->for_event_id));
 							$dialog_avatar_path = '<span class="fa-stack text-purple" style="font-size: 1.56rem;">
-									<i class="fa fa-circle-o fa-stack-2x"></i>
-									<i class="fa fa-star fa-stack-1x"></i>
-								</span>';
+							<i class="fa fa-circle-o fa-stack-2x"></i>
+							<i class="fa fa-star fa-stack-1x"></i>
+							</span>';
+							$real_user_name = "";
 						}
 						else
 						{
+							if ( sizeof($users_in_dialog) == 1 )
+							{
+								$recipient_id = Array($db->getValue("messages","user_id_from","user_id_from",Array("user_id_from"=>"!=".$current_user->user_id,"dialog_id"=>$r->dialog_id)));
+								$users_in_dialog[$recipient_id[0]] = User::get_real_user_name($recipient_id[0]);
+							}
+							else if ( sizeof($users_in_dialog) == 2 )
+							{
+								unset($users_in_dialog[$current_user->user_id]);
+								$recipient_id = array_keys($users_in_dialog);
+							}
 							$dialog_title = $users_in_dialog[$recipient_id[0]];
+							$real_user_name = $users_in_dialog[$recipient_id[0]];
 							$dialog_avatar_path = '<img class="rounded-circle shadow" src="'.HOST.'/user.getAvatar?user_id='.$recipient_id[0].'&w=50&h=50" />';
 						}
 						$last_message = $db->queryRow(sprintf("SELECT `message_text`,`timestamp`,`user_id_from` FROM `messages` WHERE `dialog_id` = '%s' ORDER BY `timestamp` DESC LIMIT 1",$r->dialog_id));
@@ -161,12 +191,13 @@ class Dialog
 							"dialog_title"=>$dialog_title,
 							"dialog_avatar_path" => $dialog_avatar_path,
 							"dialog_id"=>$r->dialog_id,
-							"real_user_name"=>$users_in_dialog[$recipient_id[0]],
+							"real_user_name"=>$real_user_name,
 							"last_message_text"=>$last_message->message_text,
 							"timestamp"=>$last_message->timestamp,
 							"unreaded"=>$unreaded->counter,
 							"total_messages"=>$r->total_messages
 						);
+						// echo "\nadd dialog:".$dialog["dialog_id"];
 						$dialogs[] = $dialog;
 					}
 				}
@@ -254,7 +285,8 @@ class Dialog
 					$message = Array(
 						"user" => Array(
 							"id"=>$r->user_id_from,
-							"real_user_name"=>$users[$r->user_id_from],
+							// "real_user_name"=>$users[$r->user_id_from],
+							"real_user_name"=>User::get_real_user_name($r->user_id_from),
 							"avatar_path"=>HOST.'/user.getAvatar?user_id='.$r->user_id_from
 						),
 						"message" => Array(
@@ -303,10 +335,17 @@ class Dialog
 		if ( trim($message_text) == "" ) {$response["message"] = "Введите текст"; return $response;}
 		$users = Dialog::get_dialog_users($dialog_id);
 		if ( sizeof($users) == 0 ) return $response;
+		if ( sizeof($users) == 1 ) // seems recipient leaved chat early. Let's auto-invite him
+		{
+			$recipient_id = $db->getValue("messages","user_id_from","user_id_from",Array("user_id_from"=>"!=".$current_user->user_id,"dialog_id"=>$dialog_id));
+			if ( intval($recipient_id) > 0 ) Dialog::invite_user($dialog_id,$recipient_id);
+			$users = Dialog::get_dialog_users($dialog_id);
+			usleep(1000000);
+		}
 
 		$message_text = filter_string($message_text,'in');
 		$message_id = md5(time().$message_text.$dialog_id);
-		$timestamp = time();
+		$timestamp = microtime(true);
 		$sql = sprintf("INSERT INTO `messages` (`message_id`,`message_text`,`dialog_id`,`user_id_from`,`timestamp`) 
 		VALUES ('%s','%s','%s','%d','%d')",
 		$message_id,
@@ -350,7 +389,7 @@ class Dialog
 		);
 		if ( $current_user->user_id <= 0 ) return $response;
 		$users_in_dialog = Dialog::get_dialog_users($dialog_id);
-		if ( array_search($current_user->user_id,array_keys($users_in_dialog)) === false ) {$response["message"] = "Вы не найдены"; return $response;};
+		if ( array_search($current_user->user_id,array_keys($users_in_dialog)) === false ) {$response["message"] = "Вы не найдены в этом диалоге"; return $response;};
 		if ( array_search($user_id,array_keys($users_in_dialog)) !== false )
 		{
 			$response["message"] = "Указанный пользователь уже приглашен в диалог";
@@ -364,11 +403,16 @@ class Dialog
 				{
 					$response["result"] = "true";
 					$response["message"] = "Пользователь был приглашен в диалог";
+					$username = User::get_real_user_name($user_id);
 					if ( sizeof($users_in_dialog) == 1 && strlen($event_id) == 32 )
 					{
-						$message_text = "Общий чат для праздника: ".$db->getValue("user_scenarios","title","title",Array("event_id"=>$event_id));
+						$event_title = $db->getValue("user_scenarios","title","title",Array("event_id"=>$event_id));
+						$message_text = sprintf("Общий чат для праздника: %s.",$event_title);
 						Dialog::send_message($dialog_id,$message_text);
+						usleep(1000000);
 					}
+					$message_text = sprintf("%s был приглашен в диалог",$username);
+					Dialog::send_message($dialog_id,$message_text);
 				}
 			}
 			catch ( Exception $e )
@@ -379,4 +423,54 @@ class Dialog
 		return $response;
 	}
 
+	public static function kick_user($dialog_id,$user_id)
+	{
+		global $db;
+		global $current_user;
+		$response = Array(
+			"result" => "false",
+			"message" => "Ошибка доступа"
+		);
+		if ( $current_user->user_id <= 0 ) return $response;
+		$users_in_dialog = Dialog::get_dialog_users($dialog_id);
+		if ( array_search($current_user->user_id,array_keys($users_in_dialog)) === false ) {$response["message"] = "Вы не найдены этом в диалоге"; return $response;};
+		if ( array_search($user_id,array_keys($users_in_dialog)) === false )
+		{
+			$response["message"] = "Указанный пользователь не найден в диалоге";
+		}
+		else
+		{
+			$event_id = $db->getValue("dialogs","for_event_id","for_event_id",Array("dialog_id"=>$dialog_id));
+			// Dialog is for event. Check, that we are trying to kick not event author
+			if ( strlen($event_id) == 32 )
+			{
+				$event_id_author = $db->getValue("user_scenarios","user_id","user_id",Array("event_id"=>$event_id));
+				if ( $event_id_author == $user_id )
+				{
+					$response["message"] = "Невозможно удалить из диалога автора мероприятия";
+					return $response;
+				}
+			}
+			unset($users_in_dialog[$user_id]);
+			$sql = sprintf("UPDATE `dialogs` SET `dialog_users` = '%s' WHERE `dialog_id` = '%s'",implode(",",array_keys($users_in_dialog)),$dialog_id);
+			$response["test"] = $sql;
+			try {
+				$db->query($sql);
+				if ( $db->affected_rows > 0 )
+				{
+					$response["result"] = "true";
+					$username = User::get_real_user_name($user_id);
+					$sql = sprintf("INSERT INTO `messages` (`message_id`,`message_text`,`dialog_id`,`user_id_from`,`timestamp`) 
+					VALUES ('%s','%s покинул диалог','%s','%d','%d')",md5(microtime(true).$dialog_id),$username,$dialog_id,$current_user->user_id,time());
+					$db->query($sql);
+					// $response["message"] = "Пользователь был удалён из диалога";
+				}
+			}
+			catch ( Exception $e )
+			{
+				// echo $e->getMessage();
+			}
+		}
+		return $response;
+	}
 }

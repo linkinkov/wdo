@@ -499,6 +499,22 @@ var app = {
 			setTimeout(function(){
 				d.scrollTop(d.prop("scrollHeight"));
 			},250);
+		},
+		"leaveChat": function(dialog_id,callback)
+		{
+			if ( dialog_id.length != 32 ) return;
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/dialog.leaveChat",
+				data: {
+					"dialog_id": dialog_id
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
 		}
 	},
 	"portfolio": {
@@ -885,9 +901,10 @@ var app = {
 			+'	<div class="col event-project-performer">'
 			+'		'+profile_link
 			+'	</div>'
-			+'	<div class="col event-add-chat">'
-			+'		<a title="Добавить исполнителя в общий чат" onClick="addToEventDialog('+data.performer.user_id+')" class="wdo-link">+ <i class="fa fa-comments"></i></a>'
-			+'	</div>'
+			+'	<div class="col event-add-chat">';
+			if ( data.performer && parseInt(data.performer.user_id) > 0 )
+				html+='		<a title="Добавить исполнителя в общий чат" onClick="addToEventDialog('+data.performer.user_id+')" class="wdo-link">+ <i class="fa fa-comments"></i></a>';
+			html +='	</div>'
 			+'	<div class="col event-project-status">'
 			+'		'+data.status_name+''
 			+'	</div>'

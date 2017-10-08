@@ -291,6 +291,7 @@ class ProjectRespond
 			if ( $db->query($insert) && $db->affected_rows == 1 )
 			{
 				$update = $this->update("status_id",5);
+				$db->query(sprintf("UPDATE `users` SET `rating` = (SELECT SUM(`grade`) FROM `user_responds` WHERE `user_id` = '%d') WHERE `user_id` = '%d'",$this->user_id,$this->user_id));
 				$db->query(sprintf("UPDATE `project` SET `status_id` = '3' WHERE `project_id` = '%d' AND `user_id` = '%d'",$this->for_project_id,$current_user->user_id));
 				$response["update"] = $update;
 				$response["result"] = "true";

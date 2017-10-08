@@ -262,10 +262,19 @@ $(function(){
 		if ( response.length > 0 )
 		{
 			$.each(response,function(i,v){
-				var target = (i>3 && response.length > 8) ? $("#top-adv-container") : $("#lab");
+				if (i>3 && response.length > 4)
+				{
+					var target = $("#top-adv-container");
+					var hr = '';
+				}
+				else
+				{
+					var target = $("#lab");
+					var hr = '<hr />';
+				}
 				// console.log("i:",i,", length:",response.length,", target:",target);
 				var item = app.formatter.format_adv(v);
-				target.append(app.formatter.format_adv(v)+'<hr />');
+				target.append(app.formatter.format_adv(v)+hr);
 			})
 			$("#lab").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
 		}

@@ -49,4 +49,12 @@ switch ( $job )
 		header('Content-Type: application/json');
 		echo json_encode($response);
 		break;
+	case "leaveChat":
+		$dialog_id = get_var("dialog_id","string",false);
+		$user_id = $current_user->user_id;
+		$response = Dialog::kick_user($dialog_id,$user_id);
+		header('Content-Type: application/json');
+		echo json_encode($response);
+		break;
+
 }

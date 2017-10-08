@@ -16,7 +16,9 @@ if ( $ref == "profile/project-responds" )
 $_SESSION["LAST_PAGE"] = "/projects";
 $preselect = get_var("preselect","array",Array());
 $action = get_var("action","string",false);
-
+$banner_id = $db->getValue("banners","id","id",Array("type"=>"main_banners","active"=>1));
+$files = glob(sprintf("%s/images/banners/%s.{jpg,png,jpeg,gif}",PD,$banner_id),GLOB_BRACE);
+if ( isset($files[0]) ) $banner_location = str_replace(PD,'',$files[0]);
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -27,7 +29,7 @@ $action = get_var("action","string",false);
 
 <?php include(PD.'/includes/main-header.php');?>
 
-<div class="container banner-container">
+<div class="container banner-container" style="background: url('<?php echo $banner_location;?>');">
 	<div class="row">
 		<div class="col margins left"></div>
 		<div class="col main">
@@ -274,7 +276,7 @@ $(function(){
 			return false;
 		}
 	})
-	app.adv.get_list(5,function(response){
+	app.adv.get_list(4,function(response){
 		if ( response.length > 0 )
 		{
 			$("#lab").append("<hr />");

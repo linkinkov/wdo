@@ -108,7 +108,7 @@ function isValidEmail($email) {
 function filter_string($string,$dir='in')
 {
 	return ($dir == 'in')
-	? mb_ereg_replace("[^\r\na-zA-Zа-яА-Я0-9_ <>&\'\"\[\]()!\/:,.?@;-]+","",htmlspecialchars($string, ENT_QUOTES, 'utf-8')) 
+	? mb_ereg_replace("[^\r\na-zA-Zа-яА-Я0-9Ёё_ <>&\'\"\[\]()!\/:,.?@;-]+","",htmlspecialchars($string, ENT_QUOTES, 'utf-8')) 
 	: html_entity_decode(htmlspecialchars($string));
 }
 

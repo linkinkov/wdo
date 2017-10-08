@@ -6,13 +6,20 @@ $_SESSION["LAST_PAGE"] = "profile/messages";
 <div class="conversation-container">
 	<div class="wdo-scrollbar conversation-messages scrollable" id="conversation-messages"></div>
 	<div class="conversation-footer">
-		<div class="row"><div class="col">
-			<textarea class="form-control" id="conversation-message-text" placeholder="Текст сообщения" rows="1"></textarea>
-		</div></div>
+		<div class="row">
+			<div class="col">
+				<textarea class="form-control" id="conversation-message-text" placeholder="Текст сообщения" rows="1"></textarea>
+			</div>
+		</div>
 		<br />
-		<div class="row"><div class="col">
-			<div class="wdo-btn btn-sm bg-purple pull-right" data-trigger="send-message" id="conversation-message-send" data-ot="Отправить" data-lt="Отправка">Отправить</div>
-		</div></div>
+		<div class="row">
+			<div class="col">
+				<span class="pull-right">
+					<div class="wdo-btn btn-sm bg-purple" data-trigger="leave-chat" id="conversation-leave-btn" style="background-color: #d9534f !important; border: 1px; border-radius: 20px !important;">Покинуть чат</div>
+					<div class="wdo-btn btn-sm bg-purple" data-trigger="send-message" id="conversation-message-send" data-ot="Отправить" data-lt="Отправка">Отправить</div>
+				</span>
+			</div>
+		</div>
 	</div>
 </div>
 

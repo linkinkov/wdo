@@ -43,6 +43,7 @@ $(document).on("click",".wdo-option",function(e){
 $(document).on("click",".dialog",function(){
 	var dialog_id = $(this).data('dialog_id');
 	$("#conversation-message-text").data('dialog_id',dialog_id).attr('data-dialog_id',dialog_id);
+	$("#conversation-leave-btn").data('dialog_id',dialog_id).attr('data-dialog_id',dialog_id);
 	$("#conversation-message-send").data('dialog_id',dialog_id).attr('data-dialog_id',dialog_id);
 	$(".conversation-container").data('dialog_id',dialog_id).data('all_loaded',false);
 	app.im.getMessages(dialog_id,0,config.profile.messages_per_page+4,0,0,function(response){
@@ -102,6 +103,17 @@ $(document).on("click","[data-trigger='send-message']", function(){
 			app.im.poller.check_msgs(dialog_id,5);
 		}
 	});
+})
+
+$(document).on("click","[data-trigger='leave-chat']", function(){
+	if ( confirm('Вы уверены, что хотите покинуть общий диалог ?') )
+	{
+		dialog_id = $(this).data('dialog_id'),
+		app.im.leaveChat(dialog_id,function(response){
+			if ( response.result == "true" ) $("a[data-toggle='tab'][data-target='#messages']").click();
+			else if ( response.result == "false" ) showAlert("danger",response.message);
+		})
+	}
 })
 
 $(document).on("click",".wdo-btn",function(e){

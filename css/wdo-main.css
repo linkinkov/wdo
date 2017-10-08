@@ -58,7 +58,7 @@ body { padding-right: 0 !important }
 	/* z-index: 1; */
 }
 .container.banner-container {
-	background: url('/images/banners/banner-main.gif') no-repeat center;
+	/* background: url('/images/banners/banner-main.gif') no-repeat center; */
 	height: 360px;
 }
 .container.main-container {
