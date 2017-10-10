@@ -108,7 +108,7 @@ else if ( $job == "activate" && strlen($banner_id) == 32 )
 			if ( $path_parts["extension"] != "gif" )
 			{
 				$resizeObj = new resize($file);
-				$resizeObj->resizeImage($w, $h, $auto);
+				$resizeObj->resizeImage($w, $h, $method);
 				$resizeObj->saveImage($target, 90);
 			}
 			else
