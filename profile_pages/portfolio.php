@@ -91,6 +91,7 @@ if ( $current_user->user_id == $user->user_id )
 					<span class="pull-right">
 						<a id="portfolio-delete-link" class="wdo-link opacity" data-portfolio_id=""><i class="fa fa-trash"></i> Удалить</a>
 						<a id="portfolio-edit-link" class="wdo-link opacity" data-portfolio_id="" data-toggle="tab" data-target="#portfolio-edit" role="tab"><i class="fa fa-pencil"></i> Редактировать</a>
+						<a id="portfolio-direct-link" class="wdo-link opacity" data-portfolio_id="" target="_BLANK"><i class="fa fa-link"></i> Ссылка</a>
 					</span>
 					<?php
 					}
