@@ -117,9 +117,10 @@ else if ( $job == "activate" && strlen($banner_id) == 32 )
 			}
 			$file = str_replace(PD,'',$file);
 		}
-		if ( !$is_active === 0 )
+		if ( $is_active == 1 )
 		{
-			$files = glob(sprintf("%s/banners/%s.{jpg,png,jpeg,gif}",PD,$banner_id),GLOB_BRACE);
+			$path = ( $type == "top_banners" ) ? sprintf("%s/images/banners/top/%s.{jpg,png,jpeg,gif}",PD,$banner_id) : sprintf("%s/images/banners/%s.{jpg,png,jpeg,gif}",PD,$banner_id);
+			$files = glob($path,GLOB_BRACE);
 			foreach ( $files as $file )
 			{
 				unlink($file);
