@@ -90,23 +90,25 @@ else if ( $job == "activate" && strlen($banner_id) == 32 )
 		$files = glob(sprintf("%s/banners/%s.{jpg,png,jpeg,gif}",PD,$banner_id),GLOB_BRACE);
 		foreach ( $files as &$file )
 		{
-			$w = 360;
-			$h = 60;
 			$path_parts = pathinfo($file);
 			if ( $type == "main_banners" )
 			{
 				$target = sprintf("%s/images/banners/%s",PD,$path_parts["basename"]);
 				$w = 1600;
 				$h = 360;
+				$method = 'crop';
 			}
 			else if ( $type == "top_banners")
 			{
 				$target = sprintf("%s/images/banners/top/%s",PD,$path_parts["basename"]);
+				$w = 360;
+				$h = 60;
+				$method = 'auto';
 			}
 			if ( $path_parts["extension"] != "gif" )
 			{
 				$resizeObj = new resize($file);
-				$resizeObj->resizeImage($w, $h, 'crop');
+				$resizeObj->resizeImage($w, $h, $auto);
 				$resizeObj->saveImage($target, 90);
 			}
 			else
