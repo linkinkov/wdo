@@ -594,6 +594,7 @@ var app = {
 		"hide": function()
 		{
 			$("#portfolio_single").fadeOut();
+			window.location.hash = "portfolio";
 		},
 		"delete": function(portfolio_id,callback)
 		{

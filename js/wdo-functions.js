@@ -269,6 +269,7 @@ function process_show_portfolio(response)
 		$("#portfolio-edit-link").attr("data-portfolio_id",portfolio_id).data("portfolio_id",portfolio_id);
 		$("#portfolio-delete-link").attr("data-portfolio_id",portfolio_id).data("portfolio_id",portfolio_id);
 		$("#portfolio-direct-link").attr("href","http://weedo.ru/profile/id"+pf.user_id+"#portfolio"+portfolio_id);
+		window.location.hash = "portfolio"+portfolio_id;
 		if ( pf.attaches.length > 0 )
 		{
 			var att_p = 0,
