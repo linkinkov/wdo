@@ -117,13 +117,13 @@ else if ( $job == "activate" && strlen($banner_id) == 32 )
 			}
 			$file = str_replace(PD,'',$file);
 		}
-		if ( $type == "main_banners" )
+		if ( !$is_active === 0 )
 		{
-			// $db->query(sprintf("UPDATE `banners` SET `active` = 0 WHERE `type` = '%s'",$type));
-			// $db->query(sprintf("UPDATE `banners` SET `active` = %d WHERE `type` = '%s' AND `id` = '%s'",!$is_active,$type,$banner_id));
-		}
-		else if ( $type == "top_banners" )
-		{
+			$files = glob(sprintf("%s/banners/%s.{jpg,png,jpeg,gif}",PD,$banner_id),GLOB_BRACE);
+			foreach ( $files as $file )
+			{
+				unlink($file);
+			}
 		}
 		$db->query(sprintf("UPDATE `banners` SET `active` = %d WHERE `type` = '%s' AND `id` = '%s'",!$is_active,$type,$banner_id));
 		$response["result"] = "true";
