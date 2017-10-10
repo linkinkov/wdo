@@ -96,7 +96,7 @@ else if ( $job == "activate" && strlen($banner_id) == 32 )
 				$target = sprintf("%s/images/banners/%s",PD,$path_parts["basename"]);
 				$w = 1600;
 				$h = 360;
-				$method = 'portrait';
+				$method = 'landscape';
 			}
 			else if ( $type == "top_banners")
 			{
