@@ -5,3 +5,5 @@ sudo chown -R apache:apache -R ./attaches
 sudo chown -R apache:apache -R ./upload
 sudo chown -R apache:apache -R ./users
 sudo chown -R apache:apache -R ./images/cache
+sudo chown -R apache:apache -R ./images/banners
+sudo chown -R apache:apache -R ./banners

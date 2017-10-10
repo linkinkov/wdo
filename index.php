@@ -16,9 +16,34 @@ if ( $ref == "profile/project-responds" )
 $_SESSION["LAST_PAGE"] = "/projects";
 $preselect = get_var("preselect","array",Array());
 $action = get_var("action","string",false);
-$banner_id = $db->getValue("banners","id","id",Array("type"=>"main_banners","active"=>1));
-$files = glob(sprintf("%s/images/banners/%s.{jpg,png,jpeg,gif}",PD,$banner_id),GLOB_BRACE);
-$banner_location = ( isset($files[0]) ) ? str_replace(PD,'',$files[0]) : '/images/banners/default-main-banner.gif';
+$db_banners = $db->queryRows(sprintf("SELECT `id`,`link` FROM `banners` WHERE type = '%s' AND `active` = 1","main_banners"));
+$banner_list = Array();
+$job = get_var("job","string","");
+$files = Array();
+foreach ( $db_banners as $row )
+{
+	$files = glob(sprintf("%s/images/banners/%s.{jpg,png,jpeg,gif}",PD,$row->id),GLOB_BRACE);
+	if ( sizeof($files) )
+	{
+		foreach ( $files as &$file )
+		{
+			$file = str_replace(PD,'',$file);
+			$banner = new stdClass();
+			$banner->image_url = $file;
+			$banner->link_url = $row->link;
+			$banner_list[] = $banner;
+		}
+	}
+}
+if ( $job == "getSlides" )
+{
+	header('Content-Type: application/json');
+	echo json_encode($banner_list);
+	exit();
+}
+// $banner_id = $db->getValue("banners","id","id",Array("type"=>"main_banners","active"=>1));
+// print_r($files);
+$banner_location = ( isset($banner_list[0]) ) ? $banner_list[0]->image_url : '/images/banners/default-main-banner.gif';
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -29,7 +54,7 @@ $banner_location = ( isset($files[0]) ) ? str_replace(PD,'',$files[0]) : '/image
 
 <?php include(PD.'/includes/main-header.php');?>
 
-<div class="container banner-container" style="background: url('<?php echo $banner_location;?>');">
+<div class="container banner-container" style="background-image: url('<?php echo $banner_location;?>');">
 	<div class="row">
 		<div class="col margins left"></div>
 		<div class="col main">
@@ -287,6 +312,22 @@ $(function(){
 			$("#lab").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
 		}
 	},function() {return config.projects.specs;});
+	$.ajax({
+		"url": "/",
+		"dataType": "JSON",
+		"data": {
+			"job": "getSlides"
+		},
+		success: function(list)
+		{
+			app.slides.list = list;
+		}
+	}).done(function(){
+		app.slides.preload();
+		setInterval(function(){
+			app.slides.run();
+		},5000);
+	})
 });
 </script>
 </body>

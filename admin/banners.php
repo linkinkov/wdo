@@ -57,7 +57,7 @@ if ( $job == "upload" )
 		// You should name it uniquely.
 		// DO NOT USE $_FILES['upfile']['name'] WITHOUT ANY VALIDATION !!
 		// On this example, obtain safe unique name from its binary data.
-		$banner_id = md5($_FILES['upfile']['tmp_name']);
+		$banner_id = md5($_FILES['upfile']['tmp_name'].microtime(true));
 		if (!move_uploaded_file(
 				$_FILES['upfile']['tmp_name'],
 				sprintf(PD.'/banners/%s.%s',
@@ -117,7 +117,7 @@ else if ( $job == "activate" && strlen($banner_id) == 32 )
 		}
 		if ( $type == "main_banners" )
 		{
-			$db->query(sprintf("UPDATE `banners` SET `active` = 0 WHERE `type` = '%s'",$type));
+			// $db->query(sprintf("UPDATE `banners` SET `active` = 0 WHERE `type` = '%s'",$type));
 			// $db->query(sprintf("UPDATE `banners` SET `active` = %d WHERE `type` = '%s' AND `id` = '%s'",!$is_active,$type,$banner_id));
 		}
 		else if ( $type == "top_banners" )
@@ -196,7 +196,6 @@ if ( $job != "" ) exit();
 		<label for="main_banners_upload_input" class="wdo-btn bg-purple" data-lt="Загрузка..." data-ot="Выберите файлы">Выберите файлы</label>
 		<form id="main_banners_upload_form" enctype="multipart/form-data" method="post">
 			<input id="main_banners_upload_input" type="file" name="upfile" style="display: none;" accept=".png,.jpg,.jpeg,.gif">
-			<input type="submit" value="Отправить">
 		</form>
 	</div>
 </div>
@@ -220,7 +219,6 @@ if ( $job != "" ) exit();
 		<label for="top_banners_upload_input" class="wdo-btn bg-purple" data-lt="Загрузка..." data-ot="Выберите файлы">Выберите файлы</label>
 		<form id="top_banners_upload_form" enctype="multipart/form-data" method="post">
 			<input id="top_banners_upload_input" type="file" name="upfile" style="display: none;" accept=".png,.jpg,.jpeg,.gif">
-			<input type="submit" value="Отправить">
 		</form>
 	</div>
 </div>
@@ -254,11 +252,7 @@ function getBanners()
 						var activate_btn = '<button data-toggle="activate" data-id="'+banner.id+'" class="'+btn_class+'" style="width: 150px;">'+btn_text+'</button>';
 						var delete_btn = '<button data-toggle="delete" data-id="'+banner.id+'" class="btn btn-secondary" style="width: 150px;">Удалить</button>';
 					}
-					var link_btn = '';
-					if ( banner.type == "top_banners" )
-					{
-						link_btn = '<button data-toggle="modal" data-target="#change-banner-link-modal" data-id="'+banner.id+'" data-link="'+banner.link+'" class="btn btn-secondary" style="width: 150px;">Указать ссылку</button>';
-					}
+					link_btn = '<button data-toggle="modal" data-target="#change-banner-link-modal" data-id="'+banner.id+'" data-link="'+banner.link+'" class="btn btn-secondary" style="width: 150px;">Указать ссылку</button>';
 					var html = $.sprintf(''
 							+'<div class="row">'
 							+'	<div class="col">'
@@ -309,6 +303,12 @@ function getBanners()
 	})
 }
 $(function(){
+	$("#main_banners_upload_input").on("change", function(){
+		$("form#main_banners_upload_form").submit();
+	})
+	$("#top_banners_upload_input").on("change", function(){
+		$("form#top_banners_upload_form").submit();
+	})
 	$("form#main_banners_upload_form").submit(function(){
 		var formData = new FormData(this);
 		$.ajax({

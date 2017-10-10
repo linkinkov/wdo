@@ -39,8 +39,6 @@
 								}
 							}
 						?>
-						<!-- <div class="col top-banner"><img src="/banners/top-example1.jpg"/></div> -->
-						<!-- <div class="col top-banner"><img src="/banners/top-example2.jpg"/></div> -->
 						<?php
 						}
 						else
