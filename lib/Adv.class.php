@@ -14,7 +14,7 @@ class Adv
 			$response["message"] = "Доступ запрещен";
 			return $response;
 		}
-		if ( is_array($adv_id) && isset($adv_id["adv_id"]) ) $adv_id = $adv_id["adv_id"];
+		if ( is_array($adv_id) && isset($adv_id["id"]) ) $adv_id = $adv_id["id"];
 		$sql = sprintf("SELECT * FROM `adv` WHERE `adv_id` = '%s'",$adv_id);
 		$i = $db->queryRow($sql);
 		if ( isset($i->adv_id) )

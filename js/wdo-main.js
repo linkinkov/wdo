@@ -1010,21 +1010,8 @@ var app = {
 		"format_adv": function(data,print_footer)
 		{
 			print_footer = print_footer || "true";
-			// var html = ''
-			// +'<div class="user-adv" data-adv_id="'+data.adv_id+'">'
-			// +'	<div class="col">'
-			// +'		<div class="top-block">'
-			// +'			<div class="logo"><img id="adv-logo" class="rounded-circle shadow" width="80" avatar_path="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" src="/user.getAvatar?user_id='+data.user_id+'&w=80&h=80" /></div>'
-			// +'			<div class="title">'+data.title+'</div>'
-			// +'		</div>'
-			// +'		<div class="bottom-block">'
-			// +'			<div class="descr">'+data.descr+'</div>'
-			// +'		</div>'
-			// +'	</div>'
-			// +'</div>';
-			// return html;
 			var card = ''
-			+'<div class="card" style="max-width: 240px;">'
+			+'<div class="card" data-id="'+data.adv_id+'" style="max-width: 240px;">'
 			+'	<div class="card-block">'
 			+'		<h5 class="card-title text-center">'
 			+'			<a class="wdo-link" href="'+data.link+'">'

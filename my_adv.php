@@ -282,7 +282,7 @@ function load_my_advs(status_id)
 				$("#user_advs").append(item);
 			})
 		}
-		$("#user_advs").find(".user-adv").each(function(i,v){
+		$("#user_advs").find(".card").each(function(i,v){
 			$(v).click(function(){
 				load_single_adv($(this).data());
 				$("html, body").animate({ scrollTop: $('#wdo-main-right').offset().top }, 500);
