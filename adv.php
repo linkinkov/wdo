@@ -39,7 +39,7 @@ include_once('_includes.php');
 					<div class="row">
 						<div class="col">
 							<span class="pull-right">
-								<a class="wdo-btn btn-sm bg-yellow" href="/my_adv/"><i class="fa fa-plus"></i> Добавить</a>
+								<a class="wdo-btn btn-sm bg-yellow" href="/my_adv/">Мои объявления / Добавить новое</a>
 							</span>
 						</div>
 					</div>
