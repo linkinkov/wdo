@@ -259,7 +259,7 @@ if ( strlen($event_id) == 32 )
 							</label>
 						</div>
 						<div class="col" style="max-width: 130px;">
-							<h3 class="text-purple">300 <i class="fa fa-rouble"></i></h3>
+							<h3 class="text-purple"><?php echo $db->getValue("settings","param_value","vip_cost",Array("param_name"=>"vip_cost"));?> <i class="fa fa-rouble"></i></h3>
 						</div>
 					</div>
 
