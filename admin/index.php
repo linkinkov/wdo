@@ -70,6 +70,9 @@ require(PD.'/admin/check_admin.php');
 					<li class="menu-entry" data-page="#banners">
 						<i class=""></i> Баннеры
 					</li>
+					<li class="menu-entry" data-page="#settings">
+						<i class=""></i> Настройки
+					</li>
 				</ul>
 			</div> <!-- /.menu-list -->
 		</div> <!-- /.nav-side-menu -->

@@ -2,6 +2,7 @@ $(document).on("click","#menu-content .menu-entry", function(){
 	var li = $(this),
 			page = $(li).data('page');
 	loadPage(page);
+	window.location.hash = page;
 })
 
 $(document).on("click","[data-trigger='send-message']", function(){
@@ -336,8 +337,9 @@ $(document).on("click","[data-trigger='save-link']", function(){
 	var input = $("#change-banner-link-modal").find("input[name='banner_link']");
 	console.log(input.val());
 	$.ajax({
-		"dataType": "JSON",
 		"url": "/admin/banners",
+		"type": "POST",
+		"dataType": "JSON",
 		"data": {
 			"job": "change_banner_link",
 			"banner_id": data.id,
@@ -349,6 +351,36 @@ $(document).on("click","[data-trigger='save-link']", function(){
 				showAlertMini('success',response.message);
 				$("#change-banner-link-modal").modal("hide");
 				getBanners();
+			}
+			else
+			{
+				showAlertMini('danger',response.message);
+			}
+		}
+	})
+})
+
+
+$(document).on("click","[data-trigger='save-setting']", function(){
+	var data = $(this).data(),
+			btn = $(this);
+	var input = $("[data-setting='"+data.setting+"']");
+	console.log(input.val());
+	$(btn).button('loading');
+	$.ajax({
+		"url": "/admin/settings",
+		"type": "POST",
+		"dataType": "JSON",
+		"data": {
+			"job": "set_setting",
+			"param_name": input.data('setting'),
+			"param_value": $(input).val()
+		},
+		"success": function(response){
+			if ( response.result == "true" )
+			{
+				showAlertMini('success',response.message);
+				$(btn).button('reset');
 			}
 			else
 			{

@@ -191,6 +191,7 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 							</div>
 						</div>
 					</div>
+<!-- 
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: center;">
 						</div>
@@ -210,7 +211,7 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 							</div>
 						</div>
 					</div>
-
+ -->
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: top;">
