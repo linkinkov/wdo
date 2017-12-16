@@ -63,7 +63,7 @@ $recordsFiltered = 0;
 
 $sql = "SELECT COUNT(`id`) as recordsTotal 
 	FROM `user_responds`
-	WHERE 1";
+	WHERE `user_responds`.`user_id` = '$user_id'";
 try {
 	$tr = $db->queryRow($sql);
 	$recordsTotal = $tr->recordsTotal;
@@ -76,7 +76,7 @@ try {
 
 $sql = "SELECT COUNT(`id`) as recordsFiltered 
 	FROM `user_responds`
-	WHERE 1";
+	WHERE `user_responds`.`user_id` = '$user_id'";
 try {
 	$tdr = $db->queryRow($sql);
 	$recordsFiltered = $tdr->recordsFiltered;
