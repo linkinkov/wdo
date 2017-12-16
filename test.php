@@ -1,4 +1,31 @@
 <?php
+
+
+$transactions = Array(
+	"confirm_transaction_hold" => false,
+	"confirm_transaction_hold_comission" => false,
+	"confirm_transaction_overcost_comission" => false
+);
+$transactions["confirm_transaction_hold"] = Array (
+	"transaction_id"=>"123123213juidh293t41923",
+	"commit"=>false
+);
+$transactions["confirm_transaction_hold_comission"] = Array (
+	"transaction_id"=>"1231ij389yd19gd9ad0af9f8e",
+	"commit"=>false
+);
+
+foreach ( $transactions as $name => $transaction )
+{
+	if ( !is_array($transaction) ) continue;
+	if ( strstr($name,"comission") !== false )
+	{
+		echo "$name: comission!\n";
+	}
+}
+
+exit;
+
 ini_set("display_errors",1);
 define('PD',DIRNAME(__FILE__));
 $db = new mysqli("localhost","root","290233","wdo");

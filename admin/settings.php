@@ -50,6 +50,43 @@ if ( $job != "" ) exit();
 	</div>
 </div>
 
+<div class="row">
+	<div class="col">
+		<label for="vip_cost">Стоимость рекламного объявления</label>
+		<div class="input-group">
+			<input id="adv_cost" type="number" class="form-control" data-setting="adv_cost" data placeholder="Стоимость рекламного объявления" />
+			<div class="input-group-btn">
+				<button class="btn btn-success" data-trigger="save-setting" data-setting="adv_cost"><i class="fa fa-check"></i> Сохранить</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col">
+		<label for="vip_cost">Стоимость поднятия объявления</label>
+		<div class="input-group">
+			<input id="adv_promote_cost" type="number" class="form-control" data-setting="adv_promote_cost" data placeholder="Стоимость поднятия объявления" />
+			<div class="input-group-btn">
+				<button class="btn btn-success" data-trigger="save-setting" data-setting="adv_promote_cost"><i class="fa fa-check"></i> Сохранить</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col">
+		<label for="safe_deal_comission">Комиссия за безопасную сделку (процент)</label>
+		<div class="input-group">
+			<input id="safe_deal_comission" type="number" class="form-control" data-setting="safe_deal_comission" data placeholder="Комиссия за безопасную сделку" />
+			<div class="input-group-btn">
+				<button class="btn btn-success" data-trigger="save-setting" data-setting="safe_deal_comission"><i class="fa fa-check"></i> Сохранить</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 <script>
 $(function(){
 	$.ajax({

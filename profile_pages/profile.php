@@ -72,6 +72,14 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 		</label>
 	</div>
 </div>
+<div class="row performer_service_cost-container">
+	<div class="col">
+		<input type="number" class="form-control profile-data" data-name="performer_service_cost" placeholder="Стоимость" />
+	</div>
+	<div class="col">
+		<input type="text" class="form-control profile-data" data-name="performer_service_type" placeholder="В час/день/шт. Не более 15 знаков" />
+	</div>
+</div>
 
 <div class="row"><div class="col"><hr /></div></div>
 <div class="row real_user_name-container">
@@ -369,11 +377,13 @@ $(function(){
 		{
 			$("#as_performer_checkbox").data('value',1)
 			$(".map-container").show(); 
+			$(".performer_service_cost-container").show();
 		}
 		else
 		{
 			$("#as_performer_checkbox").data('value',0)
 			$(".map-container").hide();
+			$(".performer_service_cost-container").hide();
 		}
 		map.invalidateSize();
 	})

@@ -9,7 +9,7 @@ $current_user->init_wallet();
 		Сумма:
 	</div>
 	<div class="col">
-		<input type="number" class="form-control" name="amount" placeholder="Ваш баланс: <?php echo $current_user->wallet->balance;?> руб." />
+		<input type="number" class="form-control" id="amount" name="amount" placeholder="Ваш баланс: <?php echo $current_user->wallet->balance;?> руб." />
 	</div>
 </div>
 <br />
@@ -20,3 +20,24 @@ $current_user->init_wallet();
 		</span>
 	</div>
 </div>
+
+<script>
+function balance_refill()
+{
+	amount = parseInt($("#amount").val());
+	$.ajax({
+		type: "POST",
+		url: "/user.balanceRefill",
+		data: {
+			"amount": amount
+		},
+		dataType: "JSON",
+		success: function (response) {
+			var alert_type = ( response.result == "false" ) ? "danger" : "success";
+			showAlert(alert_type,response.message);
+		}
+	})
+}
+$(function(){
+})
+</script>

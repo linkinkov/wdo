@@ -70,7 +70,7 @@ $sql_main = "SELECT
 	`wallet_transactions`.`wallet_id`,
 	`amount`,
 	`type`,
-	IF(`type`='PAYMENT','Зачисление',IF(`type`='HOLD','Удержание','Списание')) as `type_name`,
+	IF(`type`='PAYMENT','Зачисление',IF(`type`='HOLD','Удержание',IF(`TYPE`='CANCEL','Возврат','Списание'))) as `type_name`,
 	`timestamp`,
 	`descr`
 	FROM `wallet_transactions`
@@ -107,7 +107,7 @@ $sql = "SELECT
 	`wallet_transactions`.`wallet_id`,
 	`amount`,
 	`type`,
-	IF(`type`='PAYMENT','Зачисление',IF(`type`='HOLD','Удержание','Списание')) as `type_name`,
+	IF(`type`='PAYMENT','Зачисление',IF(`type`='HOLD','Удержание',IF(`TYPE`='CANCEL','Возврат','Списание'))) as `type_name`,
 	`timestamp`,
 	`descr`
 	FROM `wallet_transactions`
@@ -129,6 +129,7 @@ if ( sizeof ($aaData) )
 	{
 		$row->DT_RowId = $row->transaction_id;
 		$row->DT_RowClass = "";
+/*
 		switch ( $row->type )
 		{
 			case "PAYMENT":
@@ -141,6 +142,23 @@ if ( sizeof ($aaData) )
 				$row->type_name = sprintf('<text class="text-danger">%s</text>',$row->type_name);
 				break;
 		}
+*/
+		switch ( $row->type )
+		{
+			case "WITHDRAWAL":
+				$row->type_name = sprintf('<text class="text-danger">%s</text>','Списание');
+				break;
+			case "HOLD":
+				$row->type_name = sprintf('<text class="text-warning">%s</text>','Удержание');
+				break;
+			case "PAYMENT":
+				$row->type_name = sprintf('<text class="text-success">%s</text>','Пополнение');
+				break;
+			case "CANCEL":
+				$row->type_name = sprintf('<text class="text-info">%s</text>','Возврат');
+				break;
+		}
+
 	}
 }
 

@@ -558,7 +558,6 @@ $('#warn-user-modal').on('hidden.bs.modal', function(e){
 	$(modal).find("textarea").data('dialog_id',0).attr('data-dialog_id',0);
 })
 
-
 $(function(){
 	var hash = window.location.hash || "#projects";
 	if ( hash ) loadPage(hash);

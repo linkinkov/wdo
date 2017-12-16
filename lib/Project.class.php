@@ -203,8 +203,8 @@ class Project
 		$vip_cost = ( $data["vip"] == 1 ) ? $db->getValue("settings","param_value","value",Array("param_name"=>"vip_cost")) : 0;
 		try {
 			$db->autocommit(false);
-			$sql = sprintf("INSERT INTO `project` (`title`,`descr`,`cost`,`created`,`status_id`,`user_id`,`accept_till`,`start_date`,`end_date`,`cat_id`,`subcat_id`,`city_id`,`safe_deal`,`vip`,`views`,`for_user_id`,`for_event_id`)
-			VALUES ('%s','%s','%d',UNIX_TIMESTAMP(),'%d','%d','%d','%d','%d','%d','%d','%d','%d','%d',0,'%d','%s')",
+			$sql = sprintf("INSERT INTO `project` (`title`,`descr`,`cost`,`created`,`status_id`,`user_id`,`accept_till`,`start_date`,`end_date`,`cat_id`,`subcat_id`,`city_id`,`safe_deal`,`vip`,`views`,`for_user_id`,`for_event_id`,`last_prolong`)
+			VALUES ('%s','%s','%d',UNIX_TIMESTAMP(),'%d','%d','%d','%d','%d','%d','%d','%d','%d','%d',0,'%d','%s',0)",
 				filter_string($data["title"],'in'),
 				filter_string($data["descr"],'in'),
 				intval($data["cost"]),
@@ -221,9 +221,12 @@ class Project
 				intval($data["for_user_id"]),
 				trim($data["for_event_id"])
 			);
+			$current_user->init_wallet();
 			if ( $db->query($sql) && $db->insert_id > 0 )
 			{
+				// echo "aaa2";
 				$project_id = $db->insert_id;
+				$data["cost_w_comission"] = $data["cost"];
 				if ( $data["safe_deal"] == 1 )
 				{
 					// HOLD for safe deal, amount = project cost
@@ -232,11 +235,13 @@ class Project
 						$response["message"] = "Укажите бюджет";
 						return $response;
 					}
-					$current_user->init_wallet();
-					if ( intval($current_user->wallet->balance) < intval($data["cost"]) )
+					$data["safe_deal_comission"] = $db->getValue("settings","param_value","safe_deal_comission",Array("param_name"=>"safe_deal_comission"));
+					$data["cost_w_comission"] = $data["cost"] + $data["cost"]/100*$data["safe_deal_comission"];
+					if ( intval($current_user->wallet->balance) < intval($data["cost_w_comission"]) )
 					{
 						$response["message"] = "Недостаточно средств";
-						$response["error"] = "Ваш баланс: ".$current_user->wallet->balance." руб.<br />Требуется: ".(intval($vip_cost) + intval($data["cost"]))." руб.";
+						$response["balance"] = $current_user->wallet->balance;
+						$response["error"] = "Ваш баланс: ".$current_user->wallet->balance." руб.<br />Требуется: ".(intval($vip_cost) + intval($data["cost_w_comission"]))." руб.";
 						return $response;
 					}
 					else
@@ -249,7 +254,20 @@ class Project
 							"for_project_id"=>$project_id,
 							"commit"=>false
 						);
-						if ( $current_user->wallet->create_transaction($new_transaction) !== true )
+						if ( ($transaction_id = $current_user->wallet->create_transaction($new_transaction)) === false )
+						{
+							$response["message"] = "Ошибка блокирования средств";
+							return $response;
+						}
+						$new_transaction = Array (
+							"reference_id"=>$transaction_id,
+							"type"=>"HOLD",
+							"amount"=>intval($data["cost"]/100*$data["safe_deal_comission"]),
+							"descr"=>"Удержание средств за безопасную сделку (комиссия)",
+							"for_project_id"=>$project_id,
+							"commit"=>false
+						);
+						if ( ($transaction_id = $current_user->wallet->create_transaction($new_transaction)) === false )
 						{
 							$response["message"] = "Ошибка блокирования средств";
 							return $response;
@@ -260,10 +278,10 @@ class Project
 				if ( $data["vip"] == 1 )
 				{
 					$vip_cost = $db->getValue("settings","param_value","value",Array("param_name"=>"vip_cost"));
-					$current_user->init_wallet();
+					// $current_user->init_wallet();
 					if ( intval($current_user->wallet->balance) < intval($vip_cost) )
 					{
-						$total_cost = ($data["safe_deal"] == 1) ? (intval($vip_cost) + intval($data["cost"])) : intval($vip_cost);
+						$total_cost = ($data["safe_deal"] == 1) ? (intval($vip_cost) + intval($data["cost_w_comission"])) : intval($vip_cost);
 						$response["message"] = "Недостаточно средств";
 						$response["error"] = "Ваш баланс: ".$current_user->wallet->balance." руб.<br />Требуется: ".$total_cost." руб.";
 						return $response;
@@ -277,7 +295,7 @@ class Project
 						"for_project_id"=>$project_id,
 						"commit"=>false
 					);
-					if ( $current_user->wallet->create_transaction($new_transaction) !== true )
+					if ( ($transaction_id = $current_user->wallet->create_transaction($new_transaction)) === false )
 					{
 						$response["message"] = "Ошибка блокирования средств за платный проект";
 						return $response;
@@ -298,6 +316,10 @@ class Project
 				{
 					$response["error"] = "Не удалось прикрепить файлы к проекту";
 				}
+			}
+			else
+			{
+				$response["message"] = "error";
 			}
 		}
 		catch ( Exception $e )
@@ -334,6 +356,14 @@ class Project
 				return $response;
 		}
 		$db->autocommit(false);
+		$project_user = new User($recipient_id);
+		$project_user->init_wallet();
+		$transactions = Array(
+			"transaction_hold" => Array(),
+			"transaction_hold_comission" => Array(),
+			"transaction_hold_vip" => Array()
+		);
+
 		try {
 			// update project status
 			$sql = sprintf("UPDATE `project` SET `status_id` = '5' WHERE `project_id` = '%d' AND `user_id` = '%d'",$project_id,$recipient_id);
@@ -344,6 +374,36 @@ class Project
 				VALUES ('%d',0,'%d','%s','%d',UNIX_TIMESTAMP())",$project_id,$recipient_id,$message,$current_user->user_id);
 				if ( $db->query($sql) && $db->affected_rows > 0 )
 				{
+					$find_transaction = Array (
+						"for_project_id" => $project_id,
+						"type" => "HOLD",
+						"descr" => "Удержание средств за безопасную сделку"
+					);
+					$transactions["transaction_hold"] = $project_user->wallet->find_transaction($find_transaction);
+
+					$find_transaction = Array (
+						"for_project_id" => $project_id,
+						"type" => "HOLD",
+						"descr" => "Удержание средств за безопасную сделку (комиссия)"
+					);
+					$transactions["transaction_hold_comission"] = $project_user->wallet->find_transaction($find_transaction);
+
+					$find_transaction = Array (
+						"for_project_id" => $project_id,
+						"type" => "HOLD",
+						"descr" => "Удержание средств за платный проект"
+					);
+					$transactions["transaction_hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
+					foreach ( $transactions as $name => $transaction )
+					{
+						if ( !isset($transaction->transaction_id) ) continue;
+						$transaction->commit = false;
+						if ( $project_user->wallet->cancel_holded_transaction((array)$transaction) !== true )
+						{
+							$response["message"] = sprintf("Не удалось отменить транзакцию HOLD: %s",$name);
+							return $response;
+						}
+					}
 					$db->commit();
 					$response["message"] = "Предупреждение пользователю вынесено, проект заблокирован";
 					$response["result"] = "true";
@@ -352,7 +412,7 @@ class Project
 		}
 		catch ( Exception $e )
 		{
-			$response["message"] = $e->getMessage();
+			// $response["message"] = $e->getMessage();
 		}
 		return $response;
 	}

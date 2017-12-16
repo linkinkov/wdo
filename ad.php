@@ -39,4 +39,16 @@ switch ( $job )
 		header('Content-Type: application/json');
 		echo json_encode($list);
 		break;
+	case "promote":
+		$data = get_var("data","array","");
+		$adv_id = isset($data["adv_id"]) ? $data["adv_id"] : "";
+		if ( strlen($adv_id) != 32 )
+		{
+			$response["result"] = "false";
+			$response["message"] = "Объявление не найдено";
+		}
+		else
+		{
+			$response = Adv::promote($data);
+		}
 }

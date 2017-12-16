@@ -125,8 +125,79 @@ $job = get_var("job","string",false);
 	</tbody>
 </table>
 
+<!-- change_password-modal -->
+<div class="modal fade" id="change_password-modal" tabindex="-1" role="dialog" aria-labelledby="change_password-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document" style="width: 600px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-roboto-cond" id="change_password-modal-label">Смена пароля</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col">
+						<img name="userAvatar" src="" class="rounded-circle shadow" /> <a name="username" target="_BLANK" href="" class="wdo-link"></a>
+					</div>
+				</div>
+				<div class="row" style="justify-content: center;">
+					<div class="col text-center">
+						<br /><text class="text-purple" id="target_username"></text>
+						<br /><input type="password" class="form-control" placeholder="Введите пароль" name="password" />
+						<br /><input type="password" class="form-control" placeholder="Повторите пароль" name="password_2" />
+						<br /><div class="wdo-btn btn-sm bg-yellow strong" data-trigger="change_password">Изменить</div>
+					</div>
+				</div>
+			</div><!-- /.modal-body -->
+			<div class="modal-footer" style="height: 55px; background: url(/images/ornament-3.png) repeat-x bottom 10px right;"></div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <script>
+
 $(function(){
+
+	$('#change_password-modal').on('show.bs.modal', function(e){
+		var related = e.relatedTarget,
+				user_id = $(related).data('user_id'),
+				username = $(related).data('username'),
+				modal = e.delegateTarget,
+				submit_btn = $(modal).find("[data-trigger='change_password']");
+		$(modal).find("img[name='userAvatar']").attr("src","/user.getAvatar?user_id="+user_id+"&w=35&h=35");
+		$(modal).find("a[name='username']").attr("href","/profile/id"+user_id).text(username);
+		$(submit_btn).data("user_id",user_id);
+	})
+
+	$("[data-trigger='change_password']").click(function(e){
+		var btn = $(this),
+				modal = $("#change_password-modal"),
+				input = $(modal).find("input[name='password']"),
+				input2 = $(modal).find("input[name='password_2']"),
+				user_id = $(btn).data("user_id");
+		if ( $(input).val() != $(input2).val() )
+		{
+			$(btn).text("Пароли не совпадают");
+			return;
+		}
+		set_btn_state(btn,"loading");
+		password = hex_sha512($(input).val());
+		app.action.update("user",user_id,"password",password,function(response){
+			if ( response.result == "true" )
+			{
+				$(btn).addClass("bg-yellow");
+				set_btn_state(btn,"reset",response.message);
+			}
+			else
+			{
+				$(btn).addClass("bg-warning");
+				set_btn_state(btn,"reset",response.message);
+			}
+		});
+
+	})
+
 	conf.usersTable = $("#usersTable").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"bProcessing": true,
@@ -186,6 +257,7 @@ $(function(){
 			{
 				$('td', row).eq(7).append('<span class="pull-right"><a href="#" class="text-muted" data-trigger="update" data-type="user" data-name="template_id" data-value="2" data-id="'+data.user_id+'" title="Сделать администратором"><i class="fa fa-user"></i></a></span>');
 			}
+			$('td', row).eq(8).append('<span class="pull-right"><a style="margin-right: 5px;" href="#users" data-toggle="modal" data-target="#change_password-modal" data-user_id="'+data.user_id+'" data-username="'+data.username+'" title="Сменить пароль"><i class="fa fa-key"></i></a></span>');
 		},
 		"drawCallback": function( settings ) {
 			$(".paginate_button > a").on("focus", function() {$(this).blur();});

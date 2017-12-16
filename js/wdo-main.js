@@ -344,7 +344,7 @@ var app = {
 					callback(response);
 				}
 			})
-		}
+		},
 	},
 	"project": {
 		"getAttachList": function(project_id,callback)
@@ -989,6 +989,18 @@ var app = {
 				+'		</td>'
 				+'	</tr>';
 			}
+			else if ( data.adv_title != "" )
+			{
+				child_row += ''
+				+'	<tr>'
+				+'		<td>'
+				+'			Объявление:'
+				+'		</td>'
+				+'		<td>'
+				+'			<span class="pull-right">'+data.adv_title+'</span>'
+				+'		</td>'
+				+'	</tr>';
+			}
 			child_row += '</table>';
 			return child_row;
 		},
@@ -1020,7 +1032,7 @@ var app = {
 			+'			<a class="wdo-link text-purple" href="'+data.link+'">'+data.title+'</a>'
 			+'		</h5>'
 			+'	</div>';
-			if ( print_footer == "true" )
+			if ( print_footer == "true" && data.descr != "" )
 			{
 				card += ''
 				+'	<div class="card-footer text-center">'

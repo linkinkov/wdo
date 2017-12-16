@@ -15,7 +15,7 @@ if ( $current_user->user_id <= 0 )
 	include(PD.'/errors/error.php');
 	exit;
 }
-
+$adv_cost = $db->getValue("settings","param_value","adv_cost",Array("param_name"=>"adv_cost"));
 $counters["1"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>1));
 $counters["2"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>2));
 $counters["3"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"=>$current_user->user_id,"status_id"=>3));
@@ -74,7 +74,7 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 
 					<div class="row">
 						<div class="col">
-							<h4 class="text-purple text-roboto-cond-bold">Создать / Редактировать</h4>
+							<h4 class="text-purple text-roboto-cond-bold" id="create_edit">Создать / Редактировать</h4>
 						</div>
 					</div>
 					<div class="row"><div class="col"><hr /></div></div>
@@ -215,6 +215,24 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: top;">
+							<text class="text-muted">Поднять объявление</text>
+						</div>
+						<div class="col">
+							<span class="pull-left text-purple">300 руб.</span>
+							<span class="pull-right">
+								<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="promote">Поднять</div>
+							</span>
+							<br />
+							<br />
+							<small class="text-muted">
+								После модерации объявление автоматически попадает на первое место в списке
+							</small>
+						</div>
+					</div>
+
+					<div class="row"><div class="col"><hr /></div></div>
+					<div class="row">
+						<div class="col" style="max-width: 190px; align-self: top;">
 							<text class="text-muted">Автоподнятие</text>
 						</div>
 						<div class="col">
@@ -236,6 +254,7 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: center;"></div>
 						<div class="col">
+							<span>Сумма в размере <text class="text-purple"><?php echo intval($adv_cost);?> <i class="fa fa-rouble"></i></text>, будет удержана на Вашем кошельке до проверки объявления модератором</span><br /><br />
 							<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="create" data-draft="0">Отправить на модерацию</div>
 							<div class="wdo-btn btn-sm bg-yellow" data-toggle="adv_action" data-action="create" data-draft="1">Сохранить черновик</div>
 						</div>
@@ -284,15 +303,17 @@ function load_my_advs(status_id)
 		}
 		$("#user_advs").find(".card").each(function(i,v){
 			$(v).click(function(){
-				load_single_adv($(this).data());
+				load_single_adv(event,$(this).data());
 				$("html, body").animate({ scrollTop: $('#wdo-main-right').offset().top }, 500);
 			}).addClass("preview");
 		})
 	})
 }
 
-function load_single_adv(adv_id)
+function load_single_adv(e,adv_id)
 {
+	e.preventDefault();
+	e.stopPropagation();
 	app.adv.action("load",adv_id,function(response){
 		$(".wdo-option[data-name='category']").removeClass("active");
 		$(".wdo-option[data-name='category'][data-value='"+response.cat_id+"']").addClass("active");
@@ -319,6 +340,7 @@ function load_single_adv(adv_id)
 		$("#preview").find(".title").html(response.title);
 		$("#preview").find(".descr").html(response.descr);
 		$("[data-trigger='update-preview']").trigger("keyup");
+		$("html, body").animate({ scrollTop: $('#create_edit').offset().top }, 500);
 	})
 }
 
@@ -413,10 +435,25 @@ $(function(){
 			if ( response.result == "false" )
 			{
 				showAlert("error",response.message);
+				if ( (response.field) )
+				{
+					if ( response.field == "cat_id" )
+					{
+						$("button[data-name='category']").addClass("warning");
+					}
+					else if ( response.field == "subcat_id" )
+					{
+						$("button[data-name='subcategory']").addClass("warning");
+					}
+					else $("[data-name='"+response.field+"']").addClass("warning");
+				}
 				return;
 			}
 			// window.location.reload();
 			showAlert("info",response.message);
+			$.each($(".warning"), function(i,v){
+				$(this).removeClass("warning");
+			})
 		})
 	})
 	$("[data-toggle='filter_status']").click(function(){

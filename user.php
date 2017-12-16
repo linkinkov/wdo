@@ -84,4 +84,32 @@ switch ( $job )
 		$response = is_array($response) ? $response : Array("result"=>"false");
 		echo json_encode($response);
 		break;
+	case "balanceRefill":
+		header('Content-Type: application/json');
+		$amount = get_var("amount","int","post");
+		$response = Array(
+			"result" => "true",
+			"message" => sprintf("Ваш баланс пополнен на сумму %d",$amount)
+		);
+		$current_user->init_wallet();
+		$db->autocommit(false);
+		$new_transaction = Array (
+			"reference_id"=>"",
+			"for_project_id" => 0,
+			"type"=>"PAYMENT",
+			"amount"=>intval($amount),
+			"descr"=>"Пополнение кошелька",
+			"commit"=>false
+		);
+		if ( ($transaction_id = $current_user->wallet->create_transaction($new_transaction)) === false )
+		{
+			$response["message"] = "Ошибка зачисления средств";
+			$response["result"] = "false";
+			echo json_encode($response);
+			break;
+		}
+		$db->commit();
+		echo json_encode($response);
+		break;
+
 }

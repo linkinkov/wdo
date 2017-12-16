@@ -27,7 +27,7 @@ $selected = get_var("selected","string","");
 $cityStr = ( isset($_COOKIE["city_id"]) && intval($_COOKIE["city_id"]) > 0 ) ? sprintf(" AND `city_id` = '%d'",intval($_COOKIE["city_id"])) : sprintf(" AND `city_id` = '%d'",1);
 $selectedStr = ( $selected != "" ) ? sprintf(' AND `subcat_id` IN (%s)',$selected) : '';
 
-if ( isset($order["col"]) && in_array(strtolower($order["col"]),Array("rating","registered","user_responds")) )
+if ( isset($order["col"]) && in_array(strtolower($order["col"]),Array("rating","registered","user_responds","performer_service_cost")) )
 {
 	if ( isset($order["dir"]) && in_array(strtolower($order["dir"]),Array("desc","asc")) )
 	{

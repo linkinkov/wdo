@@ -82,7 +82,7 @@ function load_advs(page)
 			})
 			// $("#all_advs").append('<a href="/adv/" class="wdo-link text-yellow" style="padding: 0px 20%;">Все объявления</a>');
 		}
-	},"", true);
+	},"", false);
 
 }
 

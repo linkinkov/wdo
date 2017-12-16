@@ -21,11 +21,12 @@ class User
 		if ( intval($id) == 0 && $username == false )
 		{
 			$this->user_id = 0;
+			$this->template_id = 0;
 			// $_SESSION["user_id"] = 0;
 			return;
 		}
 		$where = (intval($id) > 0) ? sprintf("`user_id` = '%d'",$id) : sprintf("`username` = '%s'",$username);
-		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","status_id","rating","rezume","phone","telegram","site","gps","signature","template_id");
+		$public_fields = Array("user_id","username","real_user_name","type_id","city_id","registered","last_login","as_performer","status_id","rating","rezume","phone","telegram","site","gps","signature","template_id","performer_service_cost","performer_service_type");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` LEFT JOIN `cities` ON `cities`.`id` = `users`.`city_id` WHERE %s",implode(",",$public_fields),$where);
 		// echo $sql;
@@ -216,7 +217,7 @@ class User
 			"message" => "Ошибка"
 		);
 		if ( $this->user_id == 0 ) return $response;
-		$public_fields = Array("password","real_user_name","type_id","country_id","city_id","as_performer","phone","telegram","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds");
+		$public_fields = Array("password","real_user_name","type_id","country_id","city_id","as_performer","phone","telegram","site","gps","signature","rezume","birthday","rek_last_name","rek_first_name","rek_second_name","rek_inn","rek_ogrnip","rek_ras_schet","rek_kor_schet","rek_bik","ts_project_responds","performer_service_cost","performer_service_type");
 		$set = Array();
 		foreach ( $data as $key=>$value )
 		{
@@ -233,8 +234,11 @@ class User
 					$salt = $db->getValue("users","salt","salt",Array("user_id"=>$this->user_id));
 					$hashed = hash('sha512',$value.$salt);
 					$set[] = sprintf('`%s` = "%s"',$key,$hashed);
-					$user_browser = $_SERVER['HTTP_USER_AGENT'];
-					$_SESSION['login_string'] = hash('sha512',$hashed . $user_browser);
+					if ( $current_user->user_id == $this->user_id )
+					{
+						$user_browser = $_SERVER['HTTP_USER_AGENT'];
+						$_SESSION['login_string'] = hash('sha512',$hashed . $user_browser);
+					}
 				}
 				else
 				{
@@ -272,7 +276,7 @@ class User
 		);
 		if ( !$user_id ) return $response;
 		if ( $current_user->user_id != $user_id ) return $response;
-		$public_fields = Array("user_id","real_user_name","type_id","country_id","city_id","as_performer","phone","telegram","site","gps","signature","rezume","birthday");
+		$public_fields = Array("user_id","real_user_name","type_id","country_id","city_id","as_performer","phone","telegram","site","gps","signature","rezume","birthday","performer_service_cost","performer_service_type");
 		array_walk($public_fields,'sqlize_array');
 		$sql = sprintf("SELECT %s FROM `users` WHERE `user_id` = '%d'",implode(",",$public_fields),$user_id);
 		try {

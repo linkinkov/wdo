@@ -130,9 +130,10 @@ class ProjectRespond
 				$data[$field] = 0;
 			}
 		}
+		// echo "aaas";
 		$data["descr"] = filter_string($data["descr"]);
-		$sql = sprintf("INSERT INTO `project_responds` (`for_project_id`,`user_id`,`created`,`descr`,`cost`,`status_id`)
-		VALUES ('%d','%d',UNIX_TIMESTAMP(),'%s','%d',1)",
+		$sql = sprintf("INSERT INTO `project_responds` (`for_project_id`,`user_id`,`created`,`descr`,`cost`,`status_id`,`modify_timestamp`)
+		VALUES ('%d','%d',UNIX_TIMESTAMP(),'%s','%d',1,UNIX_TIMESTAMP())",
 		intval($data["for_project_id"]),
 		$current_user->user_id,
 		$data["descr"],
@@ -207,7 +208,11 @@ class ProjectRespond
 		}
 		$db->autocommit(false);
 		try {
-
+			$transactions = Array(
+				"confirm_transaction_hold" => Array(),
+				"confirm_transaction_hold_comission" => Array(),
+				"confirm_transaction_overcost_comission" => Array()
+			);
 			// check safe deal
 			if ( $db->getValue("project","safe_deal","safe_deal",Array("project_id"=>$this->for_project_id)) == 1 ) // project is safe deal. check balances
 			{
@@ -219,6 +224,16 @@ class ProjectRespond
 					"descr" => "Удержание средств за безопасную сделку"
 				);
 				$transaction_hold = $current_user->wallet->find_transaction($find_transaction);
+
+				// get HOLD transaction for safe project comission
+				$find_transaction = Array (
+					"for_project_id" => $this->for_project_id,
+					"type" => "HOLD",
+					"descr" => "Удержание средств за безопасную сделку (комиссия)"
+				);
+				$transaction_hold_comission = $current_user->wallet->find_transaction($find_transaction);
+
+
 				// $db->queryRow(sprintf("SELECT `transaction_id`,`amount` FROM `wallet_transactions` WHERE `wallet_id` = '%s' AND `for_project_id` = '%d'",$current_user->wallet->wallet_id,$this->for_project_id));
 				if ( !isset($transaction_hold->amount) || $transaction_hold->amount <= 0 )
 				{
@@ -231,7 +246,7 @@ class ProjectRespond
 					// $response["_1"] = $current_user->wallet->balance;
 					// $response["_2"] = $more_to_withdrawal;
 					// author's balance less than holded amount + respond cost
-					$response["message"] = "Недостаточно средств для перевода исполнителю";
+					$response["message"] = sprintf("Недостаточно средств для перевода исполнителю: %s",($more_to_withdrawal - $current_user->wallet->balance));
 					return $response;
 				}
 				if ( $more_to_withdrawal > 0 )
@@ -245,44 +260,86 @@ class ProjectRespond
 						"for_project_id"=>$this->for_project_id,
 						"commit"=>false
 					);
-					if ( $current_user->wallet->create_transaction($new_transaction) !== true )
+					if ( ($transaction_id_overcost = $current_user->wallet->create_transaction($new_transaction)) === false )
 					{
 						$response["message"] = "Не удалось создать транзакцию по сверх-списанию";
 						return $response;
 					}
-				}
-				// confirm previously HOLD amount as withdrawal from wallet
-				$confirm_transaction = Array (
-					"transaction_id"=>$transaction_hold->transaction_id,
-					"commit"=>false
-				);
-				if ( $current_user->wallet->confirm_holded_transaction($confirm_transaction) !== true )
-				{
-					$response["message"] = "Не удалось подтвердить транзакцию HOLD";
-					return $response;
-				}
-				else
-				{
-					// payment to performer
-					$respond_user = new User($this->user_id);
-					$respond_user->init_wallet();
-					$project_title = $db->getValue("project","title","title",Array("project_id"=>$this->for_project_id,"user_id"=>$current_user->user_id));
-					$project_cost = $db->getValue("project","cost","cost",Array("project_id"=>$this->for_project_id,"user_id"=>$current_user->user_id));
-					$cost = (intval($this->cost) > 0) ? intval($this->cost) : intval($project_cost);
+					$safe_deal_comission = $db->getValue("settings","param_value","safe_deal_comission",Array("param_name"=>"safe_deal_comission"));
 					$new_transaction = Array (
 						"reference_id"=>$transaction_hold->transaction_id,
-						"type"=>"PAYMENT",
-						"amount"=>intval($cost),
-						"descr"=>"Зачисление средств за исполненную заявку",
+						"type"=>"HOLD",
+						"amount"=>intval($more_to_withdrawal/100*$safe_deal_comission),
+						"descr"=>"Дополнительное списание сверх бюджета в проекте (комиссия)",
 						"for_project_id"=>$this->for_project_id,
 						"commit"=>false
 					);
-
-					if ( $respond_user->wallet->create_transaction($new_transaction) !== true )
+					if ( ($transaction_id_overcost_comission = $current_user->wallet->create_transaction($new_transaction)) === false )
 					{
-						$response["message"] = "Ошибка зачисления средств исполнителю";
+						$response["message"] = "Не удалось создать транзакцию по сверх-списанию (комиссия)";
 						return $response;
 					}
+					$find_transaction = Array (
+						"transaction_id" => $transaction_id_overcost_comission,
+						"for_project_id" => $this->for_project_id,
+						"type" => "HOLD",
+						"descr" => "Дополнительное списание сверх бюджета в проекте (комиссия)"
+					);
+					$transaction_overcost_comission = $current_user->wallet->find_transaction($find_transaction);
+					$transactions["confirm_transaction_overcost_comission"] = $transaction_overcost_comission;
+				}
+
+				// confirm previously HOLD amount as withdrawal from wallet
+				$transactions["confirm_transaction_hold"] = $transaction_hold;
+				$transactions["confirm_transaction_hold_comission"] = $transaction_hold_comission;
+				foreach ( $transactions as $name => $transaction )
+				{
+					if ( !isset($transaction->transaction_id) ) continue;
+					$transaction->commit = false;
+					if ( $current_user->wallet->confirm_holded_transaction((array)$transaction) !== true )
+					{
+						$response["message"] = "Не удалось подтвердить транзакцию HOLD";
+						return $response;
+					}
+					if ( strstr($name,"comission") !== false )
+					{
+						// Payment to system (comission)
+						$new_transaction = Array (
+							"reference_id"=>$transaction->transaction_id,
+							"type"=>"PAYMENT",
+							"amount"=>intval($transaction->amount),
+							"descr"=>$transaction->descr,
+							"for_project_id"=>$this->for_project_id,
+							"commit"=>false
+						);
+						$system_user = new User(1);
+						$system_user->init_wallet();
+						if ( $system_user->wallet->create_transaction($new_transaction) === false )
+						{
+							$response["message"] = "Ошибка зачисления средств в систему";
+							return $response;
+						}
+					}
+				}
+				// Payment to performer
+				$respond_user = new User($this->user_id);
+				$respond_user->init_wallet();
+				$project_title = $db->getValue("project","title","title",Array("project_id"=>$this->for_project_id,"user_id"=>$current_user->user_id));
+				$project_cost = $db->getValue("project","cost","cost",Array("project_id"=>$this->for_project_id,"user_id"=>$current_user->user_id));
+				$cost = (intval($this->cost) > 0) ? intval($this->cost) : intval($project_cost);
+				$new_transaction = Array (
+					"reference_id"=>$transaction_hold->transaction_id,
+					"type"=>"PAYMENT",
+					"amount"=>intval($cost),
+					"descr"=>"Зачисление средств за исполненную заявку",
+					"for_project_id"=>$this->for_project_id,
+					"commit"=>false
+				);
+
+				if ( ($transaction_id = $respond_user->wallet->create_transaction($new_transaction)) === false )
+				{
+					$response["message"] = "Ошибка зачисления средств исполнителю";
+					return $response;
 				}
 			}
 			$insert = sprintf("INSERT INTO `user_responds` (`user_id`,`project_id`,`author_id`,`descr`,`created`,`grade`)

@@ -29,6 +29,7 @@ $job = get_var("job","string",false);
 					<button class="dropdown-item filter-item" type="button" data-filter="type" data-value="PAYMENT">Зачисление</button>
 					<button class="dropdown-item filter-item" type="button" data-filter="type" data-value="HOLD">Удержание</button>
 					<button class="dropdown-item filter-item" type="button" data-filter="type" data-value="WITHDRAWAL">Списание</button>
+					<button class="dropdown-item filter-item" type="button" data-filter="type" data-value="CANCEL">Возврат</button>
 				</div>
 			</div>
 

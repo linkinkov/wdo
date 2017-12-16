@@ -106,7 +106,8 @@ if ( $job == "getUsers" )
 							Сортировать по: 
 							<span class="performers-sort active" data-dir="desc" data-col="rating">рейтингу</span>
 							<span class="performers-sort" data-dir="desc" data-col="registered">новизне</span>
-							<span class="performers-sort" data-dir="desc" data-col="user_responds">количеству отзывов</span>
+							<span class="performers-sort" data-dir="desc" data-col="user_responds">отзывы</span>
+							<span class="performers-sort" data-dir="desc" data-col="performer_service_cost">стоимость</span>
 						</div>
 					</div>
 
@@ -210,11 +211,15 @@ $(function(){
 			+'			</div>'
 			+'		</div>'
 			+'	</div>'
-			+'	<div class="col text-center" style="max-width: 165px; background-color: #f6f5f6; padding-top: 15px;">'
+			+'	<div class="col text-center" style="max-width: 185px; background-color: #f6f5f6; padding-top: 15px;">'
 			+'		<text style="line-height: 2rem;"><span class="pull-left">Рейтинг</span><span class="pull-right">'+data.user.rating+'</span></text><br />'
 			+'		<text style="line-height: 2rem;"><span class="pull-left"><a class="wdo-link underline" href="/profile/id'+data.user.user_id+'#user-responds">Отзывов</a></span><span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
-			+'		<text style="line-height: 2rem;"><span class="pull-left">В сервисе</span><span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
-			+'		<br />'
+			+'		<text style="line-height: 2rem;"><span class="pull-left">В сервисе</span><span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />';
+			if ( data.user.performer_service_cost > 0 )
+			{
+				html += '		<text style="line-height: 2rem;"><span class="pull-left">'+data.user.performer_service_cost+' <i class="fa fa-rouble"></i></span><span class="pull-right">'+data.user.performer_service_type+'</span></text><br />'
+			}
+			html += '		<br />'
 			+'		<text style="line-height: 3rem; font-size:.8rem;"><a class="wdo-link underline" href="/profile/id'+data.user.user_id+'#portfolio">Смотреть портфолио</a></text><br />'
 			+'		<a class="wdo-btn btn-sm bg-yellow" href="/project/add?for_performer='+data.user.user_id+'">Предложить работу</a><br /><br />'
 			+'	</div>'

@@ -11,13 +11,14 @@ class Wallet
 		// $this->user_id = $user_id;
 		if ( $current_user->user_id <= 0 || intval($user_id) <= 0 ) return false;
 		$this->wallet_id = "";
-		try {
+		try
+		{
 			$this->user_id = $user_id;
 			$sql = sprintf("SELECT `wallet_id`,`balance` FROM `user_wallets` WHERE `user_id` = '%d'",$this->user_id);
 			$i = $db->queryRow($sql);
 			if ( !isset($i->wallet_id) )
 			{
-				$wallet_id = md5($this->user_id.time());
+				$wallet_id = md5($this->user_id.time().md5(time()));
 				$sql = sprintf("INSERT INTO `user_wallets` (`wallet_id`,`user_id`) VALUES ('%s','%d')",$wallet_id,$this->user_id);
 				$db->query($sql);
 				$this->wallet_id = $wallet_id;
@@ -72,9 +73,10 @@ class Wallet
 			strlen($this->wallet_id) != 32
 			|| !in_array($transaction_data["type"],Array("PAYMENT","HOLD","WITHDRAWAL"))
 			|| (intval($transaction_data["amount"]) <= 0)
-			|| ($this->balance < intval($transaction_data["amount"]))
+			|| ($this->balance < intval($transaction_data["amount"]) && $transaction_data["type"] != "PAYMENT")
 		) return false;
 		$transaction_id = md5($this->user_id.$this->wallet_id.$transaction_data["type"].$transaction_data["amount"].$transaction_data["descr"].time());
+		if ( !isset($transaction_data["for_adv_id"]) ) $transaction_data["for_adv_id"] = "";
 		$sql = sprintf("INSERT INTO `wallet_transactions` (
 			`transaction_id`,
 			`wallet_id`,
@@ -83,29 +85,32 @@ class Wallet
 			`amount`,
 			`timestamp`,
 			`descr`,
-			`for_project_id`)
-		VALUES ('%s','%s','%s','%s','%d',UNIX_TIMESTAMP(),'%s','%d')",
+			`for_project_id`,
+			`for_adv_id`)
+		VALUES ('%s','%s','%s','%s','%d',UNIX_TIMESTAMP(),'%s','%d','%s')",
 			$transaction_id,
 			$this->wallet_id,
 			$transaction_data["reference_id"],
 			$transaction_data["type"],
 			intval($transaction_data["amount"]),
 			trim($transaction_data["descr"]),
-			intval($transaction_data["for_project_id"])
+			intval($transaction_data["for_project_id"]),
+			$transaction_data["for_adv_id"]
 		);
 		// echo $sql;
 		$db->autocommit(false);
-		try {
+		try
+		{
 				// echo "success";
 			if ( $db->query($sql) && $db->affected_rows > 0 )
 			{
 				if ( $transaction_data["commit"] == true ) $db->commit();
-				return true;
+				return $transaction_id;
 			}
 		}
 		catch ( Exception $e )
 		{
-			// echo $e->getMessage();
+			// return $e->getMessage();
 		}
 		return false;
 	}
@@ -138,13 +143,14 @@ class Wallet
 		$db->autocommit(false);
 		$sql = sprintf("UPDATE `wallet_transactions` 
 			SET `type` = 'WITHDRAWAL',
-					`descr` = 'Списание средств за безопасную сделку'
+					`descr` = REPLACE(`descr`, 'Удержание', 'Списание')
 			WHERE `wallet_id` = '%s' 
 				AND `transaction_id` = '%s' 
 				AND `type` = 'HOLD'",
 				$this->wallet_id,
 				$transaction_data["transaction_id"]);
-		try {
+		try
+		{
 			if ( $db->query($sql) && $db->affected_rows > 0 )
 			{
 				if ( $transaction_data["commit"] == true ) $db->commit();
@@ -158,4 +164,66 @@ class Wallet
 		return false;
 	}
 
+	public function cancel_holded_transaction($transaction_data)
+	{
+		global $db;
+		global $current_user;
+		if ( $current_user->user_id <= 0 || $this->user_id <= 0 ) return false;
+		if ( strlen($this->wallet_id) != 32 ) return false;
+		if ( strlen($transaction_data["transaction_id"]) != 32 ) return false;
+		$db->autocommit(false);
+		$sql = sprintf("UPDATE `wallet_transactions` 
+			SET `type` = 'CANCEL',
+					`descr` = REPLACE(`descr`, 'Удержание', 'Возврат')
+			WHERE `wallet_id` = '%s' 
+				AND `transaction_id` = '%s' 
+				AND `type` = 'HOLD'",
+				$this->wallet_id,
+				$transaction_data["transaction_id"]);
+		try
+		{
+			if ( $db->query($sql) && $db->affected_rows > 0 )
+			{
+				if ( $transaction_data["commit"] == true ) $db->commit();
+				return true;
+			}
+		}
+		catch ( Exception $e )
+		{
+			// echo $e->getMessage();
+		}
+		return false;
+	}
+/* 
+	public function send_money($transaction_data)
+	{
+		global $db;
+		global $current_user;
+		if ( $current_user->user_id <= 0 || $this->user_id <= 0 ) return false;
+		if ( strlen($this->wallet_id) != 32 ) return false;
+		if ( strlen($transaction_data["transaction_id"]) != 32 ) return false;
+		$db->autocommit(false);
+		$sql = sprintf("UPDATE `wallet_transactions` 
+			SET `type` = 'WITHDRAWAL',
+					`descr` = REPLACE(`descr`, 'Удержание', 'Списание')
+			WHERE `wallet_id` = '%s' 
+				AND `transaction_id` = '%s' 
+				AND `type` = 'HOLD'",
+				$this->wallet_id,
+				$transaction_data["transaction_id"]);
+		try
+		{
+			if ( $db->query($sql) && $db->affected_rows > 0 )
+			{
+				if ( $transaction_data["commit"] == true ) $db->commit();
+				return true;
+			}
+		}
+		catch ( Exception $e )
+		{
+			// echo $e->getMessage();
+		}
+		return false;
+	}
+ */
 }

@@ -53,7 +53,8 @@ $sql_main = "SELECT `wallet_transactions`.`transaction_id`,
 		`wallet_transactions`.`timestamp`,
 		`wallet_transactions`.`descr`,
 		`project`.`title` as `project_title`,
-		`wallet_transactions`.`for_project_id`
+		`wallet_transactions`.`for_project_id`,
+		`wallet_transactions`.`for_adv_id`
 	FROM `wallet_transactions`
 	LEFT JOIN `project` ON `project`.`project_id` = `wallet_transactions`.`for_project_id`
 	WHERE `wallet_id` = (
@@ -112,6 +113,7 @@ if ( sizeof ($aaData) )
 	{
 		$row->DT_RowId = $row->transaction_id;
 		$row->DT_RowClass = "pointer";
+		$row->adv_title = "";
 		switch ( $row->type )
 		{
 			case "WITHDRAWAL":
@@ -123,6 +125,9 @@ if ( sizeof ($aaData) )
 			case "PAYMENT":
 				$row->type = sprintf('<text class="text-success">%s</text>','Пополнение');
 				break;
+			case "CANCEL":
+				$row->type = sprintf('<text class="text-info">%s</text>','Возврат');
+				break;
 		}
 		if ( $row->for_project_id > 0 )
 		{
@@ -133,6 +138,11 @@ if ( sizeof ($aaData) )
 		{
 			$row->project_title = "";
 			$row->project_link = "";
+			if ( $row->for_adv_id != "" )
+			{
+				$adv = new Adv($row->for_adv_id);
+				if ( isset($adv->title) ) $row->adv_title = $adv->title;
+			}
 		}
 	}
 }
