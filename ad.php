@@ -51,4 +51,7 @@ switch ( $job )
 		{
 			$response = Adv::promote($data);
 		}
+		header('Content-Type: application/json');
+		echo json_encode($response);
+		break;
 }

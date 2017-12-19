@@ -212,21 +212,23 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 						</div>
 					</div>
  -->
-					<div class="row"><div class="col"><hr /></div></div>
-					<div class="row">
-						<div class="col" style="max-width: 190px; align-self: top;">
-							<text class="text-muted">Поднять объявление</text>
-						</div>
-						<div class="col">
-							<span class="pull-left text-purple">300 руб.</span>
-							<span class="pull-right">
-								<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="promote">Поднять</div>
-							</span>
-							<br />
-							<br />
-							<small class="text-muted">
-								После модерации объявление автоматически попадает на первое место в списке
-							</small>
+					<div id="promote_block" style="display: none;">
+						<div class="row"><div class="col"><hr /></div></div>
+						<div class="row">
+							<div class="col" style="max-width: 190px; align-self: top;">
+								<text class="text-muted">Поднять объявление</text>
+							</div>
+							<div class="col">
+								<span class="pull-left text-purple">300 руб.</span>
+								<span class="pull-right">
+									<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="promote">Поднять</div>
+								</span>
+								<br />
+								<br />
+								<small class="text-muted">
+									После модерации объявление автоматически попадает на первое место в списке
+								</small>
+							</div>
 						</div>
 					</div>
 
@@ -254,7 +256,7 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: center;"></div>
 						<div class="col">
-							<span>Сумма в размере <text class="text-purple"><?php echo intval($adv_cost);?> <i class="fa fa-rouble"></i></text>, будет удержана на Вашем кошельке до проверки объявления модератором</span><br /><br />
+							<span id="notify_create_hold">Сумма в размере <text class="text-purple"><?php echo intval($adv_cost);?> <i class="fa fa-rouble"></i></text>, будет удержана на Вашем кошельке до проверки объявления модератором</span><br /><br />
 							<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="create" data-draft="0">Отправить на модерацию</div>
 							<div class="wdo-btn btn-sm bg-yellow" data-toggle="adv_action" data-action="create" data-draft="1">Сохранить черновик</div>
 						</div>
@@ -281,6 +283,8 @@ function load_my_advs(status_id)
 		"status_id": status_id
 	};
 	$("#user_advs").html('');
+	$("#promote_block").hide();
+	$("#notify_create_hold").show();
 	$("[data-toggle='filter_status']").removeClass("active");
 	$("[data-toggle='filter_status'][data-value='"+status_id+"']").addClass("active");
 	$(".wdo-option[data-name='category']").removeClass("active");
@@ -329,6 +333,8 @@ function load_single_adv(e,adv_id)
 				$(".wdo-option[data-name='subcategory'][data-value='"+response.subcat_id+"']").click();
 			}
 		})
+		if ( response.status_id == 1 ) $("#promote_block").show(); else $("#promote_block").hide();
+		$("#notify_create_hold").hide();
 		$(".wdo-option[data-name='portfolio_id']").removeClass("active");
 		$(".wdo-option[data-name='portfolio_id'][data-value='"+response.portfolio_id+"']").addClass("active");
 		$("button[data-name='portfolio_id']").text($(".wdo-option[data-name='portfolio_id'][data-value='"+response.portfolio_id+"']").text());
@@ -454,6 +460,9 @@ $(function(){
 			$.each($(".warning"), function(i,v){
 				$(this).removeClass("warning");
 			})
+			setTimeout(function(){
+				window.location.reload();
+			}, 3000)
 		})
 	})
 	$("[data-toggle='filter_status']").click(function(){

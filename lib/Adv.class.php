@@ -123,7 +123,7 @@ class Adv
 			$response["message"] = "Доступ запрещён";
 			return $response;
 		}
-		$sql = sprintf("UPDATE `adv` SET %s WHERE `adv_id` = '%s' AND `user_id` = '%d'",implode(",",$str),$this->adv_id,$this->user_id);
+		$sql = sprintf("UPDATE `adv` SET %s, `modified` = UNIX_TIMESTAMP() WHERE `adv_id` = '%s' AND `user_id` = '%d'",implode(",",$str),$this->adv_id,$this->user_id);
 		$db->autocommit(false);
 		try {
 			if ( $db->query($sql) )
@@ -133,6 +133,7 @@ class Adv
 			}
 			$adv_user = new User($this->user_id);
 			$adv_user->init_wallet();
+			// from unknown -> accepted
 			if ( isset($data["status_id"]) && $data["status_id"] == "1" )
 			{
 				$sql = sprintf("UPDATE `adv` SET `accepted` = UNIX_TIMESTAMP() WHERE `adv_id` = '%s' AND `user_id` = '%d'",$this->adv_id,$this->user_id);
@@ -141,18 +142,19 @@ class Adv
 					$response["result"] = "true";
 					$response["message"] = "Обновлено";
 				}
+				// from moderate -> accepted
 				if ( $this->status_id == 2 )
 				{
-					
+					// confirm create transaction
 					$find_transaction = Array (
 						"for_adv_id" => $this->adv_id,
 						"type" => "HOLD",
 						"descr" => "Удержание за размещение объявления"
 					);
 					$hold_transaction = $adv_user->wallet->find_transaction($find_transaction);
-					$hold_transaction->commit = "false";
 					if ( isset($hold_transaction->transaction_id) )
 					{
+						$hold_transaction->commit = "false";
 						if ( $adv_user->wallet->confirm_holded_transaction((array)$hold_transaction) !== true )
 						{
 							$response["result"] = "false";
@@ -160,11 +162,30 @@ class Adv
 							return $response;
 						}
 					}
+					// confirm promote transaction hold
+					$find_transaction = Array (
+						"for_adv_id" => $this->adv_id,
+						"type" => "HOLD",
+						"descr" => "Удержание средств за поднятие объявления"
+					);
+					$hold_transaction = $adv_user->wallet->find_transaction($find_transaction);
+					if ( isset($hold_transaction->transaction_id) )
+					{
+						$hold_transaction->commit = "false";
+						if ( $adv_user->wallet->confirm_holded_transaction((array)$hold_transaction) !== true )
+						{
+							$response["result"] = "false";
+							$response["message"] = sprintf("Не удалось подтвердить транзакцию: %s",$hold_transaction->transaction_id);
+							return $response;
+						}
+					}
+
 				}
 			}
-			// return to user hold transaction
+			// return to user hold transaction (on moderate -> decline )
 			else if ( isset($data["status_id"]) && $data["status_id"] == "5" && $this->status_id == 2 )
 			{
+				// return hold for newly adv
 				$find_transaction = Array (
 					"for_adv_id" => $this->adv_id,
 					"type" => "HOLD",
@@ -181,6 +202,24 @@ class Adv
 						return $response;
 					}
 				}
+				// return hold for promote
+				$find_transaction = Array (
+					"for_adv_id" => $this->adv_id,
+					"type" => "HOLD",
+					"descr" => "Удержание средств за поднятие объявления"
+				);
+				$hold_transaction = $adv_user->wallet->find_transaction($find_transaction);
+				if ( isset($hold_transaction->transaction_id) )
+				{
+					$hold_transaction->commit = "false";
+					if ( $adv_user->wallet->cancel_holded_transaction((array)$hold_transaction) !== true )
+					{
+						$response["result"] = "false";
+						$response["message"] = sprintf("Не отменить транзакцию: %s",$hold_transaction->transaction_id);
+						return $response;
+					}
+				}
+
 			}
 			// if user update canceled adv - create new hold transaction
 			else if ( isset($data["status_id"]) && $data["status_id"] == "2" && $this->status_id == 5 )
@@ -278,9 +317,15 @@ class Adv
 		if ( !isset($data["adv_id"]) || strlen($data["adv_id"]) != 32 ) return $response;
 		$sql = sprintf("SELECT * FROM `adv` WHERE `user_id` = '%d' AND `status_id` = '1' AND `adv_id` = '%s'",$current_user->user_id,$data["adv_id"]);
 		$found_adv = $db->queryRow($sql);
-		if ( !isset($found_adv->adv_id) ) return $response;
+		if ( !isset($found_adv->adv_id) )
+		{
+			$response["message"] = "Объявление не найдено";
+			return $response;
+		};
+		$current_user->init_wallet();
 		$find_transaction = Array (
 			"for_project_id" => 0,
+			"for_adv_id" => $found_adv->adv_id,
 			"type" => "HOLD",
 			"descr" => "Удержание средств за поднятие объявления"
 		);
@@ -300,6 +345,7 @@ class Adv
 				"amount"=>intval($adv_promote_cost),
 				"descr"=>"Удержание средств за поднятие объявления",
 				"for_project_id"=>"",
+				"for_adv_id" => $found_adv->adv_id,
 				"commit"=>false
 			);
 			$current_user->init_wallet();
@@ -317,16 +363,12 @@ class Adv
 
 		$sql = sprintf("UPDATE `adv` 
 		SET `status_id` = 2, 
-				`transaction_hold_id` = '%s'
-				-- `cat_id` = '%d',
-				-- `subcat_id` = '%d',
-				-- `portfolio_id` = '%d',
-				-- `title` = '%s',
-
+				`hold_transaction_id` = '%s',
+				`last_prolong` = UNIX_TIMESTAMP()
 		WHERE `adv_id` = '%s' 
 			AND `user_id` = '%s'",
-		$transaction_hold_id_promote, $current_user->user_id);
-		if ( $db->query($sql) && $db->rows_affected > 0 )
+		$transaction_hold_id_promote, $found_adv->adv_id, $current_user->user_id);
+		if ( $db->query($sql) && $db->affected_rows > 0 )
 		{
 			$db->commit();
 			$response["result"] = "true";

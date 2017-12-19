@@ -138,16 +138,60 @@ class Project
 		global $lang;
 		$value = htmlentities(addslashes($value));
 		$response = Array(
-			"result" => "false",
-			"message" => $lang["error_occured"]
+			"result" => "true",
+			"message" => "Обновлено"
 		);
 
 		$sql = sprintf("UPDATE `project` SET `%s` = '%s' WHERE `project_id` = '%d'",$field,$value,$this->project_id);
+		$db->autocommit(false);
 
 		try {
-			$db->query($sql);
-			$response["result"] = "true";
-			$response["message"] = "Обновлено";
+			if ( $field == "status_id" && $value == "5" )
+			{
+				$project_user = new User($this->user_id);
+				$project_user->init_wallet();
+				$transactions = Array(
+					"hold" => Array(),
+					"hold_comission" => Array(),
+					"hold_vip" => Array()
+				);
+				$find_transaction = Array (
+					"for_project_id" => $this->project_id,
+					"type" => "HOLD",
+					"descr" => "Удержание средств за безопасную сделку"
+				);
+				$transactions["hold"] = $project_user->wallet->find_transaction($find_transaction);
+
+				$find_transaction = Array (
+					"for_project_id" => $this->project_id,
+					"type" => "HOLD",
+					"descr" => "Удержание средств за безопасную сделку (комиссия)"
+				);
+				$transactions["hold_comission"] = $project_user->wallet->find_transaction($find_transaction);
+
+				$find_transaction = Array (
+					"for_project_id" => $this->project_id,
+					"type" => "HOLD",
+					"descr" => "Удержание средств за платный проект"
+				);
+				$transactions["hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
+				foreach ( $transactions as $name => $transaction )
+				{
+					if ( !isset($transaction->transaction_id) ) continue;
+					$transaction->commit = false;
+					if ( $project_user->wallet->cancel_holded_transaction((array)$transaction) !== true )
+					{
+						$response["message"] = sprintf("Не удалось отменить транзакцию HOLD: %s",$name);
+						return $response;
+					}
+				}
+			}
+			if ( $db->query($sql) )
+			{
+				$db->commit();
+				$response["message"] = "Обновлено";
+				$response["result"] = "true";
+			}
 			$this->$field = $value;
 		}
 		catch (Exception $e)
@@ -359,9 +403,9 @@ class Project
 		$project_user = new User($recipient_id);
 		$project_user->init_wallet();
 		$transactions = Array(
-			"transaction_hold" => Array(),
-			"transaction_hold_comission" => Array(),
-			"transaction_hold_vip" => Array()
+			"hold" => Array(),
+			"hold_comission" => Array(),
+			"hold_vip" => Array()
 		);
 
 		try {
@@ -379,21 +423,21 @@ class Project
 						"type" => "HOLD",
 						"descr" => "Удержание средств за безопасную сделку"
 					);
-					$transactions["transaction_hold"] = $project_user->wallet->find_transaction($find_transaction);
+					$transactions["hold"] = $project_user->wallet->find_transaction($find_transaction);
 
 					$find_transaction = Array (
 						"for_project_id" => $project_id,
 						"type" => "HOLD",
 						"descr" => "Удержание средств за безопасную сделку (комиссия)"
 					);
-					$transactions["transaction_hold_comission"] = $project_user->wallet->find_transaction($find_transaction);
+					$transactions["hold_comission"] = $project_user->wallet->find_transaction($find_transaction);
 
 					$find_transaction = Array (
 						"for_project_id" => $project_id,
 						"type" => "HOLD",
 						"descr" => "Удержание средств за платный проект"
 					);
-					$transactions["transaction_hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
+					$transactions["hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
 					foreach ( $transactions as $name => $transaction )
 					{
 						if ( !isset($transaction->transaction_id) ) continue;
