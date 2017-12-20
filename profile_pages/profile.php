@@ -73,11 +73,14 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 	</div>
 </div>
 <div class="row performer_service_cost-container">
-	<div class="col">
-		<input type="number" class="form-control profile-data" data-name="performer_service_cost" placeholder="Стоимость" />
+	<div class="col" style="max-width: 180px; align-self: center;">
+		Цена услуг/товаров
 	</div>
 	<div class="col">
-		<input type="text" class="form-control profile-data" data-name="performer_service_type" placeholder="В час/день/шт. Не более 15 знаков" />
+		<div class="input-group">
+			<input type="number" class="form-control profile-data" data-name="performer_service_cost" placeholder="Стоимость" />
+			<input type="text" class="form-control profile-data" data-name="performer_service_type" placeholder="В час/день/шт. Не более 15 знаков" />
+		</div>
 	</div>
 </div>
 

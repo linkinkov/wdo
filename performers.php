@@ -106,8 +106,8 @@ if ( $job == "getUsers" )
 							Сортировать по: 
 							<span class="performers-sort active" data-dir="desc" data-col="rating">рейтингу</span>
 							<span class="performers-sort" data-dir="desc" data-col="registered">новизне</span>
-							<span class="performers-sort" data-dir="desc" data-col="user_responds">отзывы</span>
-							<span class="performers-sort" data-dir="desc" data-col="performer_service_cost">стоимость</span>
+							<span class="performers-sort" data-dir="desc" data-col="user_responds">отзывам</span>
+							<span class="performers-sort" data-dir="desc" data-col="performer_service_cost">цене</span>
 						</div>
 					</div>
 
