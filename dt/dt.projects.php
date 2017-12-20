@@ -33,7 +33,7 @@ $end_date = get_var("end_date","int",time()+(86400*3));
 $only_vip = get_var("vip","string",false);
 $only_safe = get_var("safe_deal","string",false);
 $user_id = get_var("user_id","int",0);
-// $for_profile = get_var("for_profile","string",false);
+$for_profile = get_var("for_profile","string",false);
 // $length = $length - 3;
 if (sizeof($columns) > 0)
 {
@@ -98,6 +98,7 @@ else if ( $only_vip == "true" )
 else
 {
 	$safe_vip = " AND `project`.`vip` = 0";
+	if ( $for_profile == "true" ) $safe_vip = "";
 }
 
 $select_new_bids = ( $current_user->user_id > 0 )

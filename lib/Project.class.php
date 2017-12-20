@@ -200,7 +200,7 @@ class Project
 				{
 					if ( !isset($transaction->transaction_id) ) continue;
 					$transaction->commit = false;
-					if ( $project_user->wallet->accept_holded_transaction((array)$transaction) !== true )
+					if ( $project_user->wallet->confirm_holded_transaction((array)$transaction) !== true )
 					{
 						$response["message"] = sprintf("Не удалось подтвердить транзакцию HOLD: %s",$name);
 						return $response;
@@ -287,6 +287,17 @@ class Project
 				trim($data["for_event_id"])
 			);
 			$current_user->init_wallet();
+			$find_transaction = Array(
+				"for_project_id" => "",
+				"type" => "PAYMENT",
+				"descr" => "Пополнение кошелька"
+			);
+			$reference_transaction = $current_user->wallet->find_transaction($find_transaction);
+			if ( !isset($reference_transaction->transaction_id) )
+			{
+				$reference_transaction = new stdClass();
+				$reference_transaction->transaction_id = "";
+			}
 			if ( $db->query($sql) && $db->insert_id > 0 )
 			{
 				// echo "aaa2";
@@ -312,7 +323,7 @@ class Project
 					else
 					{
 						$new_transaction = Array (
-							"reference_id"=>"",
+							"reference_id"=>$reference_transaction->transaction_id,
 							"type"=>"HOLD",
 							"amount"=>intval($data["cost"]),
 							"descr"=>"Удержание средств за безопасную сделку",
@@ -353,7 +364,7 @@ class Project
 					}
 
 					$new_transaction = Array (
-						"reference_id"=>"",
+						"reference_id"=>$reference_transaction->transaction_id,
 						"type"=>"HOLD",
 						"amount"=>intval($vip_cost),
 						"descr"=>"Удержание средств за платный проект",
