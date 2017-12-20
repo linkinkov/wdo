@@ -146,15 +146,16 @@ class Project
 		$db->autocommit(false);
 
 		try {
-			if ( $field == "status_id" && $value == "5" )
+			$transactions = Array(
+				"hold" => Array(),
+				"hold_comission" => Array(),
+				"hold_vip" => Array()
+			);
+			$project_user = new User($this->user_id);
+			$project_user->init_wallet();
+			// moderate -> block
+			if ( $field == "status_id" && $value == "5" && $this->status_id == "6" )
 			{
-				$project_user = new User($this->user_id);
-				$project_user->init_wallet();
-				$transactions = Array(
-					"hold" => Array(),
-					"hold_comission" => Array(),
-					"hold_vip" => Array()
-				);
 				$find_transaction = Array (
 					"for_project_id" => $this->project_id,
 					"type" => "HOLD",
@@ -182,6 +183,26 @@ class Project
 					if ( $project_user->wallet->cancel_holded_transaction((array)$transaction) !== true )
 					{
 						$response["message"] = sprintf("Не удалось отменить транзакцию HOLD: %s",$name);
+						return $response;
+					}
+				}
+			}
+			// moderate -> accepted
+			else if ( $field == "status_id" && $value == "1" && $this->status_id == "6" )
+			{
+				$find_transaction = Array (
+					"for_project_id" => $this->project_id,
+					"type" => "HOLD",
+					"descr" => "Удержание средств за платный проект"
+				);
+				$transactions["hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
+				foreach ( $transactions as $name => $transaction )
+				{
+					if ( !isset($transaction->transaction_id) ) continue;
+					$transaction->commit = false;
+					if ( $project_user->wallet->accept_holded_transaction((array)$transaction) !== true )
+					{
+						$response["message"] = sprintf("Не удалось подтвердить транзакцию HOLD: %s",$name);
 						return $response;
 					}
 				}
