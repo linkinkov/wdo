@@ -3,6 +3,7 @@
 		<th>Дата</th>
 		<th>Тип</th>
 		<th>Описание</th>
+		<th>Сумма</th>
 	</thead>
 	<tbody></tbody>
 </table>
@@ -26,6 +27,7 @@ $(function(){
 			{"data": "timestamp","class": "timestamp"},
 			{"data": "type"},
 			{"data": "descr"},
+			{"data": "amount"},
 		],
 		"order": [[0, 'desc']],
 		"initComplete": function(table,data) {

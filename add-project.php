@@ -271,6 +271,7 @@ if ( strlen($event_id) == 32 )
 								<span class="custom-control-description">
 									<h6 class="text-purple strong">Я хочу использовать функционал "Безопасная сделка"</h6>
 									<p class="text-muted">Арбитражная сделка. Средства на Вашем счёте будут заблокированы до завершения проекта</p>
+									<p class="text-muted">За использование функционала взимается комиссия: <b><?php echo $db->getValue("settings","param_value","safe_deal_comission",Array("param_name"=>"safe_deal_comission"));?>%</b> от суммы сделки</p>
 								</span>
 							</label>
 						</div>

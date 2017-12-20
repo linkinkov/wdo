@@ -219,7 +219,7 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 								<text class="text-muted">Поднять объявление</text>
 							</div>
 							<div class="col">
-								<span class="pull-left text-purple">300 руб.</span>
+								<span class="pull-left text-purple"><?php echo $db->getValue("settings","param_value","param_value",Array("param_name"=>"adv_promote_cost"));?> руб.</span>
 								<span class="pull-right">
 									<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="promote">Поднять</div>
 								</span>
@@ -248,6 +248,7 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 								<br /><b>Лимит</b> - сумма, в пределах которой будет происходить автоподнятие (после каждого она уменьшается), если не указан, но есть период, то автоподнятие будет постоянным
 								<br /><b>Период</b> - период времени для автоподятия (например, поднимать каждые 5 дней)
 								<br /><i>Отсчёт периода ведется от момента последнего поднятия</i>
+								<br /><i>Цена разового поднятия объявления: <?php echo $db->getValue("settings","param_value","param_value",Array("param_name"=>"adv_promote_cost"));?> <i class="fa fa-rouble"></i></i>
 							</small>
 						</div>
 					</div>
@@ -256,7 +257,7 @@ $counters["5"] = $db->getValue("adv","COUNT(`adv_id`)","counter",array("user_id"
 					<div class="row">
 						<div class="col" style="max-width: 190px; align-self: center;"></div>
 						<div class="col">
-							<span id="notify_create_hold">Сумма в размере <text class="text-purple"><?php echo intval($adv_cost);?> <i class="fa fa-rouble"></i></text>, будет удержана на Вашем кошельке до проверки объявления модератором</span><br /><br />
+							<span id="notify_create_hold">Цена подачи объявления <text class="text-purple"><?php echo intval($adv_cost);?> <i class="fa fa-rouble"></i></text>, будет удержана на Вашем кошельке до проверки объявления модератором</span><br /><br />
 							<div class="wdo-btn btn-sm bg-purple" data-toggle="adv_action" data-action="create" data-draft="0">Отправить на модерацию</div>
 							<div class="wdo-btn btn-sm bg-yellow" data-toggle="adv_action" data-action="create" data-draft="1">Сохранить черновик</div>
 						</div>
