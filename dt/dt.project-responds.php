@@ -128,8 +128,14 @@ if ( sizeof ($aaData) )
 		$row->user = new User($respond->user_id);
 		$row->user->get_counters();
 		$project_author_id = $db->getValue("project","user_id","user_id",Array("project_id"=>$respond->for_project_id));
+		$row->is_project_active = ($db->getValue("project","status_id","status_id",Array("project_id"=>$respond->for_project_id)) == 1) ? 1 : 0;
 		$row->is_project_author = ( $project_author_id == $current_user->user_id ) ? 1 : 0;
-		
+		$row->respond->is_respond_author = ( $row->respond->user_id == $current_user->user_id ) ? 1 : 0;
+		if ( $current_user->template_id == 2 )
+		{
+			// $row->is_project_active = 1;
+			$row->is_project_author = 1;
+		}
 		if ( $for_profile )
 		{
 			$row->DT_RowClass = "project-respond-entry no-pointer";
@@ -142,7 +148,7 @@ if ( sizeof ($aaData) )
 				continue;
 			}
 			$row->project_user = new User($row->project->user_id);
-			if ( $row->respond->status_id == 1 ) $row->respond->status_name = 'Рассматривается';
+			if ( $row->respond->status_id == 1 ) $row->respond->status_name = 'На рассмотрении';
 			$row->respond->image_path = HOST.'/images/respond-status-'.$row->respond->status_id.'.png';
 			$title_tr = strtolower(r2t($row->project->title));
 			$row->project_link = HOST.'/project/'.$row->project->cat_name_translated.'/'.$row->project->subcat_name_translated.'/p'.$row->project->project_id.'/'.$title_tr.'.html';

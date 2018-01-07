@@ -7,7 +7,7 @@ check_access($db,true);
 ?>
 <div class="row">
 	<div class="col">
-		<h5>Проекты</h5>
+		<h5>Заявки исполнителей</h5>
 	</div>
 </div>
 <hr />
@@ -69,7 +69,7 @@ check_access($db,true);
 					</button>
 					<div class="dropdown-divider"></div>
 					<?php
-					foreach ( $db->queryRows("SELECT * FROM `project_statuses`") as $s )
+					foreach ( $db->queryRows("SELECT * FROM `project_responds_statuses`") as $s )
 					{
 						echo sprintf('<button class="dropdown-item filter-item" type="button" data-filter="status_id" data-value="%d">%s</button>',$s->id,$s->status_name);
 					}
@@ -77,6 +77,7 @@ check_access($db,true);
 				</div>
 			</div>
 
+<!-- 
 			<div class="btn-group filter-group">
 				<button class="btn btn-secondary btn-md dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter="safe_deal" data-filter2="vip" data-counter="0">
 					<i class="fa fa-shield"></i> Опции <text class="filter-counter"></text>
@@ -91,19 +92,20 @@ check_access($db,true);
 					<button class="dropdown-item filter-item" type="button" data-filter="vip" data-value="1">VIP проект</button>
 				</div>
 			</div>
+ -->
 		</div>
 	</div>
 </div>
 <hr />
-<table class="table table-hover" id="projectsTable">
+<table class="table table-hover" id="projectRespondsTable">
 	<thead>
-		<th>Наименование</th>
+		<th>Проект</th>
 		<th>Категория</th>
 		<th>Подкатегория</th>
 		<th>Город</th>
 		<th>Пользователь</th>
 		<th>Создан</th>
-		<!--<th>Заявки</th>-->
+		<th>Стоимость</th>
 		<th>Статус</th>
 	</thead>
 	<tbody>
@@ -125,7 +127,7 @@ function highlight_filter_group()
 function clear_filter(filter_type)
 {
 	$(".filter-item[data-filter='"+filter_type+"']").removeClass("active");
-	conf.projects.table.ajax.reload();
+	conf.project_responds.table.ajax.reload();
 }
 function get_filter_selected(filter_type)
 {
@@ -136,9 +138,9 @@ function get_filter_selected(filter_type)
 	highlight_filter_group();
 	return arr.join(',');
 }
-function get_project_attaches(project_id)
+function get_respond_attaches(respond_id)
 {
-	app.project.getAttachList(project_id,function(response){
+	app.respond.getAttachList(respond_id,function(response){
 		if ( response.length > 0 )
 		{
 			var att_p = 0,
@@ -148,26 +150,26 @@ function get_project_attaches(project_id)
 				var object = app.formatter.format_portfolio_attach(this);
 				if ( this.attach_type == 'image' )
 				{
-					$("#project-photos"+project_id).append(object);
+					$("#respond-photos"+respond_id).append(object);
 					att_p++;
 				}
 				else if ( this.attach_type == 'video' )
 				{
-					$("#project-videos"+project_id).append(object);
+					$("#respond-videos"+respond_id).append(object);
 					att_v++;
 				}
 				else if ( this.attach_type == 'document' )
 				{
-					$("#project-docs"+project_id).append(object);
+					$("#respond-docs"+respond_id).append(object);
 					att_d++;
 				}
 			});
-			if ( att_p > 0 ) $(".project-photos-container").show();
-			if ( att_v > 0 ) $(".project-videos-container").show();
-			if ( att_d > 0 ) $(".project-docs-container").show();
+			if ( att_p > 0 ) $(".respond-photos-container").show();
+			if ( att_v > 0 ) $(".respond-videos-container").show();
+			if ( att_d > 0 ) $(".respond-docs-container").show();
 		}
 	})
-	$(".gallery"+project_id).click(function (event) {
+	$(".gallery"+respond_id).click(function (event) {
 		event = event || window.event;
 		var target = event.target || event.srcElement,
 				link = target.src ? target.parentNode : target,
@@ -183,9 +185,9 @@ function get_project_attaches(project_id)
 }
 $(function(){
 	try {
-		conf.projects.filter = JSON.parse(getCookie("conf.projects.filter"));
-		// console.log("got conf.projects.filter:",conf.projects.filter);
-		$.each(conf.projects.filter,function(filter_type,value){
+		conf.project_responds.filter = JSON.parse(getCookie("conf.project_responds.filter"));
+		// console.log("got conf.project_responds.filter:",conf.project_responds.filter);
+		$.each(conf.project_responds.filter,function(filter_type,value){
 			var values = value.split(",");
 			if ( values.length > 1 )
 			{
@@ -201,20 +203,18 @@ $(function(){
 	} catch (error) {
 		// console.log("error fetching filter",error);
 	}
-	conf.projects.table = $("#projectsTable").DataTable({
+	conf.project_responds.table = $("#projectRespondsTable").DataTable({
 		"language": {"url": "/js/dataTables/dataTables.russian.lang"},
 		"bProcessing": true,
 		"bServerSide": true,
 		"pagingType": "full_numbers",
 		"ajax": {
-			"url": "/admin/dt/projects",
+			"url": "/admin/dt/project_responds",
 			"type": "POST",
 			"data": function( d ) {
 				d.selected_subcategory = get_filter_selected('subcategory_id');
 				d.selected_city = get_filter_selected('city_id');
 				d.selected_status = get_filter_selected('status_id');
-				d.safe_deal = get_filter_selected('safe_deal');
-				d.vip = get_filter_selected('vip');
 			}
 		},
 		"bStateSave": true,
@@ -225,7 +225,7 @@ $(function(){
 			{"data": "city_name"},
 			{"data": "real_user_name"},
 			{"data": "created", "class":"timestamp-lll"},
-			// {"data": "bids"},
+			{"data": "cost"},
 			{"data": "status_name"},
 		],
 		"order": [[5, 'desc']],
@@ -235,16 +235,6 @@ $(function(){
 		"createdRow": function ( row, data, index ) {
 			$('td', row).eq(0).html('<a class="wdo-link underline word-break" href="'+data.project_link+'" target="_blank">'+data.title+'</a>');
 			$('td', row).eq(4).html('<a class="wdo-link underline word-break" href="/profile/id'+data.user_id+'" target="_blank">'+data.real_user_name+'</a>');
-			var flags = $('<span />',{"class":"pull-right"});
-			if ( data.flags.safe_deal == "1" )
-			{
-				$(flags).append('<img height="20px" title="Безопасная сделка" src="/images/advantage-safe-deal.png" class="rounded" />');
-			}
-			if ( data.flags.vip == "1" )
-			{
-				$(flags).append(' <img height="20px" title="VIP проект" src="/images/advantage-vip.png" class="rounded" />');
-			}
-			$('td', row).eq(6).append(flags);
 			$('td', row).eq(5).html(moment.unix($('td', row).eq(5).text()).format("LLL"));
 		},
 		"drawCallback": function( settings ) {
@@ -254,11 +244,10 @@ $(function(){
 		}
 	})
 
-	$('#projectsTable tbody').on('click', 'tr.project', function () {
+	$('#projectRespondsTable tbody').on('click', 'tr.respond', function () {
 		var tr = $(this).closest('tr'),
-				row = conf.projects.table.row( tr ),
-				project_id = $(tr).attr("id");
-		// console.log(tr,row,project_id);
+				row = conf.project_responds.table.row( tr ),
+				respond_id = $(tr).attr("id");
 		if ( row.child.isShown() ) 
 		{
 			childRow = $(tr).next();
@@ -276,9 +265,9 @@ $(function(){
 
 		$.ajax({
 			type: "POST",
-			url: "/admin/dt/projectInfo",
+			url: "/admin/dt/respondInfo",
 			data: {
-				"project_id": project_id
+				"respond_id": respond_id
 			},
 			xhrFields: {withCredentials: true},
 			dataType: "HTML",
@@ -289,15 +278,15 @@ $(function(){
 			success: function (response) {
 				// icon.attr("class","fa fa-minus-square pointer");
 				row.child(response).show();
-				get_project_attaches(project_id);
+				get_respond_attaches(respond_id);
 
 				// tr.addClass("shown");
 				// tr.removeClass("childLoading");
 			}
 		}).done(function(){
 			childRow = $(tr).next();
-			$(childRow).find("td").addClass("shown");
 			$(childRow).addClass("nohover");
+			$(childRow).find("td").addClass("shown");
 			tr.addClass("shown");
 			tr.removeClass("childLoading");
 			$('div.slider', row.child()).slideDown("fast");
@@ -328,16 +317,14 @@ $(function(){
 				$(".filter-item[data-filter='subcategory_id'][data-parent_id='"+data.value+"']").removeClass("active");
 			}
 		}
-		conf.projects.table.ajax.reload();
+		conf.project_responds.table.ajax.reload();
 		
-		conf.projects.filter = {
+		conf.project_responds.filter = {
 			"subcategory_id": get_filter_selected('subcategory_id'),
 			"city_id": get_filter_selected('city_id'),
 			"status_id": get_filter_selected('status_id'),
-			"safe_deal": get_filter_selected('safe_deal'),
-			"vip": get_filter_selected('vip'),
 		}
-		setCookie("conf.projects.filter",JSON.stringify(conf.projects.filter));
+		setCookie("conf.project_responds.filter",JSON.stringify(conf.project_responds.filter));
 	})
 })
 </script>

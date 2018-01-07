@@ -111,7 +111,7 @@ class User
 		}
 		catch ( Exception $e )
 		{
-			// $response["error"] = $e->getMessage();
+			$response["error"] = $e->getMessage();
 			$response["message"] = ( $e->getCode() == 1062 ) ? "Такой пользователь уже существует" : "Произошла ошибка";
 		}
 		return $response;
@@ -242,6 +242,7 @@ class User
 				}
 				else
 				{
+					if ( in_array($key,Array("performer_service_cost","birthday")) ) $value = intval($value);
 					$set[] = sprintf('`%s` = "%s"',$key,$value);
 				}
 			}
@@ -254,6 +255,7 @@ class User
 			}
 		}
 		$sql = sprintf("UPDATE `users` SET %s WHERE `user_id` = '%d'",implode(",",$set),$this->user_id);
+		// $response["sql"] = $sql;
 		try {
 			$db->query($sql);
 			$response["result"] = "true";
@@ -261,7 +263,7 @@ class User
 		}
 		catch ( Exception $e )
 		{
-			// $response["error"] = $e->getMessage();
+			$response["error"] = $e->getMessage();
 		}
 		return $response;
 	}
@@ -525,6 +527,7 @@ class User
 				AND `user_id` != '%d'
 				AND `real_user_name` LIKE '%%%s%%'
 				AND `as_performer` LIKE '%s'
+			ORDER BY `rating` DESC
 			LIMIT %d",$where_city_id,$current_user->user_id,$search,$as_performer,$limit);
 		}
 		else
@@ -534,6 +537,7 @@ class User
 			WHERE %s `user_id` > 0
 				AND `real_user_name` LIKE '%%%s%%'
 				AND `as_performer` LIKE '%s'
+			ORDER BY `rating` DESC
 			LIMIT %d",$where_city_id,$search,$as_performer,$limit);
 		}
 		try {
@@ -756,16 +760,54 @@ class User
 				return $response;
 		}
 		$db->autocommit(false);
+		$project_user = new User($recipient_id);
+		$project_user->init_wallet();
+		$transactions = Array(
+			"hold" => Array(),
+			"hold_comission" => Array(),
+			"hold_vip" => Array()
+		);
 		try {
 			// update user's status
-			$sql = sprintf("UPDATE `users` SET `status_id` = '3' WHERE `user_id` = '%d' AND `status_id` = '1' AND `user_id` != ''",$recipient_id,$current_user->user_id);
+			$sql = sprintf("UPDATE `users` SET `status_id` = '3' WHERE `user_id` = '%d' AND `status_id` = '1'",$project_user->user_id);
 			if ( $db->query($sql) && $db->affected_rows > 0 )
 			{
 				// insert warning for user
 				$sql = sprintf("INSERT INTO `warnings` (`for_project_id`,`for_respond_id`,`for_user_id`,`message`,`user_id`,`timestamp`)
-				VALUES ('%d',0,'%d','%s','%d',UNIX_TIMESTAMP())",$project_id,$recipient_id,$message,$current_user->user_id);
+				VALUES ('%d',0,'%d','%s','%d',UNIX_TIMESTAMP())",$project_id,$project_user->user_id,$message,$current_user->user_id);
 				if ( $db->query($sql) && $db->affected_rows > 0 )
 				{
+					$find_transaction = Array (
+						"for_project_id" => $project_id,
+						"type" => "HOLD",
+						"descr" => "Удержание за безопасную сделку"
+					);
+					$transactions["hold"] = $project_user->wallet->find_transaction($find_transaction);
+
+					$find_transaction = Array (
+						"for_project_id" => $project_id,
+						"type" => "HOLD",
+						"descr" => "Удержание за безопасную сделку (комиссия)"
+					);
+					$transactions["hold_comission"] = $project_user->wallet->find_transaction($find_transaction);
+
+					$find_transaction = Array (
+						"for_project_id" => $project_id,
+						"type" => "HOLD",
+						"descr" => "Удержание за платный проект"
+					);
+					$transactions["hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
+					foreach ( $transactions as $name => $transaction )
+					{
+						if ( !isset($transaction->transaction_id) ) continue;
+						$transaction->commit = false;
+						if ( $project_user->wallet->cancel_holded_transaction((array)$transaction) !== true )
+						{
+							$response["message"] = sprintf("Не удалось отменить транзакцию HOLD: %s",$name);
+							return $response;
+						}
+					}
+
 					$db->commit();
 					$response["message"] = "Пользователь заблокирован";
 					$response["result"] = "true";
@@ -775,6 +817,9 @@ class User
 		catch ( Exception $e )
 		{
 			$response["message"] = $e->getMessage();
+			$response["line"] = $e->getLine();
+			$response["file"] = $e->getFile();
+			$response["trace"] = $e->getTrace();
 		}
 		return $response;
 	}

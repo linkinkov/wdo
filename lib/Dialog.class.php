@@ -60,11 +60,15 @@ class Dialog
 					$response["dialog_id"] = $new_dialog_id;
 					unset($response["message"]);
 				}
+				else
+				{
+					$response["error"] = $new_dialog_id;
+				}
 			}
 		}
 		catch ( Exception $e )
 		{
-
+			$response["error"] = $e->getMessage();
 		}
 		return $response;
 	}
@@ -95,10 +99,10 @@ class Dialog
 				}
 				catch ( Exception $ee )
 				{
-					
+					return $e->getMessage();
 				}
 			}
-			// return $e->getMessage();
+			return $e->getMessage();
 		}
 		return false;
 	}

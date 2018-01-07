@@ -261,7 +261,7 @@ class Attach
 				}
 				else
 				{
-					// echo $e->getMessage();
+					// echo "rename failed";
 					return false;
 				}
 			}

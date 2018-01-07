@@ -14,7 +14,7 @@ if ( $job == "publish" )
 {
 	header('Content-Type: application/json');
 	$data = get_var("data","array",Array());
-	$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$data["for_project_id"])));
+	$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$data["for_project_id"],"status_id"=>"!=4")));
 	if ( $already_has_respond > 0 )
 	{
 		$response = Array(
@@ -60,6 +60,32 @@ else if ( $job == "accept" )
 	}
 	$respond = new ProjectRespond($respond_id);
 	$response = $respond->close($descr,$grade);
+	echo json_encode($response);
+	exit;	
+}
+else if ( $job == "arbitrage" )
+{
+	header('Content-Type: application/json');
+	$respond_id = get_var("respond_id","int",0);
+	$descr = get_var("descr","string","");
+	if ( trim($descr) == "" )
+	{
+		$response["message"] = "Укажите текст";
+		echo json_encode($response);
+		exit;
+	}
+	$project_id = $db->getValue("project_responds","for_project_id","project_id",Array("respond_id"=>$respond_id));
+	if ( $db->getValue("project","user_id","user_id",Array("user_id"=>$current_user->user_id)) != $current_user->user_id || $respond_id <= 0 )
+	{
+		$response["message"] = "Отзыв не существует";
+		echo json_encode($response);
+		exit;
+	}
+	if ( intval($project_id) > 0 )
+	{
+		$response = new Arbitrage(false, $project_id, $respond_id, $descr);
+		// $response["ticket"] = $ticket;
+	}
 	echo json_encode($response);
 	exit;	
 }

@@ -52,6 +52,12 @@ require(PD.'/admin/check_admin.php');
 					<li class="menu-entry" data-page="#projects">
 						<i class=""></i> Проекты
 					</li>
+					<li class="menu-entry" data-page="#project_responds">
+						<i class=""></i> Заявки
+					</li>
+					<li class="menu-entry" data-page="#arbitrage">
+						<i class=""></i> Арбитраж
+					</li>
 					<li class="menu-entry" data-page="#categories">
 						<i class=""></i> Категории
 					</li>

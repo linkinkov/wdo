@@ -36,9 +36,11 @@ $(document).on("click","[data-trigger='send-warning']", function(){
 			block_type = $(this).data('block_type'),
 			recipient_id = $(this).data('recipient_id'),
 			project_id = $(this).data('project_id'),
-			modal = $(".modal.show");
+			respond_id = $(this).data('respond_id'),
+			modal = $(".modal.show"),
+			id = (parseInt(respond_id) > 0) ? respond_id : project_id;
 	set_btn_state(btn,"loading");
-	app.action.block(block_type,project_id,message_text,recipient_id,function(response){
+	app.action.block(block_type,id,message_text,recipient_id,function(response){
 		if ( response.result == "true" )
 		{
 			$(modal).find("textarea[name='warning-text']").attr("disabled","disabled");
@@ -322,6 +324,10 @@ $(document).on("click","[data-trigger='update']", function(){
 			{
 				conf.projects.table.ajax.reload(false,false);
 			}
+			if ( data.type == "respond" )
+			{
+				conf.projects.table.ajax.reload(false,false);
+			}
 			showAlertMini('success',response.message);
 		}
 		else
@@ -386,6 +392,71 @@ $(document).on("click","[data-trigger='save-setting']", function(){
 			{
 				showAlertMini('danger',response.message);
 			}
+		}
+	})
+})
+
+$(document).on("click","[data-trigger='send-ticket-comment']", function(){
+	var data = $(this).data(),
+			btn = $(this),
+			textarea = $("textarea[data-ticket_id="+data.ticket_id+"]"),
+			messages_container = $(".ticket-messages[data-ticket_id='"+data.ticket_id+"']");
+	set_btn_state(btn,"loading");
+	$.ajax({
+		"url": "/admin/action/add",
+		"type": "POST",
+		"dataType": "JSON",
+		"data": {
+			"type": "ticket_comment",
+			"ticket_id": data.ticket_id,
+			"value": $(textarea).val()
+		},
+		"success": function(response){
+			if ( response.result == "true" )
+			{
+				$(messages_container).append(''
+				+'<blockquote class="blockquote">'+response.comment.message
+				+'<footer class="blockquote-footer">'+response.comment.real_user_name
+				+' @ <text class="timestamp" data-timestamp="'+response.comment.timestamp+'" title="'+moment.unix(response.comment.timestamp).format("LLL")+'">'+moment.unix(response.comment.timestamp).calendar()+'</text>'
+				+'</footer></blockquote>');
+				$(textarea).val('');
+			}
+			else
+			{
+				showAlertMini('danger',response.message);
+			}
+			set_btn_state(btn,"reset");
+		}
+	})
+})
+
+$(document).on("click", "[data-trigger='resolve-ticket']", function(){
+	var data = $(this).data(),
+			btn = $(this),
+			textarea = $("#resolve-ticket-modal").find("textarea[name='resolve-text']");
+	set_btn_state(btn,"loading");
+	$.ajax({
+		"url": "/admin/action/update",
+		"type": "POST",
+		"dataType": "JSON",
+		"data": {
+			"type": "ticket",
+			"ticket_id": data.ticket_id,
+			"profit_for": data.profit_for,
+			"resolve_text": $(textarea).val()
+		},
+		"success": function(response){
+			if ( response.result == "true" )
+			{
+				$(textarea).val('');
+				$("#resolve-ticket-modal").modal("hide");
+				showAlertMini('success',response.message);
+			}
+			else
+			{
+				showAlertMini('danger',response.message);
+			}
+			set_btn_state(btn,"reset");
 		}
 	})
 })

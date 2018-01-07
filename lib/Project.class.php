@@ -159,21 +159,21 @@ class Project
 				$find_transaction = Array (
 					"for_project_id" => $this->project_id,
 					"type" => "HOLD",
-					"descr" => "Удержание средств за безопасную сделку"
+					"descr" => "Удержание за безопасную сделку"
 				);
 				$transactions["hold"] = $project_user->wallet->find_transaction($find_transaction);
 
 				$find_transaction = Array (
 					"for_project_id" => $this->project_id,
 					"type" => "HOLD",
-					"descr" => "Удержание средств за безопасную сделку (комиссия)"
+					"descr" => "Удержание за безопасную сделку (комиссия)"
 				);
 				$transactions["hold_comission"] = $project_user->wallet->find_transaction($find_transaction);
 
 				$find_transaction = Array (
 					"for_project_id" => $this->project_id,
 					"type" => "HOLD",
-					"descr" => "Удержание средств за платный проект"
+					"descr" => "Удержание за платный проект"
 				);
 				$transactions["hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
 				foreach ( $transactions as $name => $transaction )
@@ -193,7 +193,7 @@ class Project
 				$find_transaction = Array (
 					"for_project_id" => $this->project_id,
 					"type" => "HOLD",
-					"descr" => "Удержание средств за платный проект"
+					"descr" => "Удержание за платный проект"
 				);
 				$transactions["hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
 				foreach ( $transactions as $name => $transaction )
@@ -326,7 +326,7 @@ class Project
 							"reference_id"=>$reference_transaction->transaction_id,
 							"type"=>"HOLD",
 							"amount"=>intval($data["cost"]),
-							"descr"=>"Удержание средств за безопасную сделку",
+							"descr"=>"Удержание за безопасную сделку",
 							"for_project_id"=>$project_id,
 							"commit"=>false
 						);
@@ -339,7 +339,7 @@ class Project
 							"reference_id"=>$transaction_id,
 							"type"=>"HOLD",
 							"amount"=>intval($data["cost"]/100*$data["safe_deal_comission"]),
-							"descr"=>"Удержание средств за безопасную сделку (комиссия)",
+							"descr"=>"Удержание за безопасную сделку (комиссия)",
 							"for_project_id"=>$project_id,
 							"commit"=>false
 						);
@@ -353,13 +353,14 @@ class Project
 				// HOLD for VIP project, amount = settings.vip_cost
 				if ( $data["vip"] == 1 )
 				{
+					$current_user->init_wallet();
 					$vip_cost = $db->getValue("settings","param_value","value",Array("param_name"=>"vip_cost"));
 					// $current_user->init_wallet();
 					if ( intval($current_user->wallet->balance) < intval($vip_cost) )
 					{
 						$total_cost = ($data["safe_deal"] == 1) ? (intval($vip_cost) + intval($data["cost_w_comission"])) : intval($vip_cost);
 						$response["message"] = "Недостаточно средств";
-						$response["error"] = "Ваш баланс: ".$current_user->wallet->balance." руб.<br />Требуется: ".$total_cost." руб.";
+						$response["error"] = "Требуется: ".$total_cost." руб.";
 						return $response;
 					}
 
@@ -367,7 +368,7 @@ class Project
 						"reference_id"=>$reference_transaction->transaction_id,
 						"type"=>"HOLD",
 						"amount"=>intval($vip_cost),
-						"descr"=>"Удержание средств за платный проект",
+						"descr"=>"Удержание за платный проект",
 						"for_project_id"=>$project_id,
 						"commit"=>false
 					);
@@ -453,21 +454,21 @@ class Project
 					$find_transaction = Array (
 						"for_project_id" => $project_id,
 						"type" => "HOLD",
-						"descr" => "Удержание средств за безопасную сделку"
+						"descr" => "Удержание за безопасную сделку"
 					);
 					$transactions["hold"] = $project_user->wallet->find_transaction($find_transaction);
 
 					$find_transaction = Array (
 						"for_project_id" => $project_id,
 						"type" => "HOLD",
-						"descr" => "Удержание средств за безопасную сделку (комиссия)"
+						"descr" => "Удержание за безопасную сделку (комиссия)"
 					);
 					$transactions["hold_comission"] = $project_user->wallet->find_transaction($find_transaction);
 
 					$find_transaction = Array (
 						"for_project_id" => $project_id,
 						"type" => "HOLD",
-						"descr" => "Удержание средств за платный проект"
+						"descr" => "Удержание за платный проект"
 					);
 					$transactions["hold_vip"] = $project_user->wallet->find_transaction($find_transaction);
 					foreach ( $transactions as $name => $transaction )

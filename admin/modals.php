@@ -183,3 +183,26 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+<!-- resolve-ticket-modal -->
+<div class="modal fade" id="resolve-ticket-modal" tabindex="-1" role="dialog" aria-labelledby="resolve-ticket-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-roboto-cond" id="resolve-ticket-modal-label">Разрешить спор</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row" style="justify-content: center;background: url(/images/ornament.png) no-repeat bottom right 10px;">
+					<div class="col text-center">
+						<br /><textarea class="form-control" placeholder="Введите текст решения по спору" name="resolve-text"></textarea>
+						<br /><div class="wdo-btn btn-sm bg-yellow strong" modal="true" data-trigger="resolve-ticket" data-ot="Отправить" data-lt="Отправка"><i class="fa"></i>Отправить</div>
+						<br /><br /><br />
+					</div>
+				</div><!-- /.row -->
+			</div><!-- /.modal-body -->
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

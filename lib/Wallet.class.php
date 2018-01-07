@@ -20,7 +20,9 @@ class Wallet
 			{
 				$wallet_id = md5($this->user_id.time().md5(time()));
 				$sql = sprintf("INSERT INTO `user_wallets` (`wallet_id`,`user_id`) VALUES ('%s','%d')",$wallet_id,$this->user_id);
+				// echo $sql;
 				$db->query($sql);
+				$db->commit();
 				$this->wallet_id = $wallet_id;
 				$this->balance = 0;
 			}
@@ -54,6 +56,7 @@ class Wallet
 				if ( $db->query($sql) )
 				{
 					$this->balance = intval($tmp->balance);
+					$db->commit();
 				}
 			}
 		}

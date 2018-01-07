@@ -394,6 +394,35 @@ var app = {
 					}
 				}
 			})
+		},
+		"arbitrageRespond": function(respond_id,btn)
+		{
+			var container = $(".project-respond-arbitrage-body[data-respond_id='"+respond_id+"']"),
+					respond_text = $(container).find(".respond-text").val();
+			if ( respond_text.length < 5 ) {showAlert("danger","Пожалуйста, укажите текст отзыва"); return;};
+			set_btn_state(btn,'loading');
+			$.ajax({
+				type: "POST",
+				url: "/project_respond/arbitrage",
+				data: {
+					"respond_id": respond_id,
+					"descr": respond_text,
+				},
+				dataType: "JSON",
+				success: function (response) {
+					if ( response.result == "true" )
+					{
+						config.respondsTable.ajax.reload();
+						$(btn).text(response.message);
+					}
+					else
+					{
+						var message = ( response.message ) ? response.message : "Произошла ошибка, обновите страницу или попробуйте позже";
+						showAlert("danger",message);
+						set_btn_state(btn,"reset");
+					}
+				}
+			})
 		}
 	},
 	"getCityList": function(search,limit,callback,print_user_city)

@@ -15,7 +15,7 @@ RewriteRule ^(project)/([,a-zA-Z0-9_-]+)/p([0-9]+)/(.*).html$ project.php?cat_na
 RewriteRule ^project/add/?$ add-project.php
 RewriteRule ^project/publish/?$ add-project.php?job=publish
 RewriteRule ^project/preview/?$ previewProject.php
-RewriteRule ^project_respond/(publish|accept|update)/?$ project-respond.php?job=$1
+RewriteRule ^project_respond/(publish|accept|update|arbitrage)/?$ project-respond.php?job=$1
 
 RewriteRule ^update.([a-zA-Z0-9_-]+)$ update.php?type=$1 [L,QSA]
 RewriteRule ^get.([a-zA-Z0-9_-]+)$ get.php?job=$1 [L,QSA]

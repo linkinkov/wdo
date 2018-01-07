@@ -86,7 +86,7 @@ $pu = new User($project->user_id);
 							<hr />
 							<div class="row">
 								<div class="col text-purple" style="flex: 0 0 10px; padding-right: 0;">4.</div>
-								<div class="col">Оставьте отзыв о заказчике в случае сотрудничества</div>
+								<div class="col">Оставьте отзыв о заказчике в случае сотрудничества<br /><br /></div>
 							</div>
 						</div>
 					</div>
@@ -321,7 +321,7 @@ $pu = new User($project->user_id);
 							}
 							else if ( $pu->user_id != $current_user->user_id && $current_user->as_performer == 1 )
 							{
-								$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$project->project_id)));
+								$already_has_respond = intval($db->getValue("project_responds","COUNT(`respond_id`)","counter",Array("user_id"=>$current_user->user_id,"for_project_id"=>$project->project_id,"status_id"=>"!=4")));
 								if ( $project->status_id != 1 )
 								{
 									echo sprintf('<div class="wdo-btn btn-sm bg-purple disabled">'.$project->status_name.'</div>');
@@ -334,6 +334,10 @@ $pu = new User($project->user_id);
 								{
 									echo sprintf('<div class="wdo-btn btn-sm bg-purple disabled">У вас уже есть заявка на данный проект</div>');
 								}
+							}
+							else if ( $pu->user_id != $current_user->user_id && $current_user->as_performer == 0 )
+							{
+								echo sprintf('<div class="wdo-btn btn-sm bg-purple disabled">Что-бы подать заявку, укажите в профиле, что вы "Исполнитель"</div>');
 							}
 							?>
 						</div>
@@ -376,11 +380,27 @@ $pu = new User($project->user_id);
 <script>
 function toggle_respond_result_body(respond_id)
 {
+	if ( $(".project-respond-arbitrage-body[data-respond_id='"+respond_id+"']").is(':visible') )
+	{
+		$(".project-respond-arbitrage-body[data-respond_id='"+respond_id+"']").slideToggle('medium', function() {});
+	}
 	$(".project-respond-result-body[data-respond_id='"+respond_id+"']").slideToggle('medium', function() {
 		if ($(this).is(':visible'))
 			$(this).css('display','flex');
 	});
 }
+function toggle_respond_arbitrage_body(respond_id)
+{
+	if ( $(".project-respond-result-body[data-respond_id='"+respond_id+"']").is(':visible') )
+	{
+		$(".project-respond-result-body[data-respond_id='"+respond_id+"']").slideToggle('medium', function() {});
+	}
+	$(".project-respond-arbitrage-body[data-respond_id='"+respond_id+"']").slideToggle('medium', function() {
+		if ($(this).is(':visible'))
+			$(this).css('display','flex');
+	});
+}
+
 $(function(){
 	var project_id = $("#project_id").data('project-id');
 	app.project.getAttachList(project_id,function(response){
@@ -452,21 +472,22 @@ $(function(){
 					header = $('<div/>',{class: "project-respond-header"}),
 					header_html = '',
 					actions_bottom = '',
+					respond_notify = '',
 					html = ''
 			+'<div class="row">'
 			+'	<div class="col" style="border-right: 1px solid #eee;">'
 			+'		<div class="row">'
-			+'			<div class="col text-center" style="padding-top: 20px; max-width: 100px;">'
+			+'			<div class="col text-center" style="max-width: 100px;">'
 			+'				<img class="rounded-circle shadow" src="'+data.user.avatar_path+'&w=50&h=50" /><br />'
 			+'				'+moment.unix(data.respond.created).format("YYYY-MM-DD HH:MM")
 			+'			</div>'
-			+'			<div class="col" style="padding-top: 20px;padding-left: 0;">'
+			+'			<div class="col" style="padding-left: 0;">'
 			+'				<a class="wdo-link underline" href="/profile/id'+data.user.user_id+'">'+data.user.real_user_name+'</a>'
 			+'				<br /><br /><p style="white-space: pre-wrap;">'+data.respond.descr+'</p>'
 			+'			</div>'
 			+'		</div>'
 			+'	</div>'
-			+'	<div class="col" style="max-width: 165px;padding-top: 15px;">'
+			+'	<div class="col" style="max-width: 165px;">'
 			+'		<text style="line-height: 2rem;">Рейтинг <span class="pull-right">'+data.user.rating+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">Отзывов <span class="pull-right"><img src="/images/rating-good.png" /> '+data.user.counters.responds.good+' | <img src="/images/rating-bad.png" /> '+data.user.counters.responds.bad+'</span></text><br />'
 			+'		<text style="line-height: 2rem;">В сервисе <span class="pull-right">'+moment.unix(data.user.registered).fromNow(true)+'</span></text><br />'
@@ -480,8 +501,9 @@ $(function(){
 			if ( data.is_project_author == 1 )
 			{
 				var actions = '';
-				if ( data.respond.status_id == 1 )
+				if ( data.respond.status_id == 1 && data.is_project_active == 1 )
 				{
+					// just published
 					actions = ''
 					+'<a class="wdo-link respond-action" data-respond_id="'+data.respond_id+'" data-status_id="2">'
 					+'	<img src="/images/respond-deny.png"'
@@ -494,92 +516,119 @@ $(function(){
 					+'			 onmouseout="this.src=\'/images/respond-select-ispoln.png\'"/>'
 					+'</a>';
 				}
-				else if ( data.respond.status_id == 2 )
+				else if ( data.respond.status_id == 2 && data.is_project_active == 1 )
 				{
+					// denied by author
 					actions = ''
 					+'<a class="wdo-link respond-action" data-respond_id="'+data.respond_id+'" data-status_id="2">'
 					+'	<img src="/images/respond-deny-checked.png" />'
 					+'</a>';
 				}
-				else if ( data.respond.status_id == 3 )
+				else if ( data.respond.status_id == "3" )
 				{
-					actions = ''
-					+'<a class="wdo-link respond-action" data-respond_id="'+data.respond_id+'" data-status_id="3">'
-					+'	<img src="/images/respond-select-ispoln-checked.png" />'
-					+'</a>';
-					actions_bottom = ''
-					+'<div class="row" style="border: 3px solid #cecd48;">'
-					+'	<div class="col">'
-					+'		<div class="row">'
-					+'			<div class="col text-center project-respond-result" onClick="toggle_respond_result_body('+data.respond_id+')">Принять работу</div>'
-					+'		</div>'
-					+'		<div class="row project-respond-result-body" data-respond_id="'+data.respond_id+'">'
-					+'			<div class="col">'
-					+'					<div class="row">'
-					+'						<div class="col"><small class="text-muted">Ваша оценка работы исполнителя</small></div>'
-					+'					</div>'
-					+'					<div class="row">'
-					+'						<div class="col" style="padding: 20px;">'
-					+'							<div class="row" style="align-items: center;">'
-					+'								<div class="col" style="max-width:55px;">'
-					+'									<img class="rounded-circle shadow" src="/user.getAvatar?user_id='+$("#project_user_id").data("project-user-id")+'&w=55&h=55" />'
-					+'								</div>'
-					+'								<div class="col" style="max-width: 180px;">'
-					+'									<text class="text-purple strong">'+$("#project_user_id").data("project-user-name")+'</text>'
-					+'								</div>'
-					+'								<div class="col">'
-					+'									<ul class="set-rating">'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">1</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">2</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">3</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">4</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">5</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">6</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">7</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">8</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">9</li>'
-					+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">10</li>'
-					+'									</ul>'
-					+'								</div>'
-					+'							</div>'
-					+'						</div>'
-					+'					</div>'
-					+'					<div class="row" style="padding: 10px;">'
-					+'						<div class="col" style="border: 1px solid rgba(0,0,0,0.1);">'
-					+'							<div class="row" style="align-items: center;">'
-					+'								<div class="col" style="border-right: 1px dotted #ccc;">'
-					+'									<img src="/images/arrow-down-transparent.png" style="position: absolute;top: -2px;left: 28px;background-color: #fff;">'
-					+'									<textarea class="form-control respond-text" placeholder="Ваш отзыв" rows="3"></textarea>'
-					+'								</div>'
-					+'								<div class="col text-center" style="max-width: 100px;padding-top: 10px;">'
-					+'									<img style="border: 0;" src="/images/rating-good-big.png" class="rating-ico" /><br />'
-					+'									<h4 class="rating-grade-value" style="display: inline-block;">0</h4> <small class="rating-grade-text">баллов</small>'
-					+'								</div>'
-					+'							</div>'
-					+'						</div>'
-					+'					</div>'
-					+'					<div class="row">'
-					+'						<div class="col wave">'
-					+'						</div>'
-					+'					</div>'
-					+'					<div class="row">'
-					+'						<div class="col" style="background-color: #ece7e7;margin-top: -10px;">'
-					+'							<div class="row" style="padding: 15px 0px; align-items: center;">'
-					+'								<div class="col">'
-					+'									Я согласен принять работу исполнителя и перечислить оплату с моего лицевого счета на счет исполнителя'
-					+'								</div>'
-					+'								<div class="col" style="display: flex; max-width: 240px; justify-content: space-between;">'
-					+'									<div class="wdo-btn bg-white btn-sm" onClick="toggle_respond_result_body('+data.respond_id+')">Отменить</div>'
-					+'									<div class="wdo-btn bg-yellow btn-sm" onClick="app.project.acceptRespond('+data.respond_id+',this)" data-lt="Загрузка" data-ot="Принять работу">Принять работу</div>'
-					+'								</div>'
-					+'							</div>'
-					+'						</div>'
-					+'					</div>'
-					+'			</div>'
-					+'		</div>'
-					+'	</div>'
-					+'</div>'
+					if ( data.respond.arbitrage )
+					{
+						// in progress but arbitrage
+						actions_bottom = ''
+						+'<div class="alert alert-warning">'
+						+'	<text class="text-purple">Ваша заявка в арбитраж находится на рассмотрении</text><br /><br />'
+						+'	<blockquote class="blockquote">'+data.respond.arbitrage.descr+'</blockquote>'
+						+'</div>'
+					}
+					else
+					{
+						// in progress pending accept
+						actions_bottom = ''
+						+'<div class="row" style="border: 3px solid #cecd48;">'
+						+'	<div class="col">'
+						+'		<div class="row">'
+						+'			<div class="col text-center project-respond-result" onClick="toggle_respond_result_body('+data.respond_id+')">Принять работу</div>'
+						+'			<div class="col text-center project-respond-result" onClick="toggle_respond_arbitrage_body('+data.respond_id+')">Подать жалобу в арбитраж</div>'
+						+'		</div>'
+						+'		<div class="row project-respond-result-body" data-respond_id="'+data.respond_id+'">'
+						+'			<div class="col">'
+						+'					<div class="row">'
+						+'						<div class="col"><small class="text-muted">Ваша оценка работы исполнителя</small></div>'
+						+'					</div>'
+						+'					<div class="row">'
+						+'						<div class="col" style="padding: 20px;">'
+						+'							<div class="row" style="align-items: center;">'
+						+'								<div class="col" style="max-width:55px;">'
+						+'									<img class="rounded-circle shadow" src="/user.getAvatar?user_id='+$("#project_user_id").data("project-user-id")+'&w=55&h=55" />'
+						+'								</div>'
+						+'								<div class="col" style="max-width: 180px;">'
+						+'									<text class="text-purple strong">'+$("#project_user_id").data("project-user-name")+'</text>'
+						+'								</div>'
+						+'								<div class="col">'
+						+'									<ul class="set-rating">'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">1</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">2</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">3</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">4</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">5</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">6</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">7</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">8</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">9</li>'
+						+'										<li class="rating-grade" data-respond_id="'+data.respond_id+'">10</li>'
+						+'									</ul>'
+						+'								</div>'
+						+'							</div>'
+						+'						</div>'
+						+'					</div>'
+						+'					<div class="row" style="padding: 10px;">'
+						+'						<div class="col" style="border: 1px solid rgba(0,0,0,0.1);">'
+						+'							<div class="row" style="align-items: center;">'
+						+'								<div class="col" style="border-right: 1px dotted #ccc;">'
+						+'									<img src="/images/arrow-down-transparent.png" style="position: absolute;top: -2px;left: 28px;background-color: #fff;">'
+						+'									<textarea class="form-control respond-text" placeholder="Ваш отзыв" rows="3"></textarea>'
+						+'								</div>'
+						+'								<div class="col text-center" style="max-width: 100px;padding-top: 10px;">'
+						+'									<img style="border: 0;" src="/images/rating-good-big.png" class="rating-ico" /><br />'
+						+'									<h4 class="rating-grade-value" style="display: inline-block;">0</h4> <small class="rating-grade-text">баллов</small>'
+						+'								</div>'
+						+'							</div>'
+						+'						</div>'
+						+'					</div>'
+						+'					<div class="row">'
+						+'						<div class="col wave">'
+						+'						</div>'
+						+'					</div>'
+						+'					<div class="row">'
+						+'						<div class="col" style="background-color: #ece7e7;margin-top: -10px;">'
+						+'							<div class="row" style="padding: 15px 0px; align-items: center;">'
+						+'								<div class="col">'
+						+'									Я согласен принять работу исполнителя и перечислить оплату с моего лицевого счета на счет исполнителя'
+						+'								</div>'
+						+'								<div class="col" style="display: flex; max-width: 240px; justify-content: space-between;">'
+						+'									<div class="wdo-btn bg-white btn-sm" onClick="toggle_respond_result_body('+data.respond_id+')">Отменить</div>'
+						+'									<div class="wdo-btn bg-yellow btn-sm" onClick="app.project.acceptRespond('+data.respond_id+',this)" data-lt="Загрузка" data-ot="Принять работу">Принять работу</div>'
+						+'								</div>'
+						+'							</div>'
+						+'						</div>'
+						+'					</div>'
+						+'			</div>'
+						+'		</div>'
+						+'		<div class="row project-respond-arbitrage-body" data-respond_id="'+data.respond_id+'" style="background-color: #f6f5f5;">'
+						+'		<div class="col">'
+						+'			<text style="line-height: 50px;" class="muted">Пожалуйста, максимально подробно опишите Вашу претензию в форме ниже</text>'
+						+'			<textarea class="form-control respond-text" rows="5" placeholder="Например: исполнитель пропал вместе с материалами, прошу вернуть средства"></textarea>'
+						+'			<div class="row">'
+						+'				<div class="col" style=" padding: 10px;">'
+						+'					<span class="pull-right">'
+						+'						<div class="wdo-btn bg-white btn-sm" onClick="toggle_respond_arbitrage_body('+data.respond_id+');">Отменить</div>'
+						+'						<div class="wdo-btn bg-yellow btn-sm" onClick="app.project.arbitrageRespond('+data.respond_id+',this)" data-lt="Загрузка" data-ot="Отправить на рассмотрение">Отправить на рассмотрение</div>'
+						+'					</span>'
+						+'				</div>'
+						+'			</div>'
+						+'		</div>'
+						+'		</div>'
+						+'	</div>'
+						+'</div>'
+					}
 				}
+				if ( data.respond.status_id == 3 ) respond_notify = '<hr /><div class="alert alert-success">Свяжитесь с исполнителем для уточнения деталей</div>';
+				if ( data.respond.status_id == 4 ) respond_notify = '<hr /><div class="alert alert-danger">Заблокирован модератором</div>';
 				
 				header_html = ''
 				+'<div class="row">'
@@ -589,6 +638,12 @@ $(function(){
 				+'	</div>'
 				+'</div>';
 				header.html(header_html).appendTo($('td', row));
+			}
+			if ( data.respond.is_respond_author == 1 )
+			{
+				if ( data.respond.status_id == 2 ) respond_notify = '<hr /><div class="alert alert-warning">Отказано автором проекта</div>';
+				if ( data.respond.status_id == 3 ) respond_notify = '<hr /><div class="alert alert-success">Выбран исполнителем. Свяжитесь с заказчиком для уточнения деталей</div>';
+				if ( data.respond.status_id == 4 ) respond_notify = '<hr /><div class="alert alert-danger">Заблокирован модератором</div>';
 			}
 			if ( data.respond.status_id == 5 )
 			{
@@ -618,9 +673,15 @@ $(function(){
 					}
 				})
 				$(attaches).html(attach_container);
+				$(attaches).insertAfter(respond);
+				$(actions_bottom).insertAfter(attaches);
+				$(respond_notify).insertAfter(attaches);
 			}
-			$(attaches).insertAfter(respond);
-			$(actions_bottom).insertAfter(attaches);
+			else
+			{
+				$(actions_bottom).insertAfter(respond);
+				$(respond_notify).insertAfter(respond);
+			}
 		},
 		"drawCallback": function( settings, table ) {
 			$(".paginate_button > a").on("focus", function() {

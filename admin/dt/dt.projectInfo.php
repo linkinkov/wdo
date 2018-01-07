@@ -1,4 +1,4 @@
-<div class="slider">
+<div class="slider" style="padding-left: 30px;">
 
 <?php
 require_once('../../_global.php');

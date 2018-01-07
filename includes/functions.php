@@ -245,13 +245,15 @@ function login($username, $password, $db)
 function send_activation_key($email,$key)
 {
 	require_once PD.'/lib/SendMailSmtpClass.php';
-	$mailSMTP = new SendMailSmtpClass('support@yandex.ru', 'disinte1575', 'ssl://smtp.yandex.ru', 'WeeDo', 465);
+	$mailSMTP = new SendMailSmtpClass('support@weedo.ru', 'disinte1575', 'ssl://smtp.yandex.ru', 'WeeDo Support', 465);
+	// 										_construct($smtp_username, $smtp_password, $smtp_host, $smtp_from, $smtp_port = 25, $smtp_charset = "utf-8")
 	// $mailSMTP = new SendMailSmtpClass('логин', 'пароль', 'хост', 'имя отправителя');
 		
 	// заголовок письма
 	$headers= "MIME-Version: 1.0\r\n";
 	$headers .= "Content-type: text/html; charset=utf-8\r\n"; // кодировка письма
 	$headers .= "From: support <support@weedo.ru>\r\n"; // от кого письмо
+	$headers .= "To: <".$email.">\r\n"; // кому
 	$body = "
 	<table border='0' width='100%'>
 		<tbody>

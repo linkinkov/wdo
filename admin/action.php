@@ -32,6 +32,11 @@ if ( $job == "block" )
 			header('Content-Type: application/json');
 			echo json_encode($response);
 			break;
+		case "respond":
+			$response = ProjectRespond::block($id,$message_text);
+			header('Content-Type: application/json');
+			echo json_encode($response);
+			break;
 	}
 }
 
@@ -56,6 +61,14 @@ if ( $job == "add" )
 			header('Content-Type: application/json');
 			echo json_encode($response);
 			break;
+		case "ticket_comment":
+			$ticket_id = get_var("ticket_id","string","");
+			$ticket = new Arbitrage($ticket_id);
+			$response = $ticket->add_comment($value);
+			header('Content-Type: application/json');
+			echo json_encode($response);
+			break;
+
 	}
 }
 
@@ -83,6 +96,21 @@ if ( $job == "update" )
 		case "project":
 			$project = new Project($id);
 			$response = $project->update($name,$value);
+			header('Content-Type: application/json');
+			echo json_encode($response);
+			break;
+		case "respond":
+			$respond = new ProjectRespond($id);
+			$response = $respond->update($name,$value);
+			header('Content-Type: application/json');
+			echo json_encode($response);
+			break;
+		case "ticket":
+			$ticket_id = get_var("ticket_id","string","");
+			$profit_for = get_var("profit_for","string","");
+			$resolve_text = get_var("resolve_text","string","");
+			$ticket = new Arbitrage($ticket_id);
+			$response = $ticket->resolve($profit_for,$resolve_text);
 			header('Content-Type: application/json');
 			echo json_encode($response);
 			break;

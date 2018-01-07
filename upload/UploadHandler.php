@@ -53,7 +53,7 @@ class UploadHandler
     );
 */
     protected $error_messages = array(
-        1 => 'Превышен upload_max_filesize',
+        1 => 'Превышен максимально допустимый размер файла',
         2 => 'Превышен MAX_FILE_SIZE в HTML форме',
         3 => 'Файл был загружен частично, повторите попытку',
         4 => 'Не указан файл',

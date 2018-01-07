@@ -15,6 +15,12 @@ var conf = {
 	"projects": {
 		"table": null,
 	},
+	"project_responds": {
+		"table": null
+	},
+	"arbitrage": {
+		"table": null
+	},
 	"datePickerOptions": {
 		"ranges": {
 			"Сегодня": [ current_date, current_date ],
@@ -170,6 +176,25 @@ var app = {
 				url: "/get.AttachList",
 				data: {
 					"id": project_id
+				},
+				dataType: "JSON",
+				success: function (response) {
+					callback(response);
+				}
+			})
+		},
+	},
+	"respond": {
+		"getAttachList": function(respond_id,callback)
+		{
+			if ( parseInt(respond_id) <= 0 ) return false;
+			callback = callback || function(){};
+			$.ajax({
+				type: "POST",
+				url: "/get.AttachList",
+				data: {
+					"for": "for_respond_id",
+					"id": respond_id
 				},
 				dataType: "JSON",
 				success: function (response) {

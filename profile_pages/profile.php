@@ -78,7 +78,7 @@ $_SESSION["LAST_PAGE"] = "profile/profile-info";
 	</div>
 	<div class="col">
 		<div class="input-group">
-			<input type="number" class="form-control profile-data" data-name="performer_service_cost" placeholder="Стоимость" />
+			<input type="number" class="form-control profile-data" style="max-width: 25%;" data-name="performer_service_cost" placeholder="Стоимость" />
 			<input type="text" class="form-control profile-data" data-name="performer_service_type" placeholder="В час/день/шт. Не более 15 знаков" />
 		</div>
 	</div>

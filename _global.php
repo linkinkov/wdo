@@ -22,6 +22,7 @@ $distribute_classes = Array(
 	"Avatar",
 	"Attach",
 	"Wallet",
-	"Adv"
+	"Adv",
+	"Arbitrage"
 
 );
