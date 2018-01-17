@@ -57,6 +57,7 @@ foreach ( $ticket->get_comments() as $comment )
 	echo sprintf('<blockquote class="blockquote">%s<footer class="blockquote-footer">%s @ <text class="timestamp" data-timestamp="%d"></text></footer></blockquote>',
 	$comment->message,$comment->real_user_name,$comment->timestamp);
 }
+if ( $ticket->status_id == 3 ) exit;
 ?>
 </div>
 <div class="row">

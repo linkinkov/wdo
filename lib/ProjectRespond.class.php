@@ -43,8 +43,8 @@ class ProjectRespond
 			}
 			else
 			{
-				if ( $this->status_id == 3 )
-				{
+				// if ( $this->status_id == 3 )
+				// {
 					// respond in progress
 					$arbitrage_ticket_id = $db->getValue("arbitrage","ticket_id","ticket_id",Array("respond_id"=>$this->respond_id,"project_id"=>$this->for_project_id));
 					if ( strlen($arbitrage_ticket_id) == 32 )
@@ -52,7 +52,7 @@ class ProjectRespond
 						// echo $arbitrage_ticket_id;
 						$this->arbitrage = new Arbitrage($arbitrage_ticket_id);
 					}
-				}
+				// }
 			}
 			$this->error = false;
 		}
@@ -158,7 +158,7 @@ class ProjectRespond
 					}
 				}
 				// respond cost is less that project budget
-				else if ( $more_to_withdrawal < 0 )
+				else if ( $more_to_withdrawal < 0 && $this->cost != 0 )
 				{
 					$final_cost = (intval($transaction_hold->amount) - (intval($transaction_hold->amount) - intval($this->cost)));
 					$final_cost_comission = intval($final_cost/100*$safe_deal_comission);

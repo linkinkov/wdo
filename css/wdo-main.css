@@ -420,7 +420,7 @@ th.project-table-cost {
 /* ----- project-respond  ----- */
 .project-respond-container {
 	border: 1px solid #dfd9d9;
-	padding: 10px 15px;
+	padding: 30px 15px 10px 15px;
 	background-color: #fff;
 }
 .project-respond-header {

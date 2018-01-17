@@ -20,6 +20,12 @@ class Arbitrage
 				if ( isset($i->ticket_id) )
 				{
 					foreach ( $i as $f=>$v ) $this->$f = $v;
+					if ( isset($this->status_id) && intval($this->status_id) == 3 )
+					{
+						// get ticket decision
+						$sql = sprintf("SELECT `message`,`timestamp` FROM `arbitrage_comments` WHERE `ticket_id` = '%s' AND `message` LIKE '[%%'",$this->ticket_id);
+						$this->decision = $db->queryRow($sql);
+					}
 				}
 				else
 				{
@@ -95,7 +101,7 @@ class Arbitrage
 		}
 	}
 
-	public function add_comment($message)
+	public function add_comment($message,$set_status = true)
 	{
 		global $db;
 		global $current_user;
@@ -112,7 +118,7 @@ class Arbitrage
 			$comment_id, $this->ticket_id, $message, $current_user->user_id);
 			if ( $db->query($sql) && $db->affected_rows > 0 )
 			{
-				if ( $this->status_id == 1 ) $db->query(sprintf("UPDATE `arbitrage` SET `status_id` = 2 WHERE `ticket_id` = '%s'",$this->ticket_id));
+				if ( $this->status_id == 1 && $set_status == true ) $db->query(sprintf("UPDATE `arbitrage` SET `status_id` = 2 WHERE `ticket_id` = '%s'",$this->ticket_id));
 				$sql = sprintf("UPDATE `arbitrage` SET `timestamp_modified` = UNIX_TIMESTAMP() WHERE `ticket_id` = '%s'",$this->ticket_id);
 				if ( $db->query($sql) && $db->affected_rows > 0 )
 				{
@@ -251,7 +257,7 @@ class Arbitrage
 				}
 				$db->query(sprintf("UPDATE `project_responds` SET `status_id` = 5 WHERE `respond_id` = '%d'",$this->respond_id));
 				$db->query(sprintf("UPDATE `project` SET `status_id` = '3' WHERE `project_id` = '%d' AND `user_id` = '%d'",$this->project_id,$project_user->user_id));
-				$db->commit();
+				// $db->commit();
 				$response["result"] = "true";
 				$response["message"] = "Средства зачислены исполнителю";
 			}
@@ -279,10 +285,15 @@ class Arbitrage
 				}
 				$db->query(sprintf("UPDATE `project_responds` SET `status_id` = 4 WHERE `respond_id` = '%d'",$this->respond_id));
 				$db->query(sprintf("UPDATE `project` SET `status_id` = '3' WHERE `project_id` = '%d' AND `user_id` = '%d'",$this->project_id,$project_user->user_id));
-				$db->query(sprintf("UPDATE `arbitrage` SET `status_id` = 3 WHERE `ticket_id` = '%s'",$this->ticket_id));
-				$db->commit();
+				// $db->commit();
 				$response["result"] = "true";
 				$response["message"] = "Средства возвращены заказчику";
+			}
+			if ( $response["result"] == "true" )
+			{
+				$db->query(sprintf("UPDATE `arbitrage` SET `status_id` = 3 WHERE `ticket_id` = '%s'",$this->ticket_id));
+				$response["comment"] = $this->add_comment(sprintf("[ <text class=\"text-success\">%s</text> ] %s",$response["message"],$resolve_text), false);
+				$db->commit();
 			}
 		}
 		catch ( Exception $e )

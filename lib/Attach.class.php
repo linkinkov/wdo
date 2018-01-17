@@ -230,7 +230,7 @@ class Attach
 				try {
 					$db->query(sprintf("DELETE FROM `attaches` WHERE `%s` = '%d' AND `user_id` = '%d' AND `attach_type` = 'video'",$for,$id,$current_user->user_id));
 					$db->query($sql);
-					$db->commit();
+					// $db->commit();
 				}
 				catch ( Exception $e )
 				{
@@ -257,7 +257,7 @@ class Attach
 				if ( !file_exists($target_dir) ) @mkdir($target_dir);
 				if ( rename($filepath,$target_dir.$filename_new) )
 				{
-					$db->commit();
+					// $db->commit();
 				}
 				else
 				{
@@ -271,6 +271,7 @@ class Attach
 				return false;
 			}
 		}
+		// $db->commit();
 		array_map('unlink', glob("$upload_dir/thumbnail/*.*"));
 		@rmdir("$upload_dir/thumbnail");
 		@rmdir("$upload_dir");

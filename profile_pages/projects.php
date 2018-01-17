@@ -96,7 +96,7 @@ $(function(){
 				extra_title.push("VIP проект");
 			}
 			$('td', row).eq(4).attr("title",extra_title.join("; "));
-			if ( extra_title.length == 0 ) $('td', row).eq(4).removeClass('align-top');
+			if ( extra_title.length == 0 ) $('td', row).eq(4).removeClass('align-top'); else $('td', row).eq(4).css("font-size","0.75rem");
 		},
 		"drawCallback": function( settings ) {
 			$(".paginate_button > a").on("focus", function() {

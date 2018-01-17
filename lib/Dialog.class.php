@@ -309,6 +309,7 @@ class Dialog
 						AND `message_id` IN ('%s')",
 					$dialog_id,$current_user->user_id,implode("','",$mark_as_readed)
 					);
+					// echo $sql;
 					$db->query($sql);
 				}
 			}
@@ -316,6 +317,7 @@ class Dialog
 			{
 				// $response["error"] = "errror";
 			}
+			// $response["aaa"] = true;
 			$response["result"] = "true";
 			$response["messages"] = $messages;
 			unset($response["message"]);
@@ -350,8 +352,8 @@ class Dialog
 		$message_text = filter_string($message_text,'in');
 		$message_id = md5(time().$message_text.$dialog_id);
 		$timestamp = microtime(true);
-		$sql = sprintf("INSERT INTO `messages` (`message_id`,`message_text`,`dialog_id`,`user_id_from`,`timestamp`) 
-		VALUES ('%s','%s','%s','%d','%d')",
+		$sql = sprintf("INSERT INTO `messages` (`message_id`,`message_text`,`dialog_id`,`user_id_from`,`timestamp`,`readed`) 
+		VALUES ('%s','%s','%s','%d','%d',0)",
 		$message_id,
 		$message_text,
 		$dialog_id,

@@ -155,6 +155,12 @@ $_SESSION["LAST_PAGE"] = "/add-project-respond";
 							<input type="number" class="form-control" data-name="cost" placeholder="Бюджет в рублях" />
 						</div>
 					</div>
+					<div class="row">
+						<div class="col" style="flex: 0 0 280px; max-width: 280px; align-self: center;"></div>
+						<div class="col">
+							<text class="text-muted">Оставьте поле пустым, если согласны на условия проекта</text>
+						</div>
+					</div>
 
 					<div class="row"><div class="col"><hr /></div></div>
 					<div class="row">
@@ -162,7 +168,7 @@ $_SESSION["LAST_PAGE"] = "/add-project-respond";
 							<text class="text-muted">Описание</text>
 						</div>
 						<div class="col">
-							<textarea class="form-control" rows="7" data-name="descr" placeholder="Детальное описание проекта"></textarea>
+							<textarea class="form-control" rows="7" data-name="descr" placeholder="Текст заявки"></textarea>
 						</div>
 					</div>
 

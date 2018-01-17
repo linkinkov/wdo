@@ -330,6 +330,8 @@ class Project
 							"for_project_id"=>$project_id,
 							"commit"=>false
 						);
+						// $response["new_transaction"] = $new_transaction;
+						// return $response;
 						if ( ($transaction_id = $current_user->wallet->create_transaction($new_transaction)) === false )
 						{
 							$response["message"] = "Ошибка блокирования средств";
@@ -343,6 +345,8 @@ class Project
 							"for_project_id"=>$project_id,
 							"commit"=>false
 						);
+						// $response["new_transaction"] = $new_transaction;
+						// return $response;
 						if ( ($transaction_id = $current_user->wallet->create_transaction($new_transaction)) === false )
 						{
 							$response["message"] = "Ошибка блокирования средств";
