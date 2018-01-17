@@ -49,10 +49,10 @@ $sql_main = "SELECT `user_id`,`real_user_name`,
 	FROM `users`
 	WHERE `status_id` = 1 AND `as_performer` = 1 $cityStr
 ";
-if ( $selectedStr != "" )
-{
+// if ( $selectedStr != "" )
+// {
 	$sql_main .= " HAVING `portfolio_cnt` > 0";
-}
+// }
 $sql_main .= "
 	ORDER BY $orderStr
 	LIMIT $start, $length";
