@@ -85,6 +85,7 @@ switch ( $job )
 		echo json_encode($response);
 		break;
 	case "balanceRefill":
+	/*
 		header('Content-Type: application/json');
 		$amount = get_var("amount","int","post");
 		$response = Array(
@@ -110,6 +111,7 @@ switch ( $job )
 		}
 		$db->commit();
 		echo json_encode($response);
+		*/
 		break;
 
 }

@@ -1,0 +1,4 @@
+[2018/04/28 19:08:56][185.71.76.2] created txid = 1448bb03fff26a0f435589f5e90abfdb
+[2018/04/28 19:16:53][185.71.77.4] input: {"type":"notification","event":"payment.waiting_for_capture","object":{"id":"2276b206-000f-5000-a000-12b1bc6f65b5","status":"waiting_for_capture","paid":true,"amount":{"value":"15.00","currency":"RUB"},"created_at":"2018-04-28T16:16:51.558Z","expires_at":"2018-05-05T16:16:52.554Z","metadata":{"user_id":"0"},"payment_method":{"type":"bank_card","id":"2276b206-000f-5000-a000-12b1bc6f65b5","saved":false,"card":{"first6":"111111","last4":"1026","expiry_month":"08","expiry_year":"2021","card_type":"Unknown"},"title":"Bank card *1026"},"recipient":{"account_id":"505373","gateway_id":"1513357"},"test":true}}
+[2018/04/28 19:19:45][192.168.2.245] input: 
+[2018/04/28 19:19:45][192.168.2.245] error: Exception: Unknown event

@@ -1,6 +1,12 @@
 Options +FollowSymLinks
 RewriteEngine on
 RedirectMatch 404 /\.git
+
+#RewriteRule ^kassa/ /kassa/index.php [L,QSA]
+RewriteRule ^kassa/return_url$ /kassa/return_url.php [L,QSA]
+RewriteRule ^kassa/notify$ /kassa/notify.php [L,QSA]
+
+
 RewriteRule ^projects/?$ index.php
 RewriteRule ^(performers|about|adv|my_adv)/?$ $1.php
 RewriteRule ^(projects)/([,a-zA-Z0-9_-]+)/$ index.php?preselect[cat_name]=$2

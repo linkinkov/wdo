@@ -67,6 +67,11 @@ class Wallet
 		}
 	}
 
+	public function get_wallet_id()
+	{
+		return $this->wallet_id;
+	}
+
 	public function create_transaction($transaction_data)
 	{
 		global $db;

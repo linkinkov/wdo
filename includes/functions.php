@@ -305,6 +305,7 @@ function check_access($db,$regen = true)
 		$_SESSION["user_id"] = 0;
 		return false;
 	}
+	return true;
 }
 
 function checkbrute($username, $db) {

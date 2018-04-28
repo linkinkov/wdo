@@ -38,21 +38,23 @@ class User
 			{
 				if ( isset($this->$field) ) $this->$field = filter_string($this->$field,'out');
 			}
-			$this->city_name = City::get_name($this->city_id);
-			$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
-			if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
-			// if ( $login == false && (!isset($current_user) || $current_user->user_id == 0) )
-			if ( $login == false && (!isset($_SESSION["user_id"]) || $_SESSION["user_id"] == 0) )
-			{
-				$this->phone = "Скрыт";
-				$this->telegram = "Скрыт";
-			}
-			if ( $login == true )
-			{
-				setcookie("city_id",$this->city_id,0,"/");
-				setcookie("city_name",$this->city_name,0,"/");
-				$_COOKIE["city_id"] = $this->city_id;
-				$_COOKIE["city_name"] = $this->city_name;
+			if ( isset($_SESSION['user_id']) ) {
+				$this->city_name = City::get_name($this->city_id);
+				$this->avatar_path = HOST.'/user.getAvatar?user_id='.$this->user_id;
+				if ( $this->user_id != $_SESSION["user_id"] && $login == false ) unset($this->username);
+				// if ( $login == false && (!isset($current_user) || $current_user->user_id == 0) )
+				if ( $login == false && (!isset($_SESSION["user_id"]) || $_SESSION["user_id"] == 0) )
+				{
+					$this->phone = "Скрыт";
+					$this->telegram = "Скрыт";
+				}
+				if ( $login == true )
+				{
+					setcookie("city_id",$this->city_id,0,"/");
+					setcookie("city_name",$this->city_name,0,"/");
+					$_COOKIE["city_id"] = $this->city_id;
+					$_COOKIE["city_name"] = $this->city_name;
+				}
 			}
 		}
 		catch (Exception $e)

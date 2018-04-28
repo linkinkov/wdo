@@ -1,5 +1,18 @@
 <?php
 
+$input = '{"type":"notification","event":"payment.waiting_for_capture","object":{"id":"2276a845-000f-5000-a000-172bd5b5821a","status":"waiting_for_capture","paid":true,"amount":{"value":"15.00","currency":"RUB"},"created_at":"2018-04-28T15:34:44.675Z","expires_at":"2018-05-05T15:34:46.334Z","metadata":{"user_id":"3"},"payment_method":{"type":"bank_card","id":"2276a845-000f-5000-a000-172bd5b5821a","saved":false,"card":{"first6":"111111","last4":"1026","expiry_month":"08","expiry_year":"2021","card_type":"Unknown"},"title":"Bank card *1026"},"recipient":{"account_id":"505373","gateway_id":"1513357"},"test":true}}';
+$input = '{"type":"notification","event":"payment.succeeded","object":{"id":"2276a845-000f-5000-a000-172bd5b5821a","status":"succeeded","paid":true,"amount":{"value":"15.00","currency":"RUB"},"captured_at":"2018-04-28T15:41:49.784Z","created_at":"2018-04-28T15:34:44.675Z","metadata":{"user_id":"3"},"payment_method":{"type":"bank_card","id":"2276a845-000f-5000-a000-172bd5b5821a","saved":false,"card":{"first6":"111111","last4":"1026","expiry_month":"08","expiry_year":"2021","card_type":"Unknown"},"title":"Bank card *1026"},"recipient":{"account_id":"505373","gateway_id":"1513357"},"refunded_amount":{"value":"0.00","currency":"RUB"},"test":true}}';
+$ch = curl_init('https://193.169.110.85:91/kassa/notify');
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $input );
+$result = curl_exec($ch);
+echo $result;
+
+exit;
+
 
 $transactions = Array(
 	"confirm_transaction_hold" => false,

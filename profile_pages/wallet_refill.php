@@ -4,23 +4,24 @@ $current_user->init_wallet();
 ?>
 <h4>Пополнить баланс</h4>
 <hr />
+<form name="wallet_refill" method="POST" action="<?php echo HOST;?>/kassa/from_lk.php">
 <div class="row">
 	<div class="col" style="max-width: 250px;">
 		Сумма:
 	</div>
 	<div class="col">
-		<input type="number" class="form-control" id="amount" name="amount" placeholder="Ваш баланс: <?php echo $current_user->wallet->balance;?> руб." />
+			<input type="number" class="form-control" id="amount" name="amount" placeholder="Ваш баланс: <?php echo $current_user->wallet->balance;?> руб." />
 	</div>
 </div>
 <br />
 <div class="row">
 	<div class="col">
 		<span class="pull-right">
-			<div class="wdo-btn btn-sm bg-purple" onClick="balance_refill();"><i class="fa fa-credit-card"></i> Продолжить</div>
+		</i> <input type="submit" class="wdo-btn btn-sm bg-purple" value="Продолжить">
 		</span>
 	</div>
 </div>
-
+</form>
 <script>
 function balance_refill()
 {
